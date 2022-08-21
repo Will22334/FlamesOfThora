@@ -1,16 +1,28 @@
 package state;
 
-public class LoadingState extends GameState {
+import com.badlogic.gdx.Gdx;
+
+import FlamesOfThora.Console;
+import input.InputHandler;
+import input.InputListener;
+
+public class LoadingState extends GameState implements Console {
+	
+	InputHandler inputHandler = new InputHandler();
+	InputListener inputListener = new InputListener(inputHandler);
 
 	public LoadingState(String name, int id) {
 		super(name, id);
-		// TODO Auto-generated constructor stub
+		
+		//Set the Input Processor to the Listener
+		Gdx.input.setInputProcessor(inputListener);
+		
 	}
 
 	@Override
 	public void onRender() {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
