@@ -16,7 +16,12 @@ public class InputHandler {
 	
 	public void RemoveKey(Key keytoremove) {
 		
-		
+		while(registeredKeys.containsKey(keytoremove.getValue())) {
+			
+			registeredKeys.remove(keytoremove.getValue());
+			break;
+			
+		}
 	}
 	
 	

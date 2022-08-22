@@ -6,6 +6,8 @@ public abstract class GameState extends State {
 		super(name, id);
 		
 	}
+	
+	public boolean finished;
 
 	public abstract void onRender();
 	
@@ -22,6 +24,7 @@ public abstract class GameState extends State {
 	public abstract void setName(String name);
 	
 	public abstract String getName();
+
 
 
 }

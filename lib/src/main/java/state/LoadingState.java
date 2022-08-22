@@ -8,6 +8,14 @@ import input.InputListener;
 
 public class LoadingState extends GameState implements Console {
 	
+	public boolean isFinished() {
+		return finished;
+	}
+
+	private void setFinished(boolean finished) {
+		this.finished = finished;
+	}
+
 	InputHandler inputHandler = new InputHandler();
 	InputListener inputListener = new InputListener(inputHandler);
 
@@ -22,6 +30,20 @@ public class LoadingState extends GameState implements Console {
 	@Override
 	public void onRender() {
 		// TODO Auto-generated method stub
+		while(this.isFinished() != true) {
+			
+			boolean condition = false;
+			
+			condition = true;
+			
+			while(condition != false) {
+				
+				this.setFinished(true);
+				break;
+			}
+			
+			break;
+		}
 		
 	}
 

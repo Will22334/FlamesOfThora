@@ -1,16 +1,25 @@
 package state;
 
+import com.badlogic.gdx.Input;
+
+import FlamesOfThora.Console;
+import input.InputHandler;
+import input.InputListener;
+import input.Key;
+
 public class MenuState extends GameState {
 
 	public MenuState(String name, int id) {
 		super(name, id);
 		// TODO Auto-generated constructor stub
 	}
+	InputHandler handler = new InputHandler();
+	InputListener inputListener = new InputListener(handler);
 
 	@Override
 	public void onRender() {
 		// TODO Auto-generated method stub
-		
+		//Console.log("Rendering Menu");
 	}
 
 	@Override
@@ -35,6 +44,8 @@ public class MenuState extends GameState {
 	public void onCreate() {
 		// 
 		System.out.println("Created Menu State!");
+		handler.RegisterKey(new Key("UP", Input.Keys.UP));
+		
 		
 	}
 

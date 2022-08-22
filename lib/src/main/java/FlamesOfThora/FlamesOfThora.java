@@ -54,6 +54,11 @@ public class FlamesOfThora implements ApplicationListener {
 		// Render the game based on the current state
 		
 		States.getActiveState().onRender();
+		
+		while(States.getActiveState().finished != false) {
+			
+			Console.log("Detected change in state. :  Exited : in " + States.getActiveState().getName());
+			States.setActiveState(States.getActiveState().getID() + 1);	}
 	}
 
 	@Override
