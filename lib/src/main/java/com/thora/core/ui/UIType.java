@@ -1,4 +1,4 @@
-package ui;
+package com.thora.core.ui;
 
 public enum UIType {
 		

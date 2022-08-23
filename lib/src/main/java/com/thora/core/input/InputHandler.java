@@ -1,4 +1,4 @@
-package input;
+package com.thora.core.input;
 
 import java.util.HashMap;
 

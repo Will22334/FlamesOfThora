@@ -1,6 +1,6 @@
-package ui;
+package com.thora.core.ui;
 
-import location.Location;
+import com.thora.core.location.Location;
 
 public abstract class UIObject {
 	

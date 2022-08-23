@@ -1,11 +1,10 @@
-package input;
+package com.thora.core.input;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.InputProcessor;
-
-import FlamesOfThora.Console;
+import com.thora.core.flamesofthora.Console;
 
 public class InputListener implements InputProcessor, Console {
 	

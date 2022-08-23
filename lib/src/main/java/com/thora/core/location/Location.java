@@ -1,4 +1,4 @@
-package location;
+package com.thora.core.location;
 
 public class Location {
 

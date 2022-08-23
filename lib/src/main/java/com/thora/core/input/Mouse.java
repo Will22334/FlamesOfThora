@@ -1,6 +1,6 @@
-package input;
+package com.thora.core.input;
 
-import location.Location;
+import com.thora.core.location.Location;
 
 public class Mouse {
 	

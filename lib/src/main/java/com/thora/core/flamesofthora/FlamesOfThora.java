@@ -1,14 +1,13 @@
-package FlamesOfThora;
+package com.thora.core.flamesofthora;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.ApplicationListener;
-
-import state.LoadingState;
-import state.MenuState;
-import state.PlayingState;
-import state.StateManager;
+import com.thora.core.state.LoadingState;
+import com.thora.core.state.MenuState;
+import com.thora.core.state.PlayingState;
+import com.thora.core.state.StateManager;
 
 public class FlamesOfThora implements ApplicationListener, Console {
 	
