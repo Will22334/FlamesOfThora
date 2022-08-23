@@ -1,6 +1,6 @@
-package world;
+package com.thora.core.world;
 
-import location.Location;
+import com.thora.core.location.Location;
 
 public class Pole {
 
