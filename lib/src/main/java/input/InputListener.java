@@ -19,8 +19,6 @@ public class InputListener implements InputProcessor, Console {
 		
 		//Key was pressed!
 		
-		System.out.println(keycode);
-		
 		handler.handlePressedKeyEvent(keycode);
 		
 		//Success!

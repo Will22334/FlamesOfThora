@@ -12,7 +12,8 @@ public class MenuState extends GameState {
 	public MenuState(String name, int id) {
 		super(name, id);
 		// TODO Auto-generated constructor stub
-	}
+		
+		}
 	InputHandler handler = new InputHandler();
 	InputListener inputListener = new InputListener(handler);
 
@@ -20,6 +21,7 @@ public class MenuState extends GameState {
 	public void onRender() {
 		// TODO Auto-generated method stub
 		//Console.log("Rendering Menu");
+	
 	}
 
 	@Override
@@ -45,6 +47,7 @@ public class MenuState extends GameState {
 		// 
 		System.out.println("Created Menu State!");
 		handler.RegisterKey(new Key("UP", Input.Keys.UP));
+		
 		
 		
 	}

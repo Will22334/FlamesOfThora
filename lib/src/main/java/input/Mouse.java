@@ -4,7 +4,7 @@ import location.Location;
 
 public class Mouse {
 	
-	private Location loc;
+	Location loc;
 	
 	public void setLocation(int x, int y) {
 		
