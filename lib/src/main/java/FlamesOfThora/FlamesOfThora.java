@@ -55,7 +55,7 @@ public class FlamesOfThora implements ApplicationListener, Console {
 	public void resize(int width, int height) {
 		// Resize the Application
 		
-		States.getActiveState().onResize();
+		States.getActiveState().onResize(width, height);
 		
 	}
 
@@ -65,10 +65,11 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		
 		States.getActiveState().onRender();
 		
-		while(States.getActiveState().finished != false) {
+		while(States.isStateFinished() != false) {
 			
 			log("Detected change in state. :  Exited : in " + States.getActiveState().getName());
 			States.setActiveState(States.getActiveState().getID() + 1);	}
+			States.checkForExit();
 	}
 
 	@Override

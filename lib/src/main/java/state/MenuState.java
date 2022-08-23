@@ -45,12 +45,6 @@ public class MenuState extends GameState {
 	}
 	
 	@Override
-	public void onResize() {
-		// TODO Auto-generated method stub
-		log("Resized!");
-	}
-	
-	@Override
 	public void onCreate() {
 		// 
 		log("Created Menu State!");
@@ -76,6 +70,24 @@ public class MenuState extends GameState {
 	public String getName() {
 		// TODO Auto-generated method stub
 		return this.getStateName();
+	}
+
+	@Override
+	public void onResize(int width, int height) {
+		// TODO Auto-generated method stub
+		log("Resizing");
+	}
+
+	@Override
+	public void exit() {
+		// TODO Auto-generated method stub
+		log("Leaving Menu State");
+	}
+
+	@Override
+	protected void Update() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

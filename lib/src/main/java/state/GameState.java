@@ -14,20 +14,20 @@ public abstract class GameState extends State implements Console {
 		
 	}
 	
-	public boolean finished;
+	private boolean finished;
 	
 	@Override
 	public Logger logger() {
 		return logger;
 	}
 	
+	protected abstract void Update();
+	
 	public abstract void onRender();
 	
 	public abstract void onPause();
 	
 	public abstract void onResume();
-	
-	public abstract void onResize();
 	
 	public abstract void onCreate();
 	
@@ -36,6 +36,18 @@ public abstract class GameState extends State implements Console {
 	public abstract void setName(String name);
 	
 	public abstract String getName();
+
+	public abstract void onResize(int width, int height);
+	
+	public abstract void exit();
+
+	public boolean isFinished() {
+		return finished;
+	}
+
+	public void setFinished(boolean finished) {
+		this.finished = finished;
+	}
 
 
 

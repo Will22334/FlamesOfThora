@@ -11,6 +11,8 @@ public class StateManager implements Console {
 	
 	private int statecounter = 0;
 	
+	private boolean stateFinished = false;
+	
 	public void addStateToList(GameState State) {
 		
 		States.addState(State);
@@ -64,6 +66,24 @@ public class StateManager implements Console {
 
 	public int getStatecounter() {
 		return statecounter;
+	}
+
+	public void checkForExit() {
+		// TODO Auto-generated method stub
+		while(getActiveState().isFinished() != false) {
+			
+			setStateFinished(true);
+			break;
+			
+		}
+	}
+
+	public boolean isStateFinished() {
+		return stateFinished;
+	}
+
+	public void setStateFinished(boolean stateFinished) {
+		this.stateFinished = stateFinished;
 	}
 	
 }

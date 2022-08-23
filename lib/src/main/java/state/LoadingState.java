@@ -4,6 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import FlamesOfThora.Console;
 import input.InputHandler;
@@ -12,22 +15,21 @@ import input.InputListener;
 public class LoadingState extends GameState implements Console {
 	
 	private static final Logger logger =  LogManager.getLogger(LoadingState.class);
+
+	InputHandler inputHandler = new InputHandler();
+	InputListener inputListener = new InputListener(inputHandler);
+	private static Stage stage;
+	
+	private boolean renderingComplete = false;
+	
+	private boolean exitRequest = false;
+	
+	private float deltatime = Gdx.graphics.getDeltaTime();
 	
 	@Override
 	public final Logger logger() {
 		return logger;
 	}
-	
-	public boolean isFinished() {
-		return finished;
-	}
-
-	private void setFinished(boolean finished) {
-		this.finished = finished;
-	}
-
-	InputHandler inputHandler = new InputHandler();
-	InputListener inputListener = new InputListener(inputHandler);
 
 	public LoadingState(String name, int id) {
 		super(name, id);
@@ -42,14 +44,28 @@ public class LoadingState extends GameState implements Console {
 		// TODO Auto-generated method stub
 		while(this.isFinished() != true) {
 			
-			boolean condition = false;
+			deltatime = Gdx.graphics.getDeltaTime();
 			
-			condition = true;
+			boolean renderingComplete = false;
+
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+			stage.act(deltatime);
+			stage.draw();
 			
-			while(condition != false) {
+			
+			//Render
+			
+			
+			
+			//Clean up
+			renderingComplete = true;
+			
+			while(renderingComplete != false) {
 				
-				this.setFinished(true);
+				Update();
+				
 				break;
+				
 			}
 			
 			break;
@@ -70,15 +86,16 @@ public class LoadingState extends GameState implements Console {
 	}
 
 	@Override
-	public void onResize() {
+	public void onResize(int width, int height) {
 		// TODO Auto-generated method stub
-
+		stage.getViewport().update(width, height);
 	}
 
 	@Override
 	public void onCreate() {
 		// TODO Auto-generated method stub
 		logger().info("Created Loading State!!");
+		stage = new Stage(new ScreenViewport());
 		//System.out.println("Created Loading State!!");
 		
 	}
@@ -100,6 +117,48 @@ public class LoadingState extends GameState implements Console {
 		
 		return this.getStateName();
 		
+	}
+
+	public static Stage getStage() {
+		return stage;
+	}
+
+	@Override
+	public void exit() {
+		// TODO Auto-generated method stub
+		stage.dispose();
+
+	}
+
+	@Override
+	protected void Update() {
+		// TODO Auto-generated method stub
+		while(this.isFinished() != true) {
+			//Used for various things to update "separate" from the rendering.
+			
+			
+			
+			//Handle exit is set
+			while(exitRequest != false) {
+			setFinished(true);
+			break;
+			
+			}
+			
+			break;
+		}
+	}
+
+	public boolean isRenderingComplete() {
+		return renderingComplete;
+	}
+
+	public void setRenderingComplete(boolean renderingComplete) {
+		this.renderingComplete = renderingComplete;
+	}
+
+	public boolean isExitRequestActivated() {
+		return exitRequest;
 	}
 
 }

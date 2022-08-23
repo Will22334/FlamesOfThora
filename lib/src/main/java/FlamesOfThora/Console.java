@@ -8,8 +8,8 @@ public interface Console {
 		return FlamesOfThora.logger;
 	}
 	
-	public default void log(String s) {
-		logger().info(s);
+	public default void log(String string) {
+		logger().info(string);
 	}
 	
 }

@@ -47,12 +47,6 @@ public class PlayingState extends GameState {
 	}
 	
 	@Override
-	public void onResize() {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
 	public int getID() {
 		// TODO Auto-generated method stub
 		return this.getId();
@@ -73,6 +67,24 @@ public class PlayingState extends GameState {
 
 	public static InputListener getInputlistener() {
 		return inputListener;
+	}
+
+	@Override
+	public void onResize(int width, int height) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void exit() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void Update() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
