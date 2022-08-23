@@ -1,5 +1,8 @@
 package state;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.badlogic.gdx.Gdx;
 
 import FlamesOfThora.Console;
@@ -7,6 +10,13 @@ import input.InputHandler;
 import input.InputListener;
 
 public class LoadingState extends GameState implements Console {
+	
+	private static final Logger logger =  LogManager.getLogger(LoadingState.class);
+	
+	@Override
+	public final Logger logger() {
+		return logger;
+	}
 	
 	public boolean isFinished() {
 		return finished;
@@ -68,7 +78,8 @@ public class LoadingState extends GameState implements Console {
 	@Override
 	public void onCreate() {
 		// TODO Auto-generated method stub
-		System.out.println("Created Loading State!!");
+		logger().info("Created Loading State!!");
+		//System.out.println("Created Loading State!!");
 		
 	}
 

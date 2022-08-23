@@ -1,10 +1,15 @@
 package input;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.badlogic.gdx.InputProcessor;
 
 import FlamesOfThora.Console;
 
 public class InputListener implements InputProcessor, Console {
+	
+	private static final Logger logger = LogManager.getLogger(InputListener.class);
 	
 	private InputHandler handler;
 	
@@ -13,13 +18,18 @@ public class InputListener implements InputProcessor, Console {
 		this.handler = handler;
 		
 	}
-
+	
+	@Override
+	public Logger logger() {
+		return logger;
+	}
+	
 	@Override
 	public boolean keyDown(int keycode) {
 		
 		//Key was pressed!
 		
-		System.out.println(keycode);
+		logger().debug(keycode);
 		
 		handler.handlePressedKeyEvent(keycode);
 		
@@ -46,7 +56,7 @@ public class InputListener implements InputProcessor, Console {
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		
 		//Log the change
-		Console.log("Mouse Event : Clicked : " + screenX + " , " + screenY);
+		logger().debug("Mouse Event : Clicked : " + screenX + " , " + screenY);
 		
 		//Handle the change.
 		handler.handleMouseClick(screenX, screenY);

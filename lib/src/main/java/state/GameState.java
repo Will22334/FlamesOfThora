@@ -1,6 +1,13 @@
 package state;
 
-public abstract class GameState extends State {
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import FlamesOfThora.Console;
+
+public abstract class GameState extends State implements Console {
+	
+	private static final Logger logger = LogManager.getLogger("DefaultConsole");
 	
 	public GameState(String name, int id) {
 		super(name, id);
@@ -8,7 +15,12 @@ public abstract class GameState extends State {
 	}
 	
 	public boolean finished;
-
+	
+	@Override
+	public Logger logger() {
+		return logger;
+	}
+	
 	public abstract void onRender();
 	
 	public abstract void onPause();

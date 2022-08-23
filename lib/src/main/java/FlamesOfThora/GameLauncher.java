@@ -1,14 +1,25 @@
 package FlamesOfThora;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
 
 //Launches the Game
 public class GameLauncher {
-
+	
+	private static final Logger logger = LogManager.getLogger("Launcher");
+	
+	static final Logger logger() {
+		return logger;
+	}
+	
 	//Main Method
 	public static void main(String[] args) {
+		
+		logger().trace("Main started");
 		
 		// A basic configuration class for the Application
 	    LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();

@@ -1,6 +1,8 @@
 package state;
 
-public class StateManager {
+import FlamesOfThora.Console;
+
+public class StateManager implements Console {
 
 	private static StateList States = new StateList();
 	
@@ -8,7 +10,7 @@ public class StateManager {
 	private GameState lastState;
 	
 	private int statecounter = 0;
-	 
+	
 	public void addStateToList(GameState State) {
 		
 		States.addState(State);
@@ -27,7 +29,7 @@ public class StateManager {
 		
 		activeState = States.getState(id);
 		
-		System.out.println("Setting " + activeState.getStateName() + " as the active state");
+		log("Setting " + activeState.getStateName() + " as the active state");
 		
 	}
 	
@@ -63,4 +65,5 @@ public class StateManager {
 	public int getStatecounter() {
 		return statecounter;
 	}
+	
 }

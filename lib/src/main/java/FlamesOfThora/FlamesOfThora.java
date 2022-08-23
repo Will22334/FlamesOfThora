@@ -1,5 +1,8 @@
 package FlamesOfThora;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.badlogic.gdx.ApplicationListener;
 
 import state.LoadingState;
@@ -7,8 +10,15 @@ import state.MenuState;
 import state.PlayingState;
 import state.StateManager;
 
-public class FlamesOfThora implements ApplicationListener {
-
+public class FlamesOfThora implements ApplicationListener, Console {
+	
+	public static final Logger logger = LogManager.getLogger("Server");
+	
+	@Override
+	public final Logger logger() {
+		return logger;
+	}
+	
 	//Manages the various states and provides switching between them
 	public StateManager States = new StateManager();
 	
@@ -57,7 +67,7 @@ public class FlamesOfThora implements ApplicationListener {
 		
 		while(States.getActiveState().finished != false) {
 			
-			Console.log("Detected change in state. :  Exited : in " + States.getActiveState().getName());
+			log("Detected change in state. :  Exited : in " + States.getActiveState().getName());
 			States.setActiveState(States.getActiveState().getID() + 1);	}
 	}
 

@@ -1,10 +1,15 @@
 package FlamesOfThora;
 
+import org.apache.logging.log4j.Logger;
+
 public interface Console {
 	
-	public static void log(String s) {
-		
-		System.out.println(s);
+	public default Logger logger() {
+		return FlamesOfThora.logger;
 	}
-
+	
+	public default void log(String s) {
+		logger().info(s);
+	}
+	
 }
