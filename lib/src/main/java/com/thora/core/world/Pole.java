@@ -1,7 +1,5 @@
 package com.thora.core.world;
 
-import com.thora.core.location.Location;
-
 public class Pole {
 
 	private String name;

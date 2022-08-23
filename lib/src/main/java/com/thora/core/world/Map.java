@@ -3,8 +3,6 @@ package com.thora.core.world;
 import java.awt.Dimension;
 import java.util.HashMap;
 
-import com.thora.core.location.Location;
-
 public class Map {
 
 	private String name = "Empty";

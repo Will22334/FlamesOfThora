@@ -9,12 +9,12 @@ public abstract class GameState extends State implements Console {
 	
 	private static final Logger logger = LogManager.getLogger("DefaultConsole");
 	
+	private boolean finished;
+	
 	public GameState(String name, int id) {
 		super(name, id);
 		
 	}
-	
-	private boolean finished;
 	
 	@Override
 	public Logger logger() {
@@ -36,19 +36,17 @@ public abstract class GameState extends State implements Console {
 	public abstract void setName(String name);
 	
 	public abstract String getName();
-
+	
 	public abstract void onResize(int width, int height);
 	
 	public abstract void exit();
-
+	
 	public boolean isFinished() {
 		return finished;
 	}
-
+	
 	public void setFinished(boolean finished) {
 		this.finished = finished;
 	}
-
-
-
+	
 }

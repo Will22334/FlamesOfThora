@@ -36,6 +36,8 @@ dependencies {
     implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:1.9.3"
     
     implementation "com.badlogicgames.gdx:gdx-platform:1.9.3:natives-desktop"
+    
+    implementation group: 'io.netty', name: 'netty-all', version: '4.1.79.Final'
 }
 
 sourceCompatibility = 1.8

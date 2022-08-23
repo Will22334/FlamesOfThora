@@ -1,6 +1,6 @@
 package com.thora.core.input;
 
-/*Name: Key
+/**Name: Key
  *Package: Input
  *@author "William Klusmann"
  *
@@ -8,7 +8,6 @@ package com.thora.core.input;
  * a Key on the Keyboard. The Key has two status flags, Pressed or Released, in which the 
  * corresponding statuses will be updated.
  */
-
 public class Key {
 
 	//The name of the Key
