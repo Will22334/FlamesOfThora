@@ -5,7 +5,7 @@ package FlamesOfThora;
 
 import org.junit.jupiter.api.Test;
 
-import com.thora.core.flamesofthora.Library;
+import flamesofthora.Library;
 
 import static org.junit.jupiter.api.Assertions.*;
 
