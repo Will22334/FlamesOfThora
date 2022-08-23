@@ -1,16 +1,16 @@
 package state;
 
-<<<<<<< HEAD
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-=======
+
 import input.InputHandler;
 import input.InputListener;
->>>>>>> branch 'master' of https://github.com/Will22334/FlamesOfThora.git
 
 public class PlayingState extends GameState {
 	
 	private static final Logger logger =  LogManager.getLogger(LoadingState.class);
+	private static final InputHandler inputHandler = new InputHandler();
+	private static final InputListener inputListener = new InputListener(inputHandler);
 	
 	public final Logger logger() {
 		return logger;
@@ -21,13 +21,7 @@ public class PlayingState extends GameState {
 		
 		
 	}
-	
-<<<<<<< HEAD
-=======
-	InputHandler inputHandler = new InputHandler();
-	InputListener inputListener = new InputListener(inputHandler);
 
->>>>>>> branch 'master' of https://github.com/Will22334/FlamesOfThora.git
 	@Override
 	public void onCreate() {
 		// TODO Auto-generated method stub
@@ -75,6 +69,10 @@ public class PlayingState extends GameState {
 		return this.getStateName();
 		// TODO Auto-generated method stub
 		
+	}
+
+	public static InputListener getInputlistener() {
+		return inputListener;
 	}
 	
 }

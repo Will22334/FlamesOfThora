@@ -28,12 +28,9 @@ public class InputListener implements InputProcessor, Console {
 	public boolean keyDown(int keycode) {
 		
 		//Key was pressed!
-		
-<<<<<<< HEAD
+	
 		logger().debug(keycode);
 		
-=======
->>>>>>> branch 'master' of https://github.com/Will22334/FlamesOfThora.git
 		handler.handlePressedKeyEvent(keycode);
 		
 		//Success!
