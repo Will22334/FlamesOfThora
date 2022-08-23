@@ -1,13 +1,12 @@
-package state;
+package com.thora.core.state;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.Input;
-
-import input.InputHandler;
-import input.InputListener;
-import input.Key;
+import com.thora.core.input.InputHandler;
+import com.thora.core.input.InputListener;
+import com.thora.core.input.Key;
 
 public class MenuState extends GameState {
 	

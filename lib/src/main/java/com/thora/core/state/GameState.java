@@ -1,9 +1,9 @@
-package state;
+package com.thora.core.state;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import FlamesOfThora.Console;
+import com.thora.core.FlamesOfThora.Console;
 
 public abstract class GameState extends State implements Console {
 	

@@ -1,4 +1,4 @@
-package ui;
+package com.thora.core.ui;
 
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 

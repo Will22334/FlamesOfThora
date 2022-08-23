@@ -1,10 +1,10 @@
-package state;
+package com.thora.core.state;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import input.InputHandler;
-import input.InputListener;
+import com.thora.core.input.InputHandler;
+import com.thora.core.input.InputListener;
 
 public class PlayingState extends GameState {
 	

@@ -1,4 +1,4 @@
-package text;
+package com.thora.core.text;
 
 public class Message {
 

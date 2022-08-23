@@ -1,4 +1,4 @@
-package state;
+package com.thora.core.state;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,10 +7,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-
-import FlamesOfThora.Console;
-import input.InputHandler;
-import input.InputListener;
+import com.thora.core.FlamesOfThora.Console;
+import com.thora.core.input.InputHandler;
+import com.thora.core.input.InputListener;
 
 public class LoadingState extends GameState implements Console {
 	

@@ -1,6 +1,6 @@
-package state;
+package com.thora.core.state;
 
-import FlamesOfThora.Console;
+import com.thora.core.FlamesOfThora.Console;
 
 public class StateManager implements Console {
 

@@ -1,4 +1,4 @@
-package state;
+package com.thora.core.state;
 
 import java.util.HashMap;
 
