@@ -4,6 +4,9 @@
 package FlamesOfThora;
 
 import org.junit.jupiter.api.Test;
+
+import flamesofthora.Library;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class LibraryTest {
