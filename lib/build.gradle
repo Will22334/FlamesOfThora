@@ -6,6 +6,7 @@
  * User Manual available at https://docs.gradle.org/7.4.2/userguide/building_java_projects.html
  */
 
+
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
@@ -36,6 +37,9 @@ dependencies {
     
     implementation "com.badlogicgames.gdx:gdx-platform:1.9.3:natives-desktop"
 }
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
