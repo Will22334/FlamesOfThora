@@ -146,6 +146,7 @@ public class LoadingState extends GameState implements Console {
 			
 			break;
 		}
+		setFinished(true);
 	}
 
 	public boolean isRenderingComplete() {

@@ -43,7 +43,7 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		//Runs the create command for all states.
 		States.onCreate();
 		
-		States.setActiveState(LOADINGSTATEID);
+		States.setActiveState(PLAYINGSTATEID);
 		
 	}
 	
@@ -62,13 +62,17 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		
 		States.getActiveState().onRender();
 		
-		while(States.isStateFinished() != false) {
-			
+//		while(States.isStateFinished() != false) {
+//			
+//			log("Detected change in state. :  Exited : in " + States.getActiveState().getName());
+//			States.setActiveState(States.getActiveState().getID() + 1);
+//			
+//		}
+		if(States.isStateFinished()) {
 			log("Detected change in state. :  Exited : in " + States.getActiveState().getName());
 			States.setActiveState(States.getActiveState().getID() + 1);
-			
 		}
-		States.checkForExit();
+		//States.checkForExit();
 	}
 	
 	@Override

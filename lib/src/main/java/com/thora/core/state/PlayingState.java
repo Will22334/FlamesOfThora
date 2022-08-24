@@ -3,25 +3,32 @@ package com.thora.core.state;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
 
 public class PlayingState extends GameState {
 	
-	private static final Logger logger =  LogManager.getLogger(LoadingState.class);
+	private static final Logger logger =  LogManager.getLogger(PlayingState.class);
 	private static final InputHandler inputHandler = new InputHandler();
 	private static final InputListener inputListener = new InputListener(inputHandler);
 	
+	private SpriteBatch batch;
+	private BitmapFont font;
+	
+	public PlayingState(String name, int id) {
+		super(name, id);
+	}
+	
+	@Override
 	public final Logger logger() {
 		return logger;
 	}
 	
-	public PlayingState(String name, int id) {
-		super(name, id);
-		
-		
-	}
-
 	@Override
 	public void onCreate() {
 		// TODO Auto-generated method stub
@@ -30,20 +37,24 @@ public class PlayingState extends GameState {
 	
 	@Override
 	public void onRender() {
-		// TODO Auto-generated method stub
-		
+		Gdx.gl.glClearColor( 0, 0, 0, 1 );
+		Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
+		batch.begin();
+		font.setColor(Color.RED);
+		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, Gdx.graphics.getHeight() - 2);
+		batch.end();
 	}
 	
 	@Override
 	public void onPause() {
-		// TODO Auto-generated method stub
-		
+		batch.dispose();
+		font.dispose();
 	}
 	
 	@Override
 	public void onResume() {
-		// TODO Auto-generated method stub
-		
+		batch = new SpriteBatch();
+		font = new BitmapFont();
 	}
 	
 	@Override
@@ -64,23 +75,25 @@ public class PlayingState extends GameState {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	public static InputListener getInputlistener() {
 		return inputListener;
 	}
-
+	
 	@Override
 	public void onResize(int width, int height) {
-		// TODO Auto-generated method stub
-		
+		batch.dispose();
+		font.dispose();
+		batch = new SpriteBatch();
+		font = new BitmapFont();
 	}
-
+	
 	@Override
 	public void exit() {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	public void Update() {
 		// TODO Auto-generated method stub

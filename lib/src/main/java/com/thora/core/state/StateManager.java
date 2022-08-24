@@ -29,7 +29,10 @@ public class StateManager implements Console {
 		
 		lastState = activeState;
 		
+		if(lastState != null) lastState.onPause();
 		activeState = States.getState(id);
+		if(activeState != null) activeState.onResume();
+		
 		
 		log("Setting " + activeState.getStateName() + " as the active state");
 		

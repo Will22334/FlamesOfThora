@@ -9,7 +9,7 @@ public abstract class GameState extends State implements Console {
 	
 	private static final Logger logger = LogManager.getLogger("DefaultConsole");
 	
-	private boolean finished;
+	private boolean finished = false;
 	
 	public GameState(String name, int id) {
 		super(name, id);
