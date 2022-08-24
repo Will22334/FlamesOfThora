@@ -18,6 +18,18 @@ public class Location implements Cloneable {
 		return y;
 	}
 	
+	/**
+	 * Shifts this location by given dx and dy.
+	 * @param dx
+	 * @param dy
+	 * @return This Location for chaining.
+	 */
+	public Location shift(int dx, int dy) {
+		x += dx;
+		y += dy;
+		return this;
+	}
+	
 	public Location getLocation() {
 		return this;
 	}
