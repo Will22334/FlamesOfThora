@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.ApplicationListener;
+import com.thora.core.state.GameState;
 import com.thora.core.state.LoadingState;
 import com.thora.core.state.MenuState;
 import com.thora.core.state.PlayingState;
@@ -43,7 +44,7 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		//Runs the create command for all states.
 		States.onCreate();
 		
-		States.setActiveState(PLAYINGSTATEID);
+		States.setActiveState(LOADINGSTATEID);
 		
 	}
 	
@@ -69,10 +70,10 @@ public class FlamesOfThora implements ApplicationListener, Console {
 //			
 //		}
 		if(States.isStateFinished()) {
-			log("Detected change in state. :  Exited : in " + States.getActiveState().getName());
-			States.setActiveState(States.getActiveState().getID() + 1);
+			logger().info("Detected change in state. :  Exited : in {}", States.getActiveState());
+			States.setNextState();
 		}
-		//States.checkForExit();
+		States.checkForExit();
 	}
 	
 	@Override

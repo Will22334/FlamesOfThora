@@ -1,5 +1,7 @@
 package com.thora.core.state;
 
+import java.util.Map;
+
 import com.thora.core.FlamesOfThora.Console;
 
 public class StateManager implements Console {
@@ -16,26 +18,32 @@ public class StateManager implements Console {
 	public void addStateToList(GameState State) {
 		
 		States.addState(State);
-		statecounter = getStatecounter() + 1;
+		++statecounter;
 	}
 	
 	public void removeStateFromList(int id) {
 		
 		States.removeState(id);
-		statecounter = getStatecounter() - 1;
+		--statecounter;
 	}
 	
 	public void setActiveState(int id) {
 		
 		lastState = activeState;
 		
-		if(lastState != null) lastState.onPause();
+		if(lastState != null) lastState.exit();
 		activeState = States.getState(id);
-		if(activeState != null) activeState.onResume();
+		setStateFinished(false);
+		if(activeState != null) activeState.enter();
 		
 		
-		log("Setting " + activeState.getStateName() + " as the active state");
+		//log("Setting " + activeState.getStateName() + " as the active state");
+		logger().info("Changing Gamstate {} -> {}", lastState, activeState);
 		
+	}
+	
+	public void setNextState() {
+		setActiveState(getActiveState().getID() + 1);
 	}
 	
 	public GameState getActiveState() {
@@ -52,14 +60,20 @@ public class StateManager implements Console {
 	//Runs the Create Method for all states in the list
 	public void onCreate() {
 		
-		int i = 0;
+//		int i = 0;
+//		
+//		while(i < getStates().getSize()) {
+//			
+//			getStates().getGameStates().get(i).onCreate();
+//			
+//			i++;
+//		}
 		
-		while(i < getStates().getSize()) {
-			
-			getStates().getGameStates().get(i).onCreate();
-			
-			i++;
-		}
+		//Call onCreate() for all game states in ID order
+		Map<Integer,GameState> states = getStates().getGameStates();
+		states.values().stream()
+		.sorted()
+		.forEach(s -> s.onCreate());
 		
 	}
 
@@ -72,12 +86,8 @@ public class StateManager implements Console {
 	}
 
 	public void checkForExit() {
-		// TODO Auto-generated method stub
-		while(getActiveState().isFinished() != false) {
-			
+		if(getActiveState().isFinished()) {
 			setStateFinished(true);
-			break;
-			
 		}
 	}
 
@@ -87,6 +97,10 @@ public class StateManager implements Console {
 
 	public void setStateFinished(boolean stateFinished) {
 		this.stateFinished = stateFinished;
+	}
+	
+	public void finishState() {
+		setStateFinished(true);
 	}
 	
 }

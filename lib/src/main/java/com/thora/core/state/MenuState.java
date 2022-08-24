@@ -39,14 +39,14 @@ public class MenuState extends GameState {
 	
 	@Override
 	public void onResume() {
-		// TODO Auto-generated method stub
+		// Finish loading immediately and progress to next state.
 		
 	}
 	
 	@Override
 	public void onCreate() {
 		// 
-		log("Created Menu State!");
+		logger().debug("Created Menu State!");
 		handler.RegisterKey(new Key("UP", Input.Keys.UP));
 		
 		
@@ -54,21 +54,9 @@ public class MenuState extends GameState {
 	}
 	
 	@Override
-	public int getID() {
-		//Returns the ID of the State;
-		return this.getId();
-	}
-	
-	@Override
 	public void setName(String name) {
 		// TODO Auto-generated method stub
 		
-	}
-	
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return this.getStateName();
 	}
 
 	@Override
@@ -87,6 +75,11 @@ public class MenuState extends GameState {
 	protected void Update() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void enter() {
+		setFinished(true);
 	}
 	
 }

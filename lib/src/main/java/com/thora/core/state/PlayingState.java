@@ -4,12 +4,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
+import com.thora.core.input.Key;
 
 public class PlayingState extends GameState {
 	
@@ -19,6 +21,7 @@ public class PlayingState extends GameState {
 	
 	private SpriteBatch batch;
 	private BitmapFont font;
+	private static final Key KEY_ESCAPE = new Key(Keys.ESCAPE);
 	
 	public PlayingState(String name, int id) {
 		super(name, id);
@@ -32,7 +35,7 @@ public class PlayingState extends GameState {
 	@Override
 	public void onCreate() {
 		// TODO Auto-generated method stub
-		logger().info("Created Playing State!!");
+		logger().debug("Created Playing State!!");
 	}
 	
 	@Override
@@ -43,35 +46,22 @@ public class PlayingState extends GameState {
 		font.setColor(Color.RED);
 		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, Gdx.graphics.getHeight() - 2);
 		batch.end();
+		
+		Update();
 	}
 	
 	@Override
 	public void onPause() {
-		batch.dispose();
-		font.dispose();
-	}
-	
-	@Override
-	public void onResume() {
-		batch = new SpriteBatch();
-		font = new BitmapFont();
-	}
-	
-	@Override
-	public int getID() {
-		// TODO Auto-generated method stub
-		return this.getId();
-	}
-	
-	@Override
-	public void setName(String name) {
-		// TODO Auto-generated method stub
 		
 	}
 	
 	@Override
-	public String getName() {
-		return this.getStateName();
+	public void onResume() {
+		
+	}
+	
+	@Override
+	public void setName(String name) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -89,15 +79,25 @@ public class PlayingState extends GameState {
 	}
 	
 	@Override
+	public void enter() {
+		Gdx.input.setInputProcessor(inputListener);
+		inputHandler.RegisterKey(KEY_ESCAPE);
+		batch = new SpriteBatch();
+		font = new BitmapFont();
+	}
+	
+	@Override
 	public void exit() {
-		// TODO Auto-generated method stub
-		
+		//Gdx.input.setInputProcessor(null);
+		batch.dispose();
+		font.dispose();
 	}
 	
 	@Override
 	public void Update() {
-		// TODO Auto-generated method stub
-		
+		if(KEY_ESCAPE.ifPressed()) {
+			Gdx.app.exit();
+		}
 	}
 	
 }

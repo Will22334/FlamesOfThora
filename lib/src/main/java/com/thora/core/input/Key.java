@@ -1,5 +1,7 @@
 package com.thora.core.input;
 
+import com.badlogic.gdx.Input.Keys;
+
 /**Name: Key
  *Package: Input
  *@author "William Klusmann"
@@ -25,6 +27,10 @@ public class Key {
 		super();
 		this.name = name;
 		this.value = value;
+	}
+	
+	public Key(int keysValue) {
+		this(Keys.toString(keysValue), keysValue);
 	}
 	
 	//Gets the name of the Key

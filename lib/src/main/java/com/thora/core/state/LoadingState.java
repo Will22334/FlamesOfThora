@@ -59,13 +59,17 @@ public class LoadingState extends GameState implements Console {
 			//Clean up
 			renderingComplete = true;
 			
-			while(renderingComplete != false) {
-				
+			if(renderingComplete) {
 				Update();
-				
-				break;
-				
 			}
+			
+//			while(renderingComplete != false) {
+//				
+//				Update();
+//				
+//				break;
+//				
+//			}
 			
 			break;
 		}
@@ -93,16 +97,10 @@ public class LoadingState extends GameState implements Console {
 	@Override
 	public void onCreate() {
 		// TODO Auto-generated method stub
-		logger().info("Created Loading State!!");
+		logger().debug("Created Loading State!!");
 		stage = new Stage(new ScreenViewport());
 		//System.out.println("Created Loading State!!");
 		
-	}
-
-	@Override
-	public int getID() {
-		// TODO Auto-generated method stub
-		return this.getId();
 	}
 
 	@Override
@@ -111,17 +109,16 @@ public class LoadingState extends GameState implements Console {
 		
 	}
 
-	@Override
-	public String getName() {
-		
-		return this.getStateName();
-		
-	}
-
 	public static Stage getStage() {
 		return stage;
 	}
-
+	
+	@Override
+	public void enter() {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	@Override
 	public void exit() {
 		// TODO Auto-generated method stub
