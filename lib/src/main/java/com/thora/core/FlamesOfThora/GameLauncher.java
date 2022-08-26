@@ -36,8 +36,8 @@ public class GameLauncher {
 	private static LwjglApplicationConfiguration configureApplicationSettings(LwjglApplicationConfiguration config) {
 		
 		config.title = "Flames of Thora";
-		config.height = 600;
 		config.width = 800;
+		config.height = 600;
 		config.resizable = true;
 		
 		return config;

@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.thora.core.FlamesOfThora.Console;
+import com.thora.core.FlamesOfThora.FlamesOfThora;
 import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
 
@@ -30,8 +31,8 @@ public class LoadingState extends GameState implements Console {
 		return logger;
 	}
 
-	public LoadingState(String name, int id) {
-		super(name, id);
+	public LoadingState(FlamesOfThora client, String name, int id) {
+		super(client, name, id);
 		
 		//Set the Input Processor to the Listener
 		Gdx.input.setInputProcessor(inputListener);

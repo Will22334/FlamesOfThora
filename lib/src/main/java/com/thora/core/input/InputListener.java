@@ -3,6 +3,7 @@ package com.thora.core.input;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.thora.core.FlamesOfThora.Console;
 
@@ -28,7 +29,7 @@ public class InputListener implements InputProcessor, Console {
 		
 		//Key was pressed!
 	
-		logger().debug(keycode);
+		logger().debug(() -> "KeyDown:\t" + Keys.toString(keycode) + "[" + keycode + "]");
 		
 		handler.handlePressedKeyEvent(keycode);
 		

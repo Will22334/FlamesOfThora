@@ -3,6 +3,9 @@ package com.thora.core.world;
 import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
+
+import com.badlogic.ashley.core.Component;
 
 public class HashChunkWorld extends World {
 	
@@ -41,6 +44,11 @@ public class HashChunkWorld extends World {
 		
 	}
 	
+	@Override
+	public Stream<Tile> surroundingTiles(Location center, int range) {
+		// TODO Auto-generated method stub
+		throw new RuntimeException("surroundingTiles(Location,int) not implemented yet!");
+	}
 	
 	@Override
 	public Tile getTile(Location point) {
@@ -96,6 +104,5 @@ public class HashChunkWorld extends World {
 	public void setMapsize(Dimension mapsize) {
 		Mapsize = mapsize;
 	}
-	
 	
 }

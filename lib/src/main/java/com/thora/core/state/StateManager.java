@@ -38,7 +38,7 @@ public class StateManager implements Console {
 		
 		
 		//log("Setting " + activeState.getStateName() + " as the active state");
-		logger().info("Changing Gamstate {} -> {}", lastState, activeState);
+		logger().info("Gamstate {} -> {}", lastState, activeState);
 		
 	}
 	

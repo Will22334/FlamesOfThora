@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.Input;
+import com.thora.core.FlamesOfThora.FlamesOfThora;
 import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
 import com.thora.core.input.Key;
@@ -20,8 +21,8 @@ public class MenuState extends GameState {
 	InputHandler handler = new InputHandler();
 	InputListener inputListener = new InputListener(handler);
 	
-	public MenuState(String name, int id) {
-		super(name, id);
+	public MenuState(FlamesOfThora client, String name, int id) {
+		super(client, name, id);
 		
 	}
 	

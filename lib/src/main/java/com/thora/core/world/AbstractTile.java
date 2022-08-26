@@ -19,5 +19,10 @@ public abstract class AbstractTile extends Tile {
 	public TileType getType() {
 		return type;
 	}
+
+	@Override
+	public String toString() {
+		return "[" + getType() + ": " + getLocation() + "]";
+	}
 	
 }
