@@ -136,7 +136,7 @@ public class PlayingState extends GameState {
 		Gdx.input.setInputProcessor(inputListener);
 		inputHandler.RegisterKey(KEY_ESCAPE);
 		
-		int viewportScale = 50;
+		int viewportScale = 75;
 		worldCamera = new OrthographicCamera(g().getWidth()/viewportScale, g().getHeight()/viewportScale);
 		
 		

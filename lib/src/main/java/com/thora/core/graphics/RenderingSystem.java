@@ -136,7 +136,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		cam.update();
 		batch.begin();
 		
-		world.surroundingTiles(new Location(0,0), 30)
+		world.surroundingTiles(new Location(0,0), 25)
 		.forEach(this::drawTile);
 		
 		// loop through each entity in our render queue
@@ -165,6 +165,8 @@ public class RenderingSystem extends SortedIteratingSystem {
 //					PixelsToMeters(t.scale.x), PixelsToMeters(t.scale.y),
 //					t.rotation);
 			
+			
+			
 			batch.draw(tex.getRegion(),
 					loc.getX(), loc.getY(),
 					width / PPM, height / PPM);
@@ -184,8 +186,18 @@ public class RenderingSystem extends SortedIteratingSystem {
 		//float originY = height/2f;
 		
 		batch.draw(t,
-				loc.getX() - 0.5f, loc.getY() - 0.5f,
+				loc.getX(), loc.getY(),
 				width / PPM, height / PPM);
+		
+//		batch.draw(t,
+//				loc.getX(), loc.getY(),
+//				width / PPM, height / PPM,
+//				1, 1,
+//				1, 1,
+//				0f,
+//				priority, priority,
+//				(int)width, (int)height,
+//				false, false);
 	}
 	
 	@Override
