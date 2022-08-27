@@ -13,7 +13,6 @@ import com.thora.core.state.LoadingState;
 import com.thora.core.state.MenuState;
 import com.thora.core.state.PlayingState;
 import com.thora.core.state.StateManager;
-import com.thora.core.world.ArrayWorld;
 import com.thora.core.world.KeyMapWorld;
 import com.thora.core.world.Pole;
 import com.thora.core.world.TileGenerator;
@@ -74,9 +73,8 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		Dimension size = new Dimension(300,300);
 		Pole origin = new Pole("Origin",0,0);
 		
-		//world = new KeyMapWorld(ConcurrentHashMap::new, "Earth", size, origin, gen);
-		world = new ArrayWorld("Earth", size, 30, gen);
-		//world = new ArrayWorld("Earth", 50, 30, new RandomTileGenerator(new Random()));
+		world = new KeyMapWorld(ConcurrentHashMap::new, "Earth", size, origin, gen);
+		//world = new ArrayWorld("Earth", size, origin, 30, gen);
 		
 		States.setActiveState(LOADINGSTATEID);
 		
@@ -97,12 +95,12 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		
 		activeState().onRender();
 		
-//		while(States.isStateFinished() != false) {
-//			
-//			log("Detected change in state. :  Exited : in " + States.getActiveState().getName());
-//			States.setActiveState(States.getActiveState().getID() + 1);
-//			
-//		}
+		//		while(States.isStateFinished() != false) {
+		//			
+		//			log("Detected change in state. :  Exited : in " + States.getActiveState().getName());
+		//			States.setActiveState(States.getActiveState().getID() + 1);
+		//			
+		//		}
 		if(States.isStateFinished()) {
 			logger().trace("Detected change in state. :  Exited : in {}", activeState());
 			States.setNextState();

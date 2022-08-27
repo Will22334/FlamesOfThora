@@ -50,7 +50,7 @@ public abstract class AbstractWorld extends World {
 		Locatable end = getEndOrigin();
 		for(int y=origin.getY(); y<end.getY(); ++y) {
 			for(int x=origin.getX(); x<end.getX(); ++x) {
-				setTile(generate(x, y), x, y);
+				this.setTile(generate(x, y), x, y);
 			}
 		}
 	}

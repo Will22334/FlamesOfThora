@@ -39,25 +39,23 @@ public class KeyMapWorld extends AbstractWorld {
 		create();
 	}
 	
-	
-	
 	@Override
 	public final Map<Location,HTile> getTiles() {
 		return safeTileMap;
 	}
 
 	@Override
-	public Tile getTile(int x, int y) {
+	public HTile getTile(int x, int y) {
 		return getTile(new Location(x, y));
 	}
 	
 	@Override
-	public Tile getTile(Location point) {
+	public HTile getTile(Location point) {
 		return tileMap.get(point);
 	}
 
 	@Override
-	public Tile setTile(TileType type, Location point) {
+	public HTile setTile(TileType type, Location point) {
 		HTile tile = tileMap.get(point);
 		if(tile != null) {
 			tile.type = type;
@@ -69,7 +67,7 @@ public class KeyMapWorld extends AbstractWorld {
 	}
 
 	@Override
-	public Tile setTile(TileType type, int x, int y) {
+	public HTile setTile(TileType type, int x, int y) {
 		return setTile(type, new Location(x, y));
 	}
 	

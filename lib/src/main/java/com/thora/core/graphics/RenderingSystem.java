@@ -214,7 +214,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		
 	}
 	
-	private int viewRange = 11;
+	private int viewRange = 20;
 	
 	private void drawTileTextures(World world) {
 		world.surroundingTiles(getFocus(), viewRange)

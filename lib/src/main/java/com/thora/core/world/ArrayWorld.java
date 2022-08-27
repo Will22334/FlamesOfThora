@@ -43,11 +43,11 @@ public class ArrayWorld extends World {
 	
 	private int xOff, yOff;
 	
-	public ArrayWorld(String name, Dimension mapSize, Location origin, int tilesize, TileGenerator gen) {
+	public ArrayWorld(String name, Dimension mapSize, Locatable origin, int tilesize, TileGenerator gen) {
 		
 		this.name = Objects.requireNonNull(name, "World name cannot be null!");
 		this.mapSize = mapSize;
-		this.origin = new Pole("Origin", origin.clone());
+		this.origin = new Pole("Origin", origin.getLocation().clone());
 		this.gen = gen;
 		
 		create();
