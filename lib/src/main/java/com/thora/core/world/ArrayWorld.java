@@ -68,8 +68,6 @@ public class ArrayWorld extends World {
 	
 	private void create() {
 		
-		//Generate all tiles as grass where origin is center of tile rect.
-		
 		int width = getSize().width;
 		int height = getSize().height;
 		
@@ -164,7 +162,8 @@ public class ArrayWorld extends World {
 		int ix = ix(point.getX()), iy = iy(point.getY());
 		STile tile = getTileInternal(ix, iy);
 		if(tile == null) {
-			tiles[iy][ix] = new STile(type, point);
+			tile = new STile(type, point);
+			tiles[iy][ix] = tile;
 		} else {
 			tile.type = type;
 		}

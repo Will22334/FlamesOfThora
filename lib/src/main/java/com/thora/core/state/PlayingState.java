@@ -209,7 +209,7 @@ public class PlayingState extends GameState {
 		//		font = new BitmapFont();
 	}
 	
-	float viewportScale = 50f;
+	float viewportScale = 30f;
 	
 	@Override
 	public void enter() {

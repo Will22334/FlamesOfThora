@@ -10,6 +10,14 @@ public interface Locatable {
 	
 	public Location getLocation();
 	
+	public default int getX() {
+		return getLocation().getX();
+	}
+	
+	public default int getY() {
+		return getLocation().getY();
+	}
+	
 	public default double getDistance(Locatable loc) {
 		return getLocation().getDistance(loc);
 	}

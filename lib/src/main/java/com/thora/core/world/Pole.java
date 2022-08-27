@@ -23,10 +23,10 @@ public class Pole implements Locatable {
 	}
 	
 	//A advanced Constructor
-	public Pole(String name, Location loc) {
+	public Pole(String name, Locatable loc) {
 		
 		this.name = name;
-		this.loc = loc;
+		this.loc = loc.getLocation();
 		
 	}
 	

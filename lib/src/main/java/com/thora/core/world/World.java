@@ -17,6 +17,13 @@ import java.util.stream.Stream;
  */
 public abstract class World {
 	
+	public static Location[] getCorners(World world) {
+		Location[] points = new  Location[2];
+		points[0] = world.getOrigin().getLocation();
+		points[1] = points[0].clone().shift(world.getSize().width, world.getSize().height);
+		return points;
+	}
+	
 	public static IntStream reverseRange(int from, int to) {
 		return IntStream.range(from, to)
 				.map(i -> to - i + from - 1);
@@ -24,7 +31,7 @@ public abstract class World {
 	
 	public static <T> Stream<T> reverseRange(T[] arr, int from, int to) {
 		return reverseRange(from, to)
-		.mapToObj(i -> arr[i]);
+				.mapToObj(i -> arr[i]);
 	}
 	
 	public static <T> Stream<T> reverseStream(T[] arr) {
@@ -35,9 +42,21 @@ public abstract class World {
 	
 	public abstract Dimension getSize();
 	
-	public abstract Pole getOrigin();
+	public int getWidth() {
+		return getSize().width;
+	}
 	
-	public Map<Location,Tile> getTiles() {
+	public int getHeight() {
+		return getSize().height;
+	}
+	
+	public abstract Locatable getOrigin();
+	
+	public Locatable getEndOrigin() {
+		return getOrigin().getLocation().clone().shift(getWidth(), getHeight());
+	}
+	
+	public Map<Location,? extends Tile> getTiles() {
 		return tiles()
 				.collect(Collectors.toConcurrentMap(Tile::getLocation, Function.identity()));
 	}
@@ -51,8 +70,8 @@ public abstract class World {
 	
 	public Stream<Tile> surroundingTiles(Locatable center, int range) {
 		Location point = center.getLocation();
-		return tiles(point.getX() - range/2, point.getY() - range/2,
-				point.getX() + range/2, point.getY() + range/2);
+		return tiles(point.getX() - range, point.getY() - range,
+				point.getX() + range, point.getY() + range);
 	}
 	
 	public Stream<Tile> surroundingTiles(int x, int y, int range) {

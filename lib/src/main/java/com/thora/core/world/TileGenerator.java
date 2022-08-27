@@ -38,7 +38,7 @@ public interface TileGenerator {
 	 * @param point - The tile location
 	 * @return the tile type
 	 */
-	default TileType getTileType(Location point) {
+	default TileType getTileType(Locatable point) {
 		return getTileType(point.getX(), point.getY());
 	}
 	
