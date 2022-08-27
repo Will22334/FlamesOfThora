@@ -156,6 +156,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		this.getEntities();
 		
 		// update camera and sprite batch
+		cam.position.set(focus.getLocation().getX() + .5f, focus.getLocation().getY() +.5f, 0f);
 		cam.update();
 		batch.setProjectionMatrix(cam.combined);
 		Gdx.gl.glEnable(GL11.GL_BLEND);
@@ -195,7 +196,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 			//batch.setColor(1f, 1f, 1f, 1f);
 			
 			batch.draw(tex.getRegion(),
-					loc.getX() -.25f, loc.getY() -.25f,
+					loc.getX() + (PPM - width)/PPM/2, loc.getY(),
 					width / PPM, height / PPM);
 			
 		}
@@ -213,8 +214,10 @@ public class RenderingSystem extends SortedIteratingSystem {
 		
 	}
 	
+	private int viewRange = 11;
+	
 	private void drawTileTextures(World world) {
-		world.surroundingTiles(getFocus(), 15)
+		world.surroundingTiles(getFocus(), viewRange)
 		.forEach(this::drawTileTexture);
 	}
 	
@@ -227,7 +230,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		shapeRend.setProjectionMatrix(cam.combined);
 		shapeRend.begin(ShapeRenderer.ShapeType.Line);
 		
-		world.surroundingTiles(getFocus(), 15)
+		world.surroundingTiles(getFocus(), viewRange)
 		.forEach(this::drawTileBorder);
 		
 		shapeRend.end();
@@ -238,7 +241,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		Location loc = tile.getLocation();
 		shapeRend.setColor(TILE_BORDER_COLOR);
 		
-		shapeRend.rect(loc.getX() -.25f, loc.getY() -.25f,
+		shapeRend.rect(loc.getX(), loc.getY(),
 				TILE_TEXTURE_DRAW_RATIO, TILE_TEXTURE_DRAW_RATIO);
 	}
 	
@@ -252,7 +255,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		//float originY = height/2f;
 		
 		batch.draw(t,
-				loc.getX() -.25f, loc.getY() -.25f,
+				loc.getX(), loc.getY(),
 				TILE_TEXTURE_DRAW_RATIO, TILE_TEXTURE_DRAW_RATIO);
 		
 		//		batch.draw(t,

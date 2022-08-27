@@ -19,6 +19,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.thora.core.FlamesOfThora;
 import com.thora.core.entity.EntityType;
 import com.thora.core.entity.PlayerComponent;
@@ -29,6 +30,7 @@ import com.thora.core.graphics.TransformComponent;
 import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
 import com.thora.core.input.Key;
+import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
 import com.thora.core.world.LocationComponent;
 
@@ -88,6 +90,8 @@ public class PlayingState extends GameState {
 	Matrix4 uiMatrix = new Matrix4();
 	private static final Color COLOR_OFF_WHITE = new Color(1f, 1f, 1f, .5f);
 	
+	private final Vector2 v = new Vector2();
+	
 	@Override
 	public void Update() {
 		
@@ -100,31 +104,28 @@ public class PlayingState extends GameState {
 		
 		long time = System.currentTimeMillis();
 		if(time > lastWalkTime + WALK_TILE_DURATION) {
-			boolean moved = false;
 			
 			if(KEY_UP.ifPressed()) {
-				loc.shift(0, 1);
-				moved = true;
+				v.add(0, 1);
 			}
 			
 			if(KEY_DOWN.ifPressed()) {
-				loc.shift(0, -1);
-				moved = true;
+				v.add(0, -1);
 			}
 			
 			if(KEY_LEFT.ifPressed()) {
-				loc.shift(-1, 0);
-				moved = true;
+				v.add(-1, 0);
 			}
 			
 			if(KEY_RIGHT.ifPressed()) {
-				loc.shift(1, 0);
-				moved = true;
+				v.add(1, 0);
 			}
 			
-			if(moved) {
+			if(!v.isZero()) {
+				loc.shift((int)v.x, (int)v.y);
+				//worldCamera.position.add(v.x, v.y, 0);
+				v.setZero();
 				lastWalkTime = time;
-				worldCamera.position.set(loc.getX(), loc.getY(), 0);
 			}
 		}
 		
@@ -208,7 +209,7 @@ public class PlayingState extends GameState {
 		//		font = new BitmapFont();
 	}
 	
-	float viewportScale = 30f;
+	float viewportScale = 50f;
 	
 	@Override
 	public void enter() {
@@ -228,18 +229,23 @@ public class PlayingState extends GameState {
 		
 		
 		
-		player = createPlayerEntity(engine(), 0, 0);
+		Location spawn = new Location(30, 30);
+		player = createPlayerEntity(engine(), spawn);
 		engine().addEntity(player);
 		//engine().addEntity(createPlayerEntity(engine(), 1, 0));
 		//engine().addEntity(createPlayerEntity(engine(), 4, 1));
 		
 		worldCamera = new OrthographicCamera(g().getWidth()/viewportScale, g().getHeight()/viewportScale);
-		worldCamera.position.set(0, 0, 0);
+		worldCamera.position.set(spawn.getX(), spawn.getY(), 0);
 		
 		// Create our new rendering system
 		renderingSystem = new RenderingSystem(worldBatch, client().world(), worldCamera, player.getComponent(LocationComponent.class), resizeSignal);
 		engine().addSystem(renderingSystem);
 		
+	}
+	
+	private Entity createPlayerEntity(PooledEngine engine, Locatable loc) {
+		return createPlayerEntity(engine, loc.getLocation().getX(), loc.getLocation().getY());
 	}
 	
 	private Entity createPlayerEntity(PooledEngine engine, int x, int y) {
