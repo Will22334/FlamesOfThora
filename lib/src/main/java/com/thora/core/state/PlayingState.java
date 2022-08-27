@@ -3,6 +3,7 @@ package com.thora.core.state;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.Dimension;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
@@ -28,6 +29,7 @@ import com.thora.core.graphics.TransformComponent;
 import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
 import com.thora.core.input.Key;
+import com.thora.core.world.Location;
 import com.thora.core.world.LocationComponent;
 
 public class PlayingState extends GameState {
@@ -36,7 +38,14 @@ public class PlayingState extends GameState {
 	private static final InputHandler inputHandler = new InputHandler();
 	private static final InputListener inputListener = new InputListener(inputHandler);
 	
+	public static final double WALK_SPEED_TPS = 3f;
+	public static final long WALK_TILE_DURATION = (long) (1000 / WALK_SPEED_TPS);
+	
 	private static final Key KEY_ESCAPE = new Key(Keys.ESCAPE);
+	private static final Key KEY_UP = new Key(Keys.UP);
+	private static final Key KEY_DOWN = new Key(Keys.DOWN);
+	private static final Key KEY_LEFT = new Key(Keys.LEFT);
+	private static final Key KEY_RIGHT = new Key(Keys.RIGHT);
 	
 	private RenderingSystem renderingSystem;
 	
@@ -51,7 +60,15 @@ public class PlayingState extends GameState {
 	Texture playerImg;
 	TextureRegion playerImgRegion;
 	
-	private Signal<Void> resizeSignal = new Signal<>();
+	private Entity player;
+	private long lastWalkTime;
+	
+	/**
+	 * A cached window size should be handled in Client instances.
+	 */
+	private Dimension appSize;
+	
+	private Signal<Dimension> resizeSignal = new Signal<>();
 	
 	public PlayingState(FlamesOfThora client, String name, int id) {
 		super(client, name, id);
@@ -64,17 +81,51 @@ public class PlayingState extends GameState {
 	
 	@Override
 	public void onCreate() {
-		// TODO Auto-generated method stub
 		logger().debug("Created Playing State!!");
+		this.appSize = new Dimension(g().getWidth(), g().getHeight());
 	}
 	
 	Matrix4 uiMatrix = new Matrix4();
-	private final Color offWhite = new Color(1f, 1f, 1f, .5f);
+	private static final Color COLOR_OFF_WHITE = new Color(1f, 1f, 1f, .5f);
 	
 	@Override
 	public void Update() {
+		
+		Location loc = player.getComponent(LocationComponent.class).getLocation();
+		
+		//TODO Instead of polling input every frame, have a State specific InputProcesser implement input logic.
 		if(KEY_ESCAPE.ifPressed()) {
 			Gdx.app.exit();
+		}
+		
+		long time = System.currentTimeMillis();
+		if(time > lastWalkTime + WALK_TILE_DURATION) {
+			boolean moved = false;
+			
+			if(KEY_UP.ifPressed()) {
+				loc.shift(0, 1);
+				moved = true;
+			}
+			
+			if(KEY_DOWN.ifPressed()) {
+				loc.shift(0, -1);
+				moved = true;
+			}
+			
+			if(KEY_LEFT.ifPressed()) {
+				loc.shift(-1, 0);
+				moved = true;
+			}
+			
+			if(KEY_RIGHT.ifPressed()) {
+				loc.shift(1, 0);
+				moved = true;
+			}
+			
+			if(moved) {
+				lastWalkTime = time;
+				worldCamera.position.set(loc.getX(), loc.getY(), 0);
+			}
 		}
 		
 	}
@@ -99,8 +150,10 @@ public class PlayingState extends GameState {
 		hudBatch.setProjectionMatrix(uiMatrix);
 		hudBatch.begin();
 		
+		Location loc = player.getComponent(LocationComponent.class).getLocation();
+		
 		font.setColor(Color.RED);
-		String msg = String.format("FPS: %s\t(%s,%s)", g().getFramesPerSecond(), Gdx.input.getX(), Gdx.input.getY());
+		String msg = String.format("FPS: %s\t(%s,%s)\n%s", g().getFramesPerSecond(), Gdx.input.getX(), Gdx.input.getY(), loc);
 		font.draw(hudBatch, msg, 0, height);
 		
 		
@@ -109,7 +162,7 @@ public class PlayingState extends GameState {
 		shapeRend.setProjectionMatrix(uiMatrix);
 		shapeRend.begin(ShapeRenderer.ShapeType.Line);
 		Gdx.gl.glEnable(GL11.GL_BLEND);
-		shapeRend.setColor(offWhite);
+		shapeRend.setColor(COLOR_OFF_WHITE);
 		shapeRend.line(width/2, 0, width/2, height);
 		shapeRend.line(0, height/2, width, height/2);
 		Gdx.gl.glLineWidth(1f);
@@ -140,14 +193,19 @@ public class PlayingState extends GameState {
 	
 	@Override
 	public void onResize(int width, int height) {
+		logger().debug("ON_RESIZE: [{},{}] -> [{},{}]", appSize.getWidth(), appSize.getHeight(), width, height);
+		worldCamera.update();
+		appSize.setSize(width, height);
+		
+		resizeSignal.dispatch(appSize);
 		//worldCamera.setToOrtho(false, g().getWidth()/viewportScale, g().getHeight()/viewportScale);
 		worldCamera.update();
-//		hudBatch.dispose();
-//		worldBatch.dispose();
-//		font.dispose();
-//		hudBatch = new SpriteBatch();
-//		worldBatch = new SpriteBatch();
-//		font = new BitmapFont();
+		//		hudBatch.dispose();
+		//		worldBatch.dispose();
+		//		font.dispose();
+		//		hudBatch = new SpriteBatch();
+		//		worldBatch = new SpriteBatch();
+		//		font = new BitmapFont();
 	}
 	
 	float viewportScale = 60f;
@@ -161,22 +219,26 @@ public class PlayingState extends GameState {
 		playerImg = new Texture("assets/player.png");
 		playerImgRegion = new TextureRegion(playerImg);
 		Gdx.input.setInputProcessor(inputListener);
-		inputHandler.RegisterKey(KEY_ESCAPE);
 		
+		inputHandler.RegisterKey(KEY_ESCAPE);
+		inputHandler.RegisterKey(KEY_UP);
+		inputHandler.RegisterKey(KEY_DOWN);
+		inputHandler.RegisterKey(KEY_LEFT);
+		inputHandler.RegisterKey(KEY_RIGHT);
+		
+		
+		
+		player = createPlayerEntity(engine(), 0, 0);
+		engine().addEntity(player);
+		//engine().addEntity(createPlayerEntity(engine(), 1, 0));
+		//engine().addEntity(createPlayerEntity(engine(), 4, 1));
 		
 		worldCamera = new OrthographicCamera(g().getWidth()/viewportScale, g().getHeight()/viewportScale);
-		worldCamera.position.set(.25f, .25f, 0);
-		
+		worldCamera.position.set(0, 0, 0);
 		
 		// Create our new rendering system
 		renderingSystem = new RenderingSystem(worldBatch, client().world(), worldCamera, resizeSignal);
 		engine().addSystem(renderingSystem);
-		
-		engine().addEntity(createPlayerEntity(engine(), 0, 0));
-		//engine().addEntity(createPlayerEntity(engine(), 1, 0));
-		//engine().addEntity(createPlayerEntity(engine(), 4, 1));
-		
-		
 		
 	}
 	

@@ -5,6 +5,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.Dimension;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
@@ -19,6 +20,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.thora.core.world.Location;
@@ -30,7 +32,7 @@ import com.thora.core.world.World;
 public class RenderingSystem extends SortedIteratingSystem {
 	
 	static final float TILE_TEXTURE_SIZE = 300f;
-	static final float PPM = 300.0f; // sets the amount of pixels each metre of box2d objects contains
+	static final float PPM = 300f; // sets the amount of pixels each metre of box2d objects contains
 	static final float TILE_TEXTURE_DRAW_RATIO = TILE_TEXTURE_SIZE / PPM;
 	
 	// this gets the height and width of our camera frustrum based off the width and height of the screen and our pixel per meter ratio
@@ -60,8 +62,16 @@ public class RenderingSystem extends SortedIteratingSystem {
 		return pixelValue * PIXELS_TO_METRES;
 	}
 	
+	private final Listener<Dimension> resizeListener = new Listener<Dimension>() {
+		@Override
+		public void receive(Signal<Dimension> signal, Dimension newSize) {
+			FRUSTUM_WIDTH = newSize.getWidth()/PPM;
+			FRUSTUM_HEIGHT = newSize.getHeight()/PPM;
+		}
+	};
+	
 	// component mappers to get components from entities
-	private static final ComponentMapper<LocationComponent> transformL = ComponentMapper.getFor(LocationComponent.class);
+	private static final ComponentMapper<LocationComponent> locationM = ComponentMapper.getFor(LocationComponent.class);
 	private static final ComponentMapper<TextureComponent> textureM = ComponentMapper.getFor(TextureComponent.class);
 	private static final ComponentMapper<TransformComponent> transformM = ComponentMapper.getFor(TransformComponent.class);
 	
@@ -98,9 +108,9 @@ public class RenderingSystem extends SortedIteratingSystem {
 	private Comparator<Entity> comparator; // a comparator to sort images based on the z position of the transfromComponent
 	private Camera cam; // a reference to our camera
 	
-	private Signal<Void> resizeSignal;
+	private Signal<Dimension> resizeSignal;
 	
-	public RenderingSystem(SpriteBatch batch, World world, Camera camera, Signal<Void> resizeSignal) {
+	public RenderingSystem(SpriteBatch batch, World world, Camera camera, Signal<Dimension> resizeSignal) {
 		// gets all entities with a TransofmComponent and TextureComponent
 		super(Family.all(LocationComponent.class, TransformComponent.class, TextureComponent.class).get(), new ZComparator());
 		
@@ -120,18 +130,14 @@ public class RenderingSystem extends SortedIteratingSystem {
 		this.resizeSignal = resizeSignal;
 		this.resizeSignal.add(resizeListener);
 		
-		
 	}
 	
-	private static final Listener<Void> resizeListener = new Listener<Void>() {
-		@Override
-		public void receive(Signal<Void> signal, Void object) {
-			FRUSTUM_WIDTH = Gdx.graphics.getWidth()/PPM;
-			FRUSTUM_HEIGHT = Gdx.graphics.getHeight()/PPM;
-		}
-	};
-	
 	public static final Color TILE_BORDER_COLOR = new Color(0f, 0f, 0f, .2f);
+	
+	@Override
+	public void processEntity(Entity entity, float deltaTime) {
+		renderQueue.add(entity);
+	}
 	
 	@Override
 	public void update(float deltaTime) {
@@ -152,15 +158,16 @@ public class RenderingSystem extends SortedIteratingSystem {
 		
 		// loop through each entity in our render queue
 		for (Entity entity : renderQueue) {
-			LocationComponent loc = transformL.get(entity);
-			TextureComponent tex = textureM.get(entity);
 			TransformComponent t = transformM.get(entity);
+			if(t.isHidden) continue;
 			
-			TextureRegion texRegion = tex.getRegion();
-			if (loc == null || texRegion == null || t.isHidden) {
+			LocationComponent loc = locationM.get(entity);
+			TextureComponent tex = textureM.get(entity);
+			
+			if (loc == null || tex == null) {
 				continue;
 			}
-			
+			TextureRegion texRegion = tex.getRegion();
 			
 			
 			float width = texRegion.getRegionWidth();
@@ -179,7 +186,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 			//batch.setColor(1f, 1f, 1f, 1f);
 			
 			batch.draw(tex.getRegion(),
-					loc.getX(), loc.getY(),
+					loc.getX() -.25f, loc.getY() -.25f,
 					width / PPM, height / PPM);
 			
 		}
@@ -193,7 +200,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 	protected void drawTiles(World world) {
 		drawTileTextures(world);
 		
-		drawTileVBorders(world);
+		drawTileBorders(world);
 		
 	}
 	
@@ -202,8 +209,9 @@ public class RenderingSystem extends SortedIteratingSystem {
 		.forEach(this::drawTileTexture);
 	}
 	
-	private void drawTileVBorders(World world) {
+	private void drawTileBorders(World world) {
 		batch.end();
+		cam.update();
 		Gdx.gl.glEnable(GL11.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		Gdx.gl.glLineWidth(1f);
@@ -221,7 +229,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		Location loc = tile.getLocation();
 		shapeRend.setColor(TILE_BORDER_COLOR);
 		
-		shapeRend.rect(loc.getX(), loc.getY(),
+		shapeRend.rect(loc.getX() -.25f, loc.getY() -.25f,
 				TILE_TEXTURE_DRAW_RATIO, TILE_TEXTURE_DRAW_RATIO);
 	}
 	
@@ -235,7 +243,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		//float originY = height/2f;
 		
 		batch.draw(t,
-				loc.getX(), loc.getY(),
+				loc.getX() -.25f, loc.getY() -.25f,
 				TILE_TEXTURE_DRAW_RATIO, TILE_TEXTURE_DRAW_RATIO);
 		
 		//		batch.draw(t,
@@ -257,11 +265,6 @@ public class RenderingSystem extends SortedIteratingSystem {
 		//				priority, priority,
 		//				(int)width, (int)height,
 		//				false, false);
-	}
-	
-	@Override
-	public void processEntity(Entity entity, float deltaTime) {
-		renderQueue.add(entity);
 	}
 	
 	// convenience method to get camera
