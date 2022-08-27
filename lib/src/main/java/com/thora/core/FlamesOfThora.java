@@ -1,6 +1,4 @@
-package com.thora.core.FlamesOfThora;
-
-import java.util.Random;
+package com.thora.core;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,8 +11,8 @@ import com.thora.core.state.MenuState;
 import com.thora.core.state.PlayingState;
 import com.thora.core.state.StateManager;
 import com.thora.core.world.ArrayWorld;
-import com.thora.core.world.TileGenerator.RandomTileGenerator;
 import com.thora.core.world.World;
+import com.thora.core.world.generator.PerlinTileGenerator;
 
 public class FlamesOfThora implements ApplicationListener, Console {
 	
@@ -66,8 +64,8 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		//Runs the create command for all states.
 		States.onCreate();
 		
-		//world = new ArrayWorld("Earth", 50, 30, new PerlinTileGenerator((int)System.currentTimeMillis(), 140f));
-		world = new ArrayWorld("Earth", 50, 30, new RandomTileGenerator(new Random()));
+		world = new ArrayWorld("Earth", 50, 30, new PerlinTileGenerator((int)System.currentTimeMillis(), 140f));
+		//world = new ArrayWorld("Earth", 50, 30, new RandomTileGenerator(new Random()));
 		
 		States.setActiveState(LOADINGSTATEID);
 		

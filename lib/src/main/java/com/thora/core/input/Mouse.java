@@ -4,7 +4,8 @@ import com.thora.core.world.Location;
 
 public class Mouse {
 	
-	Location loc;
+	private Location loc;
+	private int scrollDelta;
 	
 	public void setLocation(int x, int y) {
 		
@@ -17,5 +18,20 @@ public class Mouse {
 		return loc;
 		
 	}
-
+	
+	public int getScrollDelta() {
+		return scrollDelta;
+	}
+	
+	public int popScrollDelta() {
+		int scroll = scrollDelta;
+		scrollDelta = 0;
+		return scroll;
+	}
+	
+	public Mouse setSCrollDelta(int scroll) {
+		this.scrollDelta = scroll;
+		return this;
+	}
+	
 }

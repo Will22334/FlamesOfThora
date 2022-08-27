@@ -2,7 +2,9 @@ package com.thora.core.input;
 
 import java.util.HashMap;
 
-public class InputHandler {
+import com.thora.core.Console;
+
+public class InputHandler implements Console {
 	
 	Mouse mouse = new Mouse();
 	
@@ -66,13 +68,16 @@ public class InputHandler {
 	}
 	
 	public void handleMousePositionChange(int screenX, int screenY) {
-		// Update the mouses position
 		
 	}
 
 	public void handleMouseClick(int screenX, int screenY) {
-		// TODO Auto-generated method stub
 		
+	}
+	
+	public boolean handlScrolled(int amount) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 }

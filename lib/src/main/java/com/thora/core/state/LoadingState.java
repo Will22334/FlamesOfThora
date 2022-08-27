@@ -7,14 +7,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.thora.core.FlamesOfThora.Console;
-import com.thora.core.FlamesOfThora.FlamesOfThora;
+import com.thora.core.Console;
+import com.thora.core.FlamesOfThora;
 import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
 
 public class LoadingState extends GameState implements Console {
 	
-	private static final Logger logger =  LogManager.getLogger(LoadingState.class);
+	private static final Logger logger = LogManager.getLogger(LoadingState.class);
 
 	InputHandler inputHandler = new InputHandler();
 	InputListener inputListener = new InputListener(inputHandler);

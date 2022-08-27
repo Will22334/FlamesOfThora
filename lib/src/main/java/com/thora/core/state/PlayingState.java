@@ -2,13 +2,13 @@ package com.thora.core.state;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.opengl.GL11;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.ashley.signals.Signal;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -16,8 +16,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
-import com.thora.core.FlamesOfThora.FlamesOfThora;
+import com.thora.core.FlamesOfThora;
 import com.thora.core.entity.EntityType;
 import com.thora.core.entity.PlayerComponent;
 import com.thora.core.entity.TypeComponent;
@@ -41,9 +42,10 @@ public class PlayingState extends GameState {
 	
 	public static final Matrix4 NATIVE_MATRIX = new Matrix4();
 	
-	private Camera worldCamera;
+	private OrthographicCamera worldCamera;
 	private SpriteBatch worldBatch;
 	private SpriteBatch hudBatch;
+	private ShapeRenderer shapeRend;
 	
 	private BitmapFont font;
 	Texture playerImg;
@@ -67,6 +69,15 @@ public class PlayingState extends GameState {
 	}
 	
 	Matrix4 uiMatrix = new Matrix4();
+	private final Color offWhite = new Color(1f, 1f, 1f, .5f);
+	
+	@Override
+	public void Update() {
+		if(KEY_ESCAPE.ifPressed()) {
+			Gdx.app.exit();
+		}
+		
+	}
 	
 	@Override
 	public void onRender() {
@@ -75,10 +86,14 @@ public class PlayingState extends GameState {
 		
 		engine().update(Gdx.graphics.getDeltaTime());
 		
+		worldCamera.update();
+		
+		float width = g().getWidth();
+		float height = g().getHeight();
 		
 		//worldCamera.update();
 		uiMatrix.set(worldCamera.combined);
-		uiMatrix.setToOrtho2D(0, 0, g().getWidth(), g().getHeight());
+		uiMatrix.setToOrtho2D(0, 0, width, height);
 		
 		//batch.setTransformMatrix(hudCamera.combined);
 		hudBatch.setProjectionMatrix(uiMatrix);
@@ -86,11 +101,19 @@ public class PlayingState extends GameState {
 		
 		font.setColor(Color.RED);
 		String msg = String.format("FPS: %s\t(%s,%s)", g().getFramesPerSecond(), Gdx.input.getX(), Gdx.input.getY());
-		font.draw(hudBatch, msg, 0, g().getHeight());
-		
+		font.draw(hudBatch, msg, 0, height);
 		
 		
 		hudBatch.end();
+		
+		shapeRend.setProjectionMatrix(uiMatrix);
+		shapeRend.begin(ShapeRenderer.ShapeType.Line);
+		Gdx.gl.glEnable(GL11.GL_BLEND);
+		shapeRend.setColor(offWhite);
+		shapeRend.line(width/2, 0, width/2, height);
+		shapeRend.line(0, height/2, width, height/2);
+		Gdx.gl.glLineWidth(1f);
+		shapeRend.end();
 		
 		Update();
 	}
@@ -117,6 +140,7 @@ public class PlayingState extends GameState {
 	
 	@Override
 	public void onResize(int width, int height) {
+		//worldCamera.setToOrtho(false, g().getWidth()/viewportScale, g().getHeight()/viewportScale);
 		worldCamera.update();
 //		hudBatch.dispose();
 //		worldBatch.dispose();
@@ -126,18 +150,22 @@ public class PlayingState extends GameState {
 //		font = new BitmapFont();
 	}
 	
+	float viewportScale = 60f;
+	
 	@Override
 	public void enter() {
 		hudBatch = new SpriteBatch();
 		worldBatch = new SpriteBatch();
+		shapeRend = new ShapeRenderer();
 		font = new BitmapFont();
 		playerImg = new Texture("assets/player.png");
 		playerImgRegion = new TextureRegion(playerImg);
 		Gdx.input.setInputProcessor(inputListener);
 		inputHandler.RegisterKey(KEY_ESCAPE);
 		
-		int viewportScale = 75;
+		
 		worldCamera = new OrthographicCamera(g().getWidth()/viewportScale, g().getHeight()/viewportScale);
+		worldCamera.position.set(.25f, .25f, 0);
 		
 		
 		// Create our new rendering system
@@ -147,6 +175,8 @@ public class PlayingState extends GameState {
 		engine().addEntity(createPlayerEntity(engine(), 0, 0));
 		//engine().addEntity(createPlayerEntity(engine(), 1, 0));
 		//engine().addEntity(createPlayerEntity(engine(), 4, 1));
+		
+		
 		
 	}
 	
@@ -174,14 +204,9 @@ public class PlayingState extends GameState {
 		engine().removeSystem(renderingSystem);
 		engine().removeAllEntities();
 		worldBatch.dispose();
+		hudBatch.dispose();
+		shapeRend.dispose();
 		font.dispose();
-	}
-	
-	@Override
-	public void Update() {
-		if(KEY_ESCAPE.ifPressed()) {
-			Gdx.app.exit();
-		}
 	}
 	
 }

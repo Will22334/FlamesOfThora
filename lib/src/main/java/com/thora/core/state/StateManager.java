@@ -2,7 +2,7 @@ package com.thora.core.state;
 
 import java.util.Map;
 
-import com.thora.core.FlamesOfThora.Console;
+import com.thora.core.Console;
 
 public class StateManager implements Console {
 
@@ -38,7 +38,7 @@ public class StateManager implements Console {
 		
 		
 		//log("Setting " + activeState.getStateName() + " as the active state");
-		logger().info("Gamstate {} -> {}", lastState, activeState);
+		logger().info("Gamstate: [{}] -> [{}]", lastState, activeState);
 		
 	}
 	

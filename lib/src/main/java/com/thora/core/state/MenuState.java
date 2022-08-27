@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.Input;
-import com.thora.core.FlamesOfThora.FlamesOfThora;
+import com.thora.core.FlamesOfThora;
 import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
 import com.thora.core.input.Key;

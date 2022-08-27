@@ -8,8 +8,8 @@ import org.apache.logging.log4j.Logger;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
-import com.thora.core.FlamesOfThora.Console;
-import com.thora.core.FlamesOfThora.FlamesOfThora;
+import com.thora.core.Console;
+import com.thora.core.FlamesOfThora;
 
 public abstract class GameState extends State implements Console, Comparable<GameState> {
 	
@@ -49,11 +49,6 @@ public abstract class GameState extends State implements Console, Comparable<Gam
 	public abstract void onResume();
 	
 	public abstract void onCreate();
-	
-	//Meant to have 1 ID getter?
-	public int getID() {
-		return getId();
-	}
 	
 	public abstract void setName(String name);
 	

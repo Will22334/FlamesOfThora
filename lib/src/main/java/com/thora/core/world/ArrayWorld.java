@@ -2,6 +2,7 @@ package com.thora.core.world;
 
 import java.awt.Dimension;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -31,7 +32,7 @@ public class ArrayWorld extends World {
 		return logger;
 	}
 	
-	private String name = "Empty";
+	private String name;
 	private Dimension mapSize = new Dimension(0,0);
 	private TileGenerator gen;
 	
@@ -45,7 +46,7 @@ public class ArrayWorld extends World {
 	
 	public ArrayWorld(String name, int mapSize, int tilesize, TileGenerator gen) {
 		
-		this.name = name;
+		this.name = Objects.requireNonNull(name, "World name cannot be null!");
 		this.mapSize = new Dimension(mapSize, mapSize);
 		this.gen = gen;
 		
@@ -64,8 +65,6 @@ public class ArrayWorld extends World {
 		
 		xOff = xEnd;
 		yOff = yEnd;
-		
-		Random rand = new Random();
 		
 		for(int y=-yEnd; y<yEnd; ++y) {
 			

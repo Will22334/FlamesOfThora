@@ -40,6 +40,7 @@ public class StateList {
 	 * NULL if there was no state associated.
 	 */
 	public GameState removeState(GameState state) {
+		Objects.requireNonNull(state, "Cannot remove a null GameState from StateList!");
 		return removeState(state.getID());
 	}
 	

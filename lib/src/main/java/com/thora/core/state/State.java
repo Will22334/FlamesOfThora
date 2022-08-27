@@ -12,16 +12,16 @@ public abstract class State {
 		this.id = id;
 	}
 	
-	public String getStateName() {
-		return stateName;
-	}
-	
-	public int getId() {
+	public int getID() {
 		return id;
 	}
 	
 	public void setId(int id) {
 		this.id = id;
+	}
+	
+	public String getStateName() {
+		return stateName;
 	}
 	
 	@Override

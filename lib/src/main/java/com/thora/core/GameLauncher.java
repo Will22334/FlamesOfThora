@@ -1,4 +1,4 @@
-package com.thora.core.FlamesOfThora;
+package com.thora.core;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,6 +38,7 @@ public class GameLauncher {
 		config.title = "Flames of Thora";
 		config.width = 800;
 		config.height = 600;
+		config.foregroundFPS = 60;
 		config.resizable = true;
 		
 		return config;

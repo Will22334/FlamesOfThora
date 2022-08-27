@@ -1,4 +1,4 @@
-package com.thora.core.FlamesOfThora;
+package com.thora.core;
 
 import org.apache.logging.log4j.Logger;
 

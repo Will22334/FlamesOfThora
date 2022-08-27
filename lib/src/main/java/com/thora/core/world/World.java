@@ -7,6 +7,11 @@ import java.util.stream.Stream;
 
 public abstract class World {
 	
+	public static IntStream revRange(int from, int to) {
+		return IntStream.range(from, to)
+				.map(i -> to - i + from - 1);
+	}
+	
 	public abstract String getName();
 	
 	public abstract Dimension getSize();
