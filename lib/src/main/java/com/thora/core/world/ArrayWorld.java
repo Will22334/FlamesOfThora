@@ -3,7 +3,6 @@ package com.thora.core.world;
 import java.awt.Dimension;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Random;
 import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
@@ -33,42 +32,61 @@ public class ArrayWorld extends World {
 	}
 	
 	private String name;
-	private Dimension mapSize = new Dimension(0,0);
+	private Dimension mapSize;
 	private TileGenerator gen;
 	
-	private Pole origin = new Pole("Origin", 0, 0);
+	private Pole origin;
 	private Pole inverseOrigin = new Pole("Inverse", 0 , 0);
+	private Pole spawn;
 	
 	private STile[][] tiles;
 	
 	private int xOff, yOff;
 	
-	
-	public ArrayWorld(String name, int mapSize, int tilesize, TileGenerator gen) {
+	public ArrayWorld(String name, Dimension mapSize, Location origin, int tilesize, TileGenerator gen) {
 		
 		this.name = Objects.requireNonNull(name, "World name cannot be null!");
-		this.mapSize = new Dimension(mapSize, mapSize);
+		this.mapSize = mapSize;
+		this.origin = new Pole("Origin", origin.clone());
 		this.gen = gen;
 		
 		create();
 		
 	}
 	
+	public ArrayWorld(String name, Dimension mapSize, int originX, int originY, int tilesize, TileGenerator gen) {
+		this(name, mapSize, new Location(originX, originY), tilesize, gen);
+	}
+	
+	public ArrayWorld(String name, Dimension mapSize, int tilesize, TileGenerator gen) {
+		this(name, mapSize, 0, 0, tilesize, gen);
+	}
+	
+	public ArrayWorld(String name, int width, int height, int tilesize, TileGenerator gen) {
+		this(name, new Dimension(width, height), tilesize, gen);
+	}
+	
 	private void create() {
 		
 		//Generate all tiles as grass where origin is center of tile rect.
 		
-		tiles = new STile[getSize().width][getSize().height];
+		int width = getSize().width;
+		int height = getSize().height;
 		
-		int xEnd = getSize().width / 2;
-		int yEnd = getSize().height / 2;
+		tiles = new STile[width][height];
 		
-		xOff = xEnd;
-		yOff = yEnd;
+		int startX = origin.getLocation().getX();
+		int startY = origin.getLocation().getY();
 		
-		for(int y=-yEnd; y<yEnd; ++y) {
+		xOff = -startX;
+		yOff = -startY;
+		
+		int xEnd = startX + width;
+		int yEnd = startY + height;
+		
+		for(int y=startY; y<yEnd; ++y) {
 			
-			for(int x=-xEnd; x<xEnd; ++x) {
+			for(int x=startX; x<xEnd; ++x) {
 				
 				TileType type = gen.getTileType(x, y);
 				
@@ -114,11 +132,12 @@ public class ArrayWorld extends World {
 	
 	private Stream<Tile> tilesInternal(int minX, int minY, int maxX, int maxY) {
 		return Arrays.stream(tiles, minY, maxY + 1)
-		.flatMap(row -> Arrays.stream(row, minX, maxX + 1));
+				.flatMap(row -> Arrays.stream(row, minX, maxX + 1));
 	}
 	
 	@Override
-	public Stream<Tile> surroundingTiles(Location center, int range) {
+	public Stream<Tile> surroundingTiles(Locatable cloc, int range) {
+		Location center = cloc.getLocation();
 		int minX = Math.max(0, ix(center.getX() - range));
 		int maxX = Math.min(width() - 1, ix(center.getX() + range));
 		int minY = Math.max(0, iy(center.getY() - range));

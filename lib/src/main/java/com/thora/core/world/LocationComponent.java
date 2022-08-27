@@ -2,10 +2,11 @@ package com.thora.core.world;
 
 import com.badlogic.ashley.core.Component;
 
-public class LocationComponent implements Component {
+public class LocationComponent implements Component, Locatable {
 	
 	private Location location;
 	
+	@Override
 	public final Location getLocation() {
 		return location;
 	}

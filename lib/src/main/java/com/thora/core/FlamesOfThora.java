@@ -1,5 +1,7 @@
 package com.thora.core;
 
+import java.awt.Dimension;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -64,7 +66,7 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		//Runs the create command for all states.
 		States.onCreate();
 		
-		world = new ArrayWorld("Earth", 50, 30, new PerlinTileGenerator((int)System.currentTimeMillis(), 140f));
+		world = new ArrayWorld("Earth", new Dimension(300,300), 30, new PerlinTileGenerator((int)System.currentTimeMillis(), 140f));
 		//world = new ArrayWorld("Earth", 50, 30, new RandomTileGenerator(new Random()));
 		
 		States.setActiveState(LOADINGSTATEID);

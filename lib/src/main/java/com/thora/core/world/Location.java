@@ -1,6 +1,6 @@
 package com.thora.core.world;
 
-public class Location implements Cloneable {
+public class Location implements Locatable, Cloneable {
 	
 	private int x;
 	private int y;
@@ -18,6 +18,16 @@ public class Location implements Cloneable {
 		return y;
 	}
 	
+	@Override
+	public Location getLocation() {
+		return this;
+	}
+	
+	public double getDistance(Locatable loc) {
+		Location p = loc.getLocation();
+		return Math.hypot(p.getX() - getX(), p.getY() - p.getY());
+	}
+	
 	/**
 	 * Shifts this location by given dx and dy.
 	 * @param dx
@@ -27,10 +37,6 @@ public class Location implements Cloneable {
 	public Location shift(int dx, int dy) {
 		x += dx;
 		y += dy;
-		return this;
-	}
-	
-	public Location getLocation() {
 		return this;
 	}
 	
@@ -55,7 +61,7 @@ public class Location implements Cloneable {
 	}
 	
 	@Override
-	protected Location clone() throws CloneNotSupportedException {
+	protected Location clone() {
 		return new Location(getX(), getY());
 	}
 	

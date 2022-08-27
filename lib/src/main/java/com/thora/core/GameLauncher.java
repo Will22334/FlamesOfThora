@@ -38,7 +38,7 @@ public class GameLauncher {
 		config.title = "Flames of Thora";
 		config.width = 800;
 		config.height = 600;
-		config.foregroundFPS = 60;
+		config.foregroundFPS = -1;
 		config.resizable = true;
 		
 		return config;

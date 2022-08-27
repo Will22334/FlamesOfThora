@@ -3,6 +3,7 @@ package com.thora.core.graphics;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Dimension;
@@ -20,9 +21,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
 import com.thora.core.world.LocationComponent;
 import com.thora.core.world.Tile;
@@ -108,13 +109,16 @@ public class RenderingSystem extends SortedIteratingSystem {
 	private Comparator<Entity> comparator; // a comparator to sort images based on the z position of the transfromComponent
 	private Camera cam; // a reference to our camera
 	
+	private Locatable focus;
+	
 	private Signal<Dimension> resizeSignal;
 	
-	public RenderingSystem(SpriteBatch batch, World world, Camera camera, Signal<Dimension> resizeSignal) {
+	public RenderingSystem(SpriteBatch batch, World world, Camera camera, Locatable focus, Signal<Dimension> resizeSignal) {
 		// gets all entities with a TransofmComponent and TextureComponent
 		super(Family.all(LocationComponent.class, TransformComponent.class, TextureComponent.class).get(), new ZComparator());
 		
 		this.world = world;
+		this.focus = Objects.requireNonNull(focus, "RenderSystem's focus object cannot be null!");
 		this.comparator = new ZComparator();
 		
 		// create the array for sorting entities
@@ -134,6 +138,10 @@ public class RenderingSystem extends SortedIteratingSystem {
 	
 	public static final Color TILE_BORDER_COLOR = new Color(0f, 0f, 0f, .2f);
 	
+	protected Locatable getFocus() {
+		return focus;
+	}
+	
 	@Override
 	public void processEntity(Entity entity, float deltaTime) {
 		renderQueue.add(entity);
@@ -145,6 +153,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		
 		// sort the renderQueue based on z index
 		renderQueue.sort(comparator);
+		this.getEntities();
 		
 		// update camera and sprite batch
 		cam.update();
@@ -205,7 +214,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 	}
 	
 	private void drawTileTextures(World world) {
-		world.surroundingTiles(new Location(0,0), 25)
+		world.surroundingTiles(getFocus(), 15)
 		.forEach(this::drawTileTexture);
 	}
 	
@@ -218,7 +227,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		shapeRend.setProjectionMatrix(cam.combined);
 		shapeRend.begin(ShapeRenderer.ShapeType.Line);
 		
-		world.surroundingTiles(new Location(0,0), 25)
+		world.surroundingTiles(getFocus(), 15)
 		.forEach(this::drawTileBorder);
 		
 		shapeRend.end();

@@ -1,6 +1,6 @@
 package com.thora.core.world;
 
-public class Pole {
+public class Pole implements Locatable {
 
 	private String name;
 	
@@ -14,7 +14,7 @@ public class Pole {
 		this.name = name;
 	}
 
-	public Location getLoc() {
+	public Location getLocation() {
 		return loc;
 	}
 

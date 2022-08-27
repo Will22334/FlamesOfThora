@@ -38,7 +38,7 @@ public class PlayingState extends GameState {
 	private static final InputHandler inputHandler = new InputHandler();
 	private static final InputListener inputListener = new InputListener(inputHandler);
 	
-	public static final double WALK_SPEED_TPS = 3f;
+	public static final double WALK_SPEED_TPS = 12f;
 	public static final long WALK_TILE_DURATION = (long) (1000 / WALK_SPEED_TPS);
 	
 	private static final Key KEY_ESCAPE = new Key(Keys.ESCAPE);
@@ -208,7 +208,7 @@ public class PlayingState extends GameState {
 		//		font = new BitmapFont();
 	}
 	
-	float viewportScale = 60f;
+	float viewportScale = 30f;
 	
 	@Override
 	public void enter() {
@@ -237,7 +237,7 @@ public class PlayingState extends GameState {
 		worldCamera.position.set(0, 0, 0);
 		
 		// Create our new rendering system
-		renderingSystem = new RenderingSystem(worldBatch, client().world(), worldCamera, resizeSignal);
+		renderingSystem = new RenderingSystem(worldBatch, client().world(), worldCamera, player.getComponent(LocationComponent.class), resizeSignal);
 		engine().addSystem(renderingSystem);
 		
 	}
