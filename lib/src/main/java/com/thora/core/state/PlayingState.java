@@ -24,6 +24,7 @@ import com.thora.core.FlamesOfThora;
 import com.thora.core.entity.EntityType;
 import com.thora.core.entity.PlayerComponent;
 import com.thora.core.entity.TypeComponent;
+import com.thora.core.graphics.MultiTextureComponent;
 import com.thora.core.graphics.RenderingSystem;
 import com.thora.core.graphics.TextureComponent;
 import com.thora.core.graphics.TransformComponent;
@@ -60,7 +61,10 @@ public class PlayingState extends GameState {
 	
 	private BitmapFont font;
 	Texture playerImg;
+	Texture playerImgBack;
+	
 	TextureRegion playerImgRegion;
+	TextureRegion playerImgBackRegion;
 	
 	private Entity player;
 	private long lastWalkTime;
@@ -107,9 +111,11 @@ public class PlayingState extends GameState {
 			
 			if(KEY_UP.ifPressed()) {
 				v.add(0, 1);
+				player.getComponent(MultiTextureComponent.class).setActiveComponent(1);
 			}
 			
 			if(KEY_DOWN.ifPressed()) {
+				player.getComponent(MultiTextureComponent.class).setActiveComponent(0);
 				v.add(0, -1);
 			}
 			
@@ -153,6 +159,10 @@ public class PlayingState extends GameState {
 		
 		Location loc = player.getComponent(LocationComponent.class).getLocation();
 		
+		
+		/*
+		 * FPS COUNTER
+		 */
 		font.setColor(Color.RED);
 		String msg = String.format("FPS: %s\t(%s,%s)\n%s", g().getFramesPerSecond(), Gdx.input.getX(), Gdx.input.getY(), loc);
 		font.draw(hudBatch, msg, 0, height);
@@ -217,8 +227,13 @@ public class PlayingState extends GameState {
 		worldBatch = new SpriteBatch();
 		shapeRend = new ShapeRenderer();
 		font = new BitmapFont();
+		
+		//Player Images
 		playerImg = new Texture("assets/player.png");
+		playerImgBack = new Texture("assets/playerbackdetails.png");
 		playerImgRegion = new TextureRegion(playerImg);
+		playerImgBackRegion = new TextureRegion(playerImgBack);
+		
 		Gdx.input.setInputProcessor(inputListener);
 		
 		inputHandler.RegisterKey(KEY_ESCAPE);
@@ -252,15 +267,26 @@ public class PlayingState extends GameState {
 		Entity entity = engine.createEntity();
 		
 		PlayerComponent player = engine.createComponent(PlayerComponent.class);
+		
 		TypeComponent type = engine.createComponent(TypeComponent.class).set(EntityType.PLAYER);
 		LocationComponent location = engine.createComponent(LocationComponent.class).setLocation(x, y);
-		TextureComponent texture = engine.createComponent(TextureComponent.class).set(playerImgRegion);
+		
+		TextureComponent fronttexture = engine.createComponent(TextureComponent.class).set(playerImgRegion);
+		TextureComponent backTexture = engine.createComponent(TextureComponent.class).set(playerImgBackRegion);
+		
+		MultiTextureComponent textures = new MultiTextureComponent();
+				
+		textures.addTextureComponent(fronttexture, 0);
+		textures.addTextureComponent(backTexture, 1);	
+				
+				
 		TransformComponent transform = engine.createComponent(TransformComponent.class);
 		
 		entity.add(player)
 		.add(type)
 		.add(location)
-		.add(texture)
+		.add(fronttexture)
+		.add(textures)
 		.add(transform);
 		
 		return entity;

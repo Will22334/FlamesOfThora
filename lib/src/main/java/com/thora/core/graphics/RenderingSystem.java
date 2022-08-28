@@ -74,6 +74,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 	// component mappers to get components from entities
 	private static final ComponentMapper<LocationComponent> locationM = ComponentMapper.getFor(LocationComponent.class);
 	private static final ComponentMapper<TextureComponent> textureM = ComponentMapper.getFor(TextureComponent.class);
+	private static final ComponentMapper<MultiTextureComponent> multitextureM = ComponentMapper.getFor(MultiTextureComponent.class);
 	private static final ComponentMapper<TransformComponent> transformM = ComponentMapper.getFor(TransformComponent.class);
 	
 	public static final Family FAMILY = Family.all(TransformComponent.class, TextureComponent.class).get();
@@ -173,7 +174,8 @@ public class RenderingSystem extends SortedIteratingSystem {
 			
 			LocationComponent loc = locationM.get(entity);
 			TextureComponent tex = textureM.get(entity);
-			
+			MultiTextureComponent tex2 = multitextureM.get(entity);
+		
 			if (loc == null || tex == null) {
 				continue;
 			}
@@ -195,7 +197,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 			
 			//batch.setColor(1f, 1f, 1f, 1f);
 			
-			batch.draw(tex.getRegion(),
+			batch.draw(tex2.getActiveComponent().getRegion(),
 					loc.getX() + (PPM - width)/PPM/2, loc.getY(),
 					width / PPM, height / PPM);
 			
