@@ -10,20 +10,23 @@ public class Location implements Locatable, Cloneable {
 		this.y = y;
 	}
 	
+	@Override
 	public final int getX() {
 		return x;
 	}
 	
+	@Override
 	public final int getY() {
 		return y;
 	}
 	
 	@Override
-	public Location getLocation() {
+	public final Location getLocation() {
 		return this;
 	}
 	
-	public double getDistance(Locatable loc) {
+	@Override
+	public final double getDistance(Locatable loc) {
 		Location p = loc.getLocation();
 		return Math.hypot(p.getX() - getX(), p.getY() - p.getY());
 	}

@@ -95,6 +95,8 @@ public class ArrayWorld extends World {
 			
 		}
 		
+		spawn = new Pole("Spawn", xEnd-width/2, yEnd-height/2);
+		
 	}
 	
 	@Override
@@ -133,6 +135,15 @@ public class ArrayWorld extends World {
 				.flatMap(row -> Arrays.stream(row, minX, maxX + 1));
 	}
 	
+	@Override
+	public Stream<Tile> tiles(int minX, int minY, int maxX, int maxY) {
+		minX = Math.max(0, ix(minX));
+		minY = Math.max(0, iy(minY));
+		maxX = Math.min(width() - 1, ix(maxX));
+		maxY = Math.min(height() - 1, iy(maxY));
+		return super.tiles(minX, minY, maxX, maxY);
+	}
+
 	@Override
 	public Stream<Tile> surroundingTiles(Locatable cloc, int range) {
 		Location center = cloc.getLocation();

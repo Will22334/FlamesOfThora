@@ -159,7 +159,6 @@ public class PlayingState extends GameState {
 		
 		Location loc = player.getComponent(LocationComponent.class).getLocation();
 		
-		
 		/*
 		 * FPS COUNTER
 		 */

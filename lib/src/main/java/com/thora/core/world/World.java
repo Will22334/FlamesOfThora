@@ -1,7 +1,9 @@
 package com.thora.core.world;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -15,7 +17,7 @@ import java.util.stream.Stream;
  *   Implementing other methods.
  *
  */
-public abstract class World {
+public abstract class World implements RectangularRegion {
 	
 	public static Location[] getCorners(World world) {
 		Location[] points = new  Location[2];
@@ -56,6 +58,17 @@ public abstract class World {
 		return getOrigin().getLocation().clone().shift(getWidth(), getHeight());
 	}
 	
+	@Override
+	public Stream<Location> points() {
+		return tiles()
+				.map(Locatable::getLocation);
+	}
+	
+	@Override
+	public Rectangle getRectRegion() {
+		return new Rectangle(getOrigin().getX(), getOrigin().getY(), getSize().width, getSize().height);
+	}
+
 	public Map<Location,? extends Tile> getTiles() {
 		return tiles()
 				.collect(Collectors.toConcurrentMap(Tile::getLocation, Function.identity()));
@@ -81,7 +94,8 @@ public abstract class World {
 	public Stream<Tile> tiles(int minX, int minY, int maxX, int maxY) {
 		return IntStream.rangeClosed(minY, maxY)
 				.mapToObj(y -> tilesRow(y, minX, maxX))
-				.flatMap(Function.identity());
+				.flatMap(Function.identity())
+				.filter(Objects::nonNull);
 	}
 	
 	public Stream<Tile> tilesRow(int y, int minX, int maxX) {

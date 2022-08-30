@@ -53,7 +53,7 @@ public class KeyMapWorld extends AbstractWorld {
 	public HTile getTile(Location point) {
 		return tileMap.get(point);
 	}
-
+	
 	@Override
 	public HTile setTile(TileType type, Location point) {
 		HTile tile = tileMap.get(point);
@@ -65,7 +65,7 @@ public class KeyMapWorld extends AbstractWorld {
 		}
 		return tile;
 	}
-
+	
 	@Override
 	public HTile setTile(TileType type, int x, int y) {
 		return setTile(type, new Location(x, y));

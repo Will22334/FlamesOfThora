@@ -1,7 +1,6 @@
 package com.thora.core;
 
 import java.awt.Dimension;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +12,7 @@ import com.thora.core.state.LoadingState;
 import com.thora.core.state.MenuState;
 import com.thora.core.state.PlayingState;
 import com.thora.core.state.StateManager;
-import com.thora.core.world.KeyMapWorld;
+import com.thora.core.world.ArrayWorld;
 import com.thora.core.world.Pole;
 import com.thora.core.world.TileGenerator;
 import com.thora.core.world.World;
@@ -69,12 +68,14 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		//Runs the create command for all states.
 		States.onCreate();
 		
-		TileGenerator gen = new PerlinTileGenerator((int)System.currentTimeMillis(), 140f);
+		TileGenerator gen = new PerlinTileGenerator((int)System.currentTimeMillis(), 5f);
 		Dimension size = new Dimension(300,300);
 		Pole origin = new Pole("Origin",0,0);
 		
-		world = new KeyMapWorld(ConcurrentHashMap::new, "Earth", size, origin, gen);
-		//world = new ArrayWorld("Earth", size, origin, 30, gen);
+		//world = new KeyMapWorld(ConcurrentHashMap::new, "Earth", size, origin, gen);
+		world = new ArrayWorld("Earth", size, origin, 30, gen);
+		
+		logger().debug("Using {} implementation.", world.getClass().getSimpleName());
 		
 		States.setActiveState(LOADINGSTATEID);
 		
