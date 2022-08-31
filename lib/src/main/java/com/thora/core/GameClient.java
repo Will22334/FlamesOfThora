@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.thora.core.screen.GameScreen;
 
 public class GameClient implements ApplicationListener, Console {
 	
@@ -23,7 +22,6 @@ public class GameClient implements ApplicationListener, Console {
 	@Override
 	public void create() {
 		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override

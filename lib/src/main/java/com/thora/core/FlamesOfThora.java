@@ -23,8 +23,8 @@ public class FlamesOfThora implements ApplicationListener, Console {
 	//TODO Compute view distance on start/resize
 	public static final int DEFAULT_VIEW_RANGE = 13;
 	
-	public static final float DEFAULT_WORLD_SCALE = 40f;
-	public static final float DEFAULT_WORLD_FREQ = 10f;
+	public static final float DEFAULT_WORLD_SCALE = 35f;
+	public static final float DEFAULT_WORLD_FREQ = 20f;
 	
 	private final static int LOADINGSTATEID = 0;
 	private final static int MENUSTATEID = 1;
@@ -81,7 +81,7 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		//world = new KeyMapWorld(ConcurrentHashMap::new, "Earth", size, origin, gen);
 		world = new ArrayWorld("Earth", size, origin, 30, gen);
 		
-		logger().debug("World Backend: {}", world.getClass().getSimpleName());
+		logger().debug("World Backend: {} {}", world.getClass().getSimpleName(), world.getRectRegion());
 		
 		States.setActiveState(LOADINGSTATEID);
 		

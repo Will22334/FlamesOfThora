@@ -1,8 +1,11 @@
 package com.thora.core.world;
 
 import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.ComponentMapper;
 
 public class LocationComponent implements Component, Locatable {
+	
+	public static final ComponentMapper<LocationComponent> MAPPER = ComponentMapper.getFor(LocationComponent.class);
 	
 	private Location location;
 	

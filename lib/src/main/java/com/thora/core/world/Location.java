@@ -1,5 +1,7 @@
 package com.thora.core.world;
 
+import com.thora.core.IntVector;
+
 public class Location implements Locatable, Cloneable {
 	
 	private int x;
@@ -44,6 +46,15 @@ public class Location implements Locatable, Cloneable {
 		x += dx;
 		y += dy;
 		return this;
+	}
+	
+	/**
+	 * Shifts this location by given vector.
+	 * @param v
+	 * @return This Location for chaining.
+	 */
+	public Location shift(IntVector v) {
+		return shift(v.x, v.y);
 	}
 	
 	@Override

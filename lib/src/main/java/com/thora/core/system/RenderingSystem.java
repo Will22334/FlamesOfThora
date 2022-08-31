@@ -1,4 +1,4 @@
-package com.thora.core.graphics;
+package com.thora.core.system;
 
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -17,19 +17,26 @@ import com.badlogic.ashley.systems.SortedIteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.thora.core.FlamesOfThora;
+import com.thora.core.graphics.MultiTextureComponent;
+import com.thora.core.graphics.TextureComponent;
+import com.thora.core.graphics.TransformComponent;
+import com.thora.core.graphics.ZComparator;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
 import com.thora.core.world.LocationComponent;
 import com.thora.core.world.Tile;
 import com.thora.core.world.TileType;
 import com.thora.core.world.World;
+import com.thora.core.world.WorldViewEvent;
 
 public class RenderingSystem extends SortedIteratingSystem {
 	
@@ -78,7 +85,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 	private static final ComponentMapper<MultiTextureComponent> multitextureM = ComponentMapper.getFor(MultiTextureComponent.class);
 	private static final ComponentMapper<TransformComponent> transformM = ComponentMapper.getFor(TransformComponent.class);
 	
-	public static final Family FAMILY = Family.all(TransformComponent.class, TextureComponent.class).get();
+	public static final Family FAMILY = Family.all(LocationComponent.class, TransformComponent.class, TextureComponent.class).get();
 	
 	/**
 	 * TODO Move texture loading outside of static block so time of loading is predictable
@@ -114,11 +121,14 @@ public class RenderingSystem extends SortedIteratingSystem {
 	private Locatable focus;
 	private int viewRange = FlamesOfThora.DEFAULT_VIEW_RANGE;
 	
+	private FrameBuffer tileBack;
+	
 	private Signal<Dimension> resizeSignal;
 	
-	public RenderingSystem(SpriteBatch batch, World world, Camera camera, Locatable focus, Signal<Dimension> resizeSignal) {
+	public RenderingSystem(SpriteBatch batch, World world, Camera camera, Locatable focus,
+			Signal<Dimension> resizeSignal, int priority) {
 		// gets all entities with a TransofmComponent and TextureComponent
-		super(Family.all(LocationComponent.class, TransformComponent.class, TextureComponent.class).get(), new ZComparator());
+		super(FAMILY, new ZComparator(), priority);
 		
 		this.world = world;
 		this.focus = Objects.requireNonNull(focus, "RenderSystem's focus object cannot be null!");
@@ -171,6 +181,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		
 		// loop through each entity in our render queue
 		for (Entity entity : renderQueue) {
+			
 			TransformComponent t = transformM.get(entity);
 			if(t.isHidden) continue;
 			
@@ -187,21 +198,9 @@ public class RenderingSystem extends SortedIteratingSystem {
 			float width = texRegion.getRegionWidth();
 			float height = texRegion.getRegionHeight();
 			
-			//			batch.draw(texRegion,
-			//					loc.getX() - originX, loc.getY() - originY,
-			//					originX, originY,
-			//					width, height,
-			//					PixelsToMeters(t.scale.x), PixelsToMeters(t.scale.y),
-			//					t.rotation);
-			
-			
-			float sc = (PPM - width) / PPM;
-			
-			//batch.setColor(1f, 1f, 1f, 1f);
-			
 			batch.draw(tex2.getActiveComponent().getRegion(),
 					loc.getX() + (PPM - width)/PPM/2, loc.getY(),
-					width / PPM, height / PPM);
+					PixelsToMeters(width), PixelsToMeters(height));
 			
 		}
 		

@@ -47,7 +47,7 @@ public class MenuState extends GameState {
 	@Override
 	public void onCreate() {
 		// 
-		logger().debug("Created Menu State!");
+		logger().trace("Created Menu State!");
 		handler.RegisterKey(new Key("UP", Input.Keys.UP));
 		
 		

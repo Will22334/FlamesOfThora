@@ -98,7 +98,7 @@ public class LoadingState extends GameState implements Console {
 	@Override
 	public void onCreate() {
 		// TODO Auto-generated method stub
-		logger().debug("Created Loading State!!");
+		logger().trace("Created Loading State!!");
 		stage = new Stage(new ScreenViewport());
 		//System.out.println("Created Loading State!!");
 		

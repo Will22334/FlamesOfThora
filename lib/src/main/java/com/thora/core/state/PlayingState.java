@@ -25,15 +25,19 @@ import com.thora.core.entity.EntityType;
 import com.thora.core.entity.PlayerComponent;
 import com.thora.core.entity.TypeComponent;
 import com.thora.core.graphics.MultiTextureComponent;
-import com.thora.core.graphics.RenderingSystem;
 import com.thora.core.graphics.TextureComponent;
 import com.thora.core.graphics.TransformComponent;
 import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
 import com.thora.core.input.Key;
+import com.thora.core.system.MoveSystem;
+import com.thora.core.system.MoveValidationSystem;
+import com.thora.core.system.RenderingSystem;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
 import com.thora.core.world.LocationComponent;
+import com.thora.core.world.MovableComponent;
+import com.thora.core.world.MoveEventComponent;
 
 public class PlayingState extends GameState {
 	
@@ -87,7 +91,7 @@ public class PlayingState extends GameState {
 	
 	@Override
 	public void onCreate() {
-		logger().debug("Created Playing State!!");
+		logger().trace("Created Playing State!!");
 		this.appSize = new Dimension(g().getWidth(), g().getHeight());
 	}
 	
@@ -128,6 +132,7 @@ public class PlayingState extends GameState {
 			}
 			
 			if(!v.isZero()) {
+				player.add(engine().createComponent(MoveEventComponent.class).set(v));
 				loc.shift((int)v.x, (int)v.y);
 				//worldCamera.position.add(v.x, v.y, 0);
 				v.setZero();
@@ -251,9 +256,18 @@ public class PlayingState extends GameState {
 		worldCamera = new OrthographicCamera(g().getWidth()/viewportScale, g().getHeight()/viewportScale);
 		worldCamera.position.set(spawn.getX(), spawn.getY(), 0);
 		
-		// Create our new rendering system
-		renderingSystem = new RenderingSystem(worldBatch, client().world(), worldCamera, player.getComponent(LocationComponent.class), resizeSignal);
+		
+		
+		renderingSystem = new RenderingSystem(worldBatch, client().world(), worldCamera, player.getComponent(LocationComponent.class),
+				resizeSignal, 100);
+		
 		engine().addSystem(renderingSystem);
+		
+		
+		engine().addSystem(new MoveSystem(20));
+		
+		
+		engine().addSystem(new MoveValidationSystem(10));
 		
 	}
 	
@@ -283,6 +297,7 @@ public class PlayingState extends GameState {
 		entity.add(player)
 		.add(type)
 		.add(location)
+		.add(MovableComponent.INSTANCE)
 		.add(fronttexture)
 		.add(textures)
 		.add(transform);
