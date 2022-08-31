@@ -112,6 +112,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 	private Camera cam; // a reference to our camera
 	
 	private Locatable focus;
+	private int viewRange = FlamesOfThora.DEFAULT_VIEW_RANGE;
 	
 	private Signal<Dimension> resizeSignal;
 	
@@ -216,8 +217,6 @@ public class RenderingSystem extends SortedIteratingSystem {
 		drawTileBorders(world);
 		
 	}
-	
-	private int viewRange = FlamesOfThora.DEFAULT_VIEW_RANGE;
 	
 	private void drawTileTextures(World world) {
 		world.surroundingTiles(getFocus(), viewRange)

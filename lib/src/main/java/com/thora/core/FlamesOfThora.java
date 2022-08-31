@@ -20,7 +20,11 @@ import com.thora.core.world.generator.PerlinTileGenerator;
 
 public class FlamesOfThora implements ApplicationListener, Console {
 	
+	//TODO Compute view distance on start/resize
 	public static final int DEFAULT_VIEW_RANGE = 13;
+	
+	public static final float DEFAULT_WORLD_SCALE = 40f;
+	public static final float DEFAULT_WORLD_FREQ = 10f;
 	
 	private final static int LOADINGSTATEID = 0;
 	private final static int MENUSTATEID = 1;
@@ -70,7 +74,7 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		//Runs the create command for all states.
 		States.onCreate();
 		
-		TileGenerator gen = new PerlinTileGenerator((int)System.currentTimeMillis(), 10f);
+		TileGenerator gen = new PerlinTileGenerator((int)System.currentTimeMillis(), DEFAULT_WORLD_SCALE, DEFAULT_WORLD_FREQ);
 		Dimension size = new Dimension(300,300);
 		Pole origin = new Pole("Origin",0,0);
 		

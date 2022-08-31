@@ -34,7 +34,7 @@ public class PerlinTileGenerator implements TileGenerator {
 	public TileType getTileType(int x, int y) {
 		float sx = x / scale;
 		float sy = y / scale;
-		float val = noise.turbulence2(sx, sy, scale);
+		float val = noise.turbulence2(sx, sy, freq);
 		return valueToType(val);
 	}
 	
