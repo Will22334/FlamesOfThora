@@ -20,6 +20,8 @@ import com.thora.core.world.generator.PerlinTileGenerator;
 
 public class FlamesOfThora implements ApplicationListener, Console {
 	
+	public static final int DEFAULT_VIEW_RANGE = 13;
+	
 	private final static int LOADINGSTATEID = 0;
 	private final static int MENUSTATEID = 1;
 	private final static int PLAYINGSTATEID = 2;
@@ -68,14 +70,14 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		//Runs the create command for all states.
 		States.onCreate();
 		
-		TileGenerator gen = new PerlinTileGenerator((int)System.currentTimeMillis(), 5f);
+		TileGenerator gen = new PerlinTileGenerator((int)System.currentTimeMillis(), 10f);
 		Dimension size = new Dimension(300,300);
 		Pole origin = new Pole("Origin",0,0);
 		
 		//world = new KeyMapWorld(ConcurrentHashMap::new, "Earth", size, origin, gen);
 		world = new ArrayWorld("Earth", size, origin, 30, gen);
 		
-		logger().debug("Using {} implementation.", world.getClass().getSimpleName());
+		logger().debug("World Backend: {}", world.getClass().getSimpleName());
 		
 		States.setActiveState(LOADINGSTATEID);
 		

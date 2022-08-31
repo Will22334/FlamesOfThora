@@ -23,6 +23,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.thora.core.FlamesOfThora;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
 import com.thora.core.world.LocationComponent;
@@ -216,7 +217,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		
 	}
 	
-	private int viewRange = 20;
+	private int viewRange = FlamesOfThora.DEFAULT_VIEW_RANGE;
 	
 	private void drawTileTextures(World world) {
 		world.surroundingTiles(getFocus(), viewRange)

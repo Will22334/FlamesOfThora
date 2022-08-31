@@ -243,11 +243,10 @@ public class PlayingState extends GameState {
 		
 		
 		
-		Location spawn = new Location(30, 30);
+		Location spawn = new Location(50, 50);
 		player = createPlayerEntity(engine(), spawn);
 		engine().addEntity(player);
-		//engine().addEntity(createPlayerEntity(engine(), 1, 0));
-		//engine().addEntity(createPlayerEntity(engine(), 4, 1));
+		
 		
 		worldCamera = new OrthographicCamera(g().getWidth()/viewportScale, g().getHeight()/viewportScale);
 		worldCamera.position.set(spawn.getX(), spawn.getY(), 0);

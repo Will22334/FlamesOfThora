@@ -25,10 +25,13 @@ public class Location implements Locatable, Cloneable {
 		return this;
 	}
 	
+	public final double getDistance(Location p) {
+		return Math.hypot(p.getX() - getX(), p.getY() - getY());
+	}
+	
 	@Override
 	public final double getDistance(Locatable loc) {
-		Location p = loc.getLocation();
-		return Math.hypot(p.getX() - getX(), p.getY() - p.getY());
+		return getDistance(loc.getLocation());
 	}
 	
 	/**

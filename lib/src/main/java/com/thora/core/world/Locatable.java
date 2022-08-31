@@ -19,7 +19,11 @@ public interface Locatable {
 	}
 	
 	public default double getDistance(Locatable loc) {
-		return getLocation().getDistance(loc);
+		return getLocation().getDistance(loc.getLocation());
+	}
+	
+	public default boolean isInRange(Locatable loc, double range) {
+		return getDistance(loc) <= range;
 	}
 	
 }

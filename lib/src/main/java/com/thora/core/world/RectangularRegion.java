@@ -5,6 +5,13 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+/**
+ * A {@link KnownRegion} that has a defined rectangular shape.
+ * The bounds of the region are supplied by {@link #getRectRegion()}.
+ * 
+ * @author Dave
+ *
+ */
 public interface RectangularRegion extends KnownRegion {
 	
 	public Rectangle getRectRegion();
