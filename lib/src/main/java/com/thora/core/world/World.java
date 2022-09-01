@@ -1,6 +1,5 @@
 package com.thora.core.world;
 
-import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.Map;
 import java.util.Objects;
@@ -11,19 +10,16 @@ import java.util.stream.Stream;
 
 /**
  * A general plane of {@link Tile Tiles} in which physical entities exist and operate.
- * For a class to implement {@link World} it has to define a rectangular region from {@link #getOrigin()} , {@link #getSize()} then
+ * For a class to implement {@link World} it has to define a rectangular region from {@link #getEstimatedArea()}, then
  *  implement {@link #getTile(int, int) and {@link #setTile(TileType, int, int).
  *  NOTE: these methods are the minimum required implementations and will most likely perform poorly without
  *   Implementing other methods.
  *
  */
-public abstract class World implements RectangularRegion {
+public abstract class World {
 	
-	public static Location[] getCorners(World world) {
-		Location[] points = new  Location[2];
-		points[0] = world.getOrigin().getLocation();
-		points[1] = points[0].clone().shift(world.getSize().width, world.getSize().height);
-		return points;
+	protected static final Rectangle noEstimatedSize() {
+		return null;
 	}
 	
 	public static IntStream reverseRange(int from, int to) {
@@ -42,43 +38,21 @@ public abstract class World implements RectangularRegion {
 	
 	public abstract String getName();
 	
-	public abstract Dimension getSize();
-	
-	public int getWidth() {
-		return getSize().width;
-	}
-	
-	public int getHeight() {
-		return getSize().height;
-	}
-	
 	public abstract Locatable getOrigin();
 	
-	public Locatable getEndOrigin() {
-		return getOrigin().getLocation().clone().shift(getWidth(), getHeight());
+	public abstract Rectangle getEstimatedArea();
+	
+	public String getEstimatedAreaString() {
+		Rectangle rect = this.getEstimatedArea();
+		if(rect != null) return rect.toString();
+		return "[?,?]";
 	}
 	
-	@Override
-	public Stream<Location> points() {
-		return tiles()
-				.map(Locatable::getLocation);
-	}
+	public abstract Stream<? extends Tile> tiles();
 	
-	@Override
-	public Rectangle getRectRegion() {
-		return new Rectangle(getOrigin().getX(), getOrigin().getY(), getSize().width, getSize().height);
-	}
-
 	public Map<Location,? extends Tile> getTiles() {
 		return tiles()
 				.collect(Collectors.toConcurrentMap(Tile::getLocation, Function.identity()));
-	}
-	
-	public Stream<Tile> tiles() {
-		Location origin = getOrigin().getLocation();
-		Dimension size = getSize();
-		return tiles(origin.getX(), origin.getY(),
-				origin.getX() + size.width - 1, origin.getY() + size.height - 1);
 	}
 	
 	public Stream<Tile> surroundingTiles(Locatable center, int range) {

@@ -1,6 +1,7 @@
 package com.thora.core.world;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -13,7 +14,7 @@ import org.apache.logging.log4j.Logger;
  * @author Dave
  *
  */
-public class ArrayWorld extends World {
+public class ArrayWorld extends World implements RectangularRegion {
 	
 	private class STile extends AbstractTile {
 		public STile(TileType type, Location point) {
@@ -68,8 +69,9 @@ public class ArrayWorld extends World {
 	
 	private void create() {
 		
-		int width = getSize().width;
-		int height = getSize().height;
+		Rectangle size = new Rectangle(origin.getX(), origin.getY(), origin.getX() + mapSize.width, origin.getY() + mapSize.height);
+		int width = size.width;
+		int height = size.height;
 		
 		tiles = new STile[width][height];
 		
@@ -104,17 +106,12 @@ public class ArrayWorld extends World {
 		return name;
 	}
 	
-	@Override
-	public Dimension getSize() {
-		return mapSize;
-	}
-	
 	public int width() {
-		return getSize().width;
+		return tiles[0].length;
 	}
 	
 	public int height() {
-		return getSize().height;
+		return tiles.length;
 	}
 	
 	@Override
@@ -128,6 +125,17 @@ public class ArrayWorld extends World {
 	
 	protected final int iy(int wy) {
 		return wy + yOff;
+	}
+	
+	@Override
+	public Stream<Location> points() {
+		return tiles()
+				.map(Locatable::getLocation);
+	}
+	
+	@Override
+	public Rectangle getRectRegion() {
+		return new Rectangle(getOrigin().getX(), getOrigin().getY(), width(), height());
 	}
 	
 	private Stream<Tile> tilesInternal(int minX, int minY, int maxX, int maxY) {
@@ -192,6 +200,18 @@ public class ArrayWorld extends World {
 			tile.type = type;
 		}
 		return tile;
+	}
+
+	@Override
+	public Rectangle getEstimatedArea() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Stream<? extends Tile> tiles() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

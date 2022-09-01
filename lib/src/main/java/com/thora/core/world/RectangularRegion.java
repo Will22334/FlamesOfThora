@@ -14,6 +14,10 @@ import java.util.stream.Stream;
  */
 public interface RectangularRegion extends KnownRegion {
 	
+	public static Rectangle computeRect(Locatable origin, int width, int height) {
+		return new Rectangle(origin.getX(), origin.getY(), width, height);
+	}
+	
 	public Rectangle getRectRegion();
 	
 	@Override

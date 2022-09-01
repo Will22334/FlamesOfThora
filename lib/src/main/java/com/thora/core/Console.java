@@ -4,6 +4,10 @@ import org.apache.logging.log4j.Logger;
 
 public interface Console {
 	
+	public static Logger globalLogger() {
+		return FlamesOfThora.logger;
+	}
+	
 	public default Logger logger() {
 		return FlamesOfThora.logger;
 	}

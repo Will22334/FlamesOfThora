@@ -28,5 +28,10 @@ public class MoveEventComponent implements Component, Poolable {
 	public void reset() {
 		v.clear();
 	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + v;
+	}
 	
 }
