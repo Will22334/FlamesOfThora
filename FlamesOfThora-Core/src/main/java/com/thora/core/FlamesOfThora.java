@@ -12,7 +12,6 @@ import com.thora.core.state.LoadingState;
 import com.thora.core.state.MenuState;
 import com.thora.core.state.PlayingState;
 import com.thora.core.state.StateManager;
-import com.thora.core.world.ArrayWorld;
 import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Pole;
 import com.thora.core.world.TileGenerator;
@@ -22,7 +21,7 @@ import com.thora.core.world.generator.PerlinTileGenerator;
 public class FlamesOfThora implements ApplicationListener, Console {
 	
 	//TODO Compute view distance on start/resize
-	public static final int DEFAULT_VIEW_RANGE = 13;
+	public static final int DEFAULT_VIEW_RANGE = 15;
 	
 	public static final float DEFAULT_WORLD_SCALE = 35f;
 	public static final float DEFAULT_WORLD_FREQ = 20f;
@@ -81,7 +80,7 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		
 		//world = new KeyMapWorld(ConcurrentHashMap::new, "Earth", size, origin, gen);
 		//world = new ArrayWorld("Earth", size, origin, 30, gen);
-		world = new HashChunkWorld("Earth", origin, 10, 10, gen);
+		world = new HashChunkWorld("Earth", origin, 15, 15, gen);
 		
 		logger().debug("World Backend: {} {}", world.getClass().getSimpleName(), world.getEstimatedArea());
 		

@@ -3,7 +3,12 @@ package com.thora.core.world;
 import java.awt.Rectangle;
 import java.util.Objects;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public abstract class AbstractWorld extends World {
+	
+	private static final Logger logger = LogManager.getLogger();
 	
 	protected String name;
 	protected Pole origin;
@@ -13,11 +18,16 @@ public abstract class AbstractWorld extends World {
 	public AbstractWorld(String name, Locatable origin, TileGenerator generator) {
 		this.name = Objects.requireNonNull(name, "World name cannot be null!");
 		this.origin = new Pole("Origin", origin);
-		this.generator = generator;
+		this.generator = Objects.requireNonNull(generator, "World TileGenerator cannot be null!");
 	}
 	
 	public AbstractWorld(String name, TileGenerator generator) {
 		this(name, new Location(0,0), generator);
+	}
+	
+	@Override
+	public Logger logger() {
+		return logger;
 	}
 	
 	@Override

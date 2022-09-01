@@ -28,10 +28,6 @@ public class ArrayWorld extends World implements RectangularRegion {
 	
 	private static final Logger logger = LogManager.getLogger(ArrayWorld.class);
 	
-	protected static final Logger logger() {
-		return logger;
-	}
-	
 	private String name;
 	private Dimension mapSize;
 	private TileGenerator gen;
@@ -65,6 +61,11 @@ public class ArrayWorld extends World implements RectangularRegion {
 	
 	public ArrayWorld(String name, int width, int height, int tilesize, TileGenerator gen) {
 		this(name, new Dimension(width, height), tilesize, gen);
+	}
+	
+	@Override
+	public Logger logger() {
+		return logger;
 	}
 	
 	private void create() {
@@ -151,7 +152,7 @@ public class ArrayWorld extends World implements RectangularRegion {
 		maxY = Math.min(height() - 1, iy(maxY));
 		return super.tiles(minX, minY, maxX, maxY);
 	}
-
+	
 	@Override
 	public Stream<Tile> surroundingTiles(Locatable cloc, int range) {
 		Location center = cloc.getLocation();
@@ -201,13 +202,13 @@ public class ArrayWorld extends World implements RectangularRegion {
 		}
 		return tile;
 	}
-
+	
 	@Override
 	public Rectangle getEstimatedArea() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	@Override
 	public Stream<? extends Tile> tiles() {
 		// TODO Auto-generated method stub

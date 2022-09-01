@@ -18,6 +18,10 @@ public interface Locatable {
 		return getLocation().getY();
 	}
 	
+	public default int getTileDistance(Locatable loc) {
+		return getLocation().getTileDistance(loc.getLocation());
+	}
+	
 	public default double getDistance(Locatable loc) {
 		return getLocation().getDistance(loc.getLocation());
 	}

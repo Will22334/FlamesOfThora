@@ -27,6 +27,10 @@ public class Location implements Locatable, Cloneable {
 		return this;
 	}
 	
+	public final int getTileDistance(Location p) {
+		return Math.max(Math.abs((p.getX() - getX())), Math.abs((p.getY() - getY())));
+	}
+	
 	public final double getDistance(Location p) {
 		return Math.hypot(p.getX() - getX(), p.getY() - getY());
 	}
@@ -59,7 +63,7 @@ public class Location implements Locatable, Cloneable {
 	
 	@Override
 	public String toString() {
-		return "[" + getX() + ", " + getY() + "]";
+		return "[" + getX() + "," + getY() + "]";
 	}
 	
 	@Override

@@ -8,6 +8,10 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.thora.core.FlamesOfThora;
 import com.thora.core.IntVector;
 
 public class HashChunkWorld extends AbstractWorld {
@@ -121,6 +125,7 @@ public class HashChunkWorld extends AbstractWorld {
 		}
 		
 		protected HashChunk generate() {
+			logger().debug("Generating {}", this);
 			for(int y=0; y<chunkHeight; ++y) {
 				for(int x=0; x<chunkWidth; ++x) {
 					Location point = getOrigin().clone().shift(x, y);
@@ -143,6 +148,8 @@ public class HashChunkWorld extends AbstractWorld {
 		}
 	}
 	
+	private static final Logger logger = LogManager.getLogger(HashChunkWorld.class);
+	
 	private Pole InverseOrigin = new Pole("Inverse", 0 , 0);
 	
 	private final Dimension chunkSize;
@@ -159,6 +166,11 @@ public class HashChunkWorld extends AbstractWorld {
 		
 		create();
 		
+	}
+	
+	@Override
+	public Logger logger() {
+		return logger;
 	}
 	
 	protected HashChunk getGeneratedChunk(int wx, int wy) {
@@ -197,8 +209,8 @@ public class HashChunkWorld extends AbstractWorld {
 	}
 	
 	protected Location getChunkOrigin(int cx, int cy) {
-		return new Location(chunkWidth * cx,
-				chunkHeight * cy);
+		return new Location(chunkWidth * cx - chunkWidth/2,
+				chunkHeight * cy - chunkHeight/2);
 	}
 	
 	protected Location getChunkOrigin(ChunkCoordinate c) {
@@ -249,9 +261,10 @@ public class HashChunkWorld extends AbstractWorld {
 	}
 	
 	@Override
-	public Stream<Tile> surroundingTiles(Locatable center, int range) {
-		return surroundingChunks(center, (int) Math.ceil(chunkWidths(range)))
-				.flatMap(HashChunk::tiles);
+	public Stream<HashChunk.CTile> surroundingTiles(Locatable center, int range) {
+		return surroundingChunks(center, 1)
+				.flatMap(HashChunk::tiles)
+				.filter(t -> center.getTileDistance(t) <= FlamesOfThora.DEFAULT_VIEW_RANGE);
 	}
 	
 	@Override

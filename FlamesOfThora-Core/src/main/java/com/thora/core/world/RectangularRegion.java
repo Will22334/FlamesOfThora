@@ -20,6 +20,11 @@ public interface RectangularRegion extends KnownRegion {
 	
 	public Rectangle getRectRegion();
 	
+	public default long getSurfaceArea() {
+		Rectangle r = getRectRegion();
+		return (long)(r.getWidth() * r.getHeight());
+	}
+	
 	@Override
 	public default boolean contains(Locatable loc) {
 		if(loc == null) return false;

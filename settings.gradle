@@ -8,4 +8,4 @@
  */
 
 rootProject.name = 'FlamesOfThora'
-include('lib')
+include('FlamesOfThora-Core')

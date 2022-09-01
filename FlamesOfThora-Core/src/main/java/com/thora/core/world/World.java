@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.thora.core.Console;
+
 /**
  * A general plane of {@link Tile Tiles} in which physical entities exist and operate.
  * For a class to implement {@link World} it has to define a rectangular region from {@link #getEstimatedArea()}, then
@@ -16,7 +18,7 @@ import java.util.stream.Stream;
  *   Implementing other methods.
  *
  */
-public abstract class World {
+public abstract class World implements Console {
 	
 	protected static final Rectangle noEstimatedSize() {
 		return null;
@@ -55,7 +57,7 @@ public abstract class World {
 				.collect(Collectors.toConcurrentMap(Tile::getLocation, Function.identity()));
 	}
 	
-	public Stream<Tile> surroundingTiles(Locatable center, int range) {
+	public Stream<? extends Tile> surroundingTiles(Locatable center, int range) {
 		Location point = center.getLocation();
 		return tiles(point.getX() - range, point.getY() - range,
 				point.getX() + range, point.getY() + range);
