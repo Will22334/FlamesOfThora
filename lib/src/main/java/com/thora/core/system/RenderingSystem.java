@@ -17,7 +17,6 @@ import com.badlogic.ashley.systems.SortedIteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -36,7 +35,6 @@ import com.thora.core.world.LocationComponent;
 import com.thora.core.world.Tile;
 import com.thora.core.world.TileType;
 import com.thora.core.world.World;
-import com.thora.core.world.WorldViewEvent;
 
 public class RenderingSystem extends SortedIteratingSystem {
 	
