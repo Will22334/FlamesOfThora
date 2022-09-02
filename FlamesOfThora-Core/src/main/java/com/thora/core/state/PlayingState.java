@@ -33,6 +33,7 @@ import com.thora.core.input.Key;
 import com.thora.core.system.MoveSystem;
 import com.thora.core.system.MoveValidationSystem;
 import com.thora.core.system.RenderingSystem;
+import com.thora.core.system.WorldRenderer;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
 import com.thora.core.world.LocationComponent;
@@ -53,8 +54,9 @@ public class PlayingState extends GameState {
 	private static final Key KEY_DOWN = new Key(Keys.DOWN);
 	private static final Key KEY_LEFT = new Key(Keys.LEFT);
 	private static final Key KEY_RIGHT = new Key(Keys.RIGHT);
+	private static final Key KEY_G = new Key(Keys.G);
 	
-	private RenderingSystem renderingSystem;
+	private WorldRenderer worldRenderer;
 	
 	public static final Matrix4 NATIVE_MATRIX = new Matrix4();
 	
@@ -108,6 +110,12 @@ public class PlayingState extends GameState {
 		//TODO Instead of polling input every frame, have a State specific InputProcesser implement input logic.
 		if(KEY_ESCAPE.ifPressed()) {
 			Gdx.app.exit();
+		}
+		
+		if(KEY_G.ifPressed()) {
+			
+			worldRenderer.toggleBorders();
+			
 		}
 		
 		long time = System.currentTimeMillis();
@@ -245,7 +253,7 @@ public class PlayingState extends GameState {
 		inputHandler.RegisterKey(KEY_DOWN);
 		inputHandler.RegisterKey(KEY_LEFT);
 		inputHandler.RegisterKey(KEY_RIGHT);
-		
+		inputHandler.RegisterKey(KEY_G);
 		
 		
 		Location spawn = new Location(50, 50);
@@ -258,10 +266,10 @@ public class PlayingState extends GameState {
 		
 		
 		
-		renderingSystem = new RenderingSystem(worldBatch, client().world(), worldCamera, player.getComponent(LocationComponent.class),
+		worldRenderer = new WorldRenderer(worldBatch, client().world(), worldCamera, player.getComponent(LocationComponent.class),
 				resizeSignal, 100);
 		
-		engine().addSystem(renderingSystem);
+		engine().addSystem(worldRenderer);
 		
 		
 		engine().addSystem(new MoveSystem(20));
@@ -308,7 +316,7 @@ public class PlayingState extends GameState {
 	@Override
 	public void exit() {
 		//Gdx.input.setInputProcessor(null);
-		engine().removeSystem(renderingSystem);
+		engine().removeSystem(worldRenderer);
 		engine().removeAllEntities();
 		worldBatch.dispose();
 		hudBatch.dispose();
