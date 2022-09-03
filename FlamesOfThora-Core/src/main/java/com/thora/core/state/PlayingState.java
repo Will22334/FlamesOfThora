@@ -21,6 +21,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.thora.core.FlamesOfThora;
+import com.thora.core.entity.EntityRenderer;
 import com.thora.core.entity.EntityType;
 import com.thora.core.entity.PlayerComponent;
 import com.thora.core.entity.TypeComponent;
@@ -32,13 +33,12 @@ import com.thora.core.input.InputListener;
 import com.thora.core.input.Key;
 import com.thora.core.system.MoveSystem;
 import com.thora.core.system.MoveValidationSystem;
-import com.thora.core.system.RenderingSystem;
-import com.thora.core.system.WorldRenderer;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
 import com.thora.core.world.LocationComponent;
 import com.thora.core.world.MovableComponent;
 import com.thora.core.world.MoveEventComponent;
+import com.thora.core.world.WorldRenderer;
 
 public class PlayingState extends GameState {
 	
@@ -57,12 +57,14 @@ public class PlayingState extends GameState {
 	private static final Key KEY_G = new Key(Keys.G);
 	
 	private WorldRenderer worldRenderer;
+	private EntityRenderer entityRenderer;
 	
 	public static final Matrix4 NATIVE_MATRIX = new Matrix4();
 	
 	private OrthographicCamera worldCamera;
 	private SpriteBatch worldBatch;
 	private SpriteBatch hudBatch;
+	private SpriteBatch entityBatch;
 	private ShapeRenderer shapeRend;
 	
 	private BitmapFont font;
@@ -263,8 +265,7 @@ public class PlayingState extends GameState {
 		
 		worldCamera = new OrthographicCamera(g().getWidth()/viewportScale, g().getHeight()/viewportScale);
 		worldCamera.position.set(spawn.getX(), spawn.getY(), 0);
-		
-		
+	
 		
 		worldRenderer = new WorldRenderer(worldBatch, client().world(), worldCamera, player.getComponent(LocationComponent.class),
 				resizeSignal, 100);
@@ -322,6 +323,14 @@ public class PlayingState extends GameState {
 		hudBatch.dispose();
 		shapeRend.dispose();
 		font.dispose();
+	}
+
+	public SpriteBatch getEntityBatch() {
+		return entityBatch;
+	}
+
+	public void setEntityBatch(SpriteBatch entityBatch) {
+		this.entityBatch = entityBatch;
 	}
 	
 }

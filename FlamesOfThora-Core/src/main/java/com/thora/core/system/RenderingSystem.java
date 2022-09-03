@@ -30,7 +30,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 	
 	static final float TILE_TEXTURE_SIZE = 300f;
 	static final float PPM = 300f; // sets the amount of pixels each metre of box2d objects contains
-	static final float TILE_TEXTURE_DRAW_RATIO = TILE_TEXTURE_SIZE / PPM;
+	protected static final float TILE_TEXTURE_DRAW_RATIO = TILE_TEXTURE_SIZE / PPM;
 	
 	// this gets the height and width of our camera frustrum based off the width and height of the screen and our pixel per meter ratio
 	public static float FRUSTUM_WIDTH = Gdx.graphics.getWidth()/PPM;
@@ -100,10 +100,10 @@ public class RenderingSystem extends SortedIteratingSystem {
 		this.focus = Objects.requireNonNull(focus, "RenderSystem's focus object cannot be null!");
 		this.comparator = new ZComparator();
 		
+		
+		this.batch = batch;
 		// create the array for sorting entities
 		setRenderQueue(new Array<Entity>());
-		
-		this.batch = batch;  // set our batch to the one supplied in constructor
 		
 		// set up the camera to match our screen size
 		setCam(camera);
@@ -165,6 +165,8 @@ public class RenderingSystem extends SortedIteratingSystem {
 					PixelsToMeters(width), PixelsToMeters(height));
 			
 		}
+		batch.end();
+		getRenderQueue().clear();
 		
 	}
 
