@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.thora.core.Console;
 import com.thora.core.FlamesOfThora;
 import com.thora.core.entity.EntityRenderer;
 import com.thora.core.entity.EntityType;
@@ -40,7 +41,7 @@ import com.thora.core.world.MovableComponent;
 import com.thora.core.world.MoveEventComponent;
 import com.thora.core.world.WorldRenderer;
 
-public class PlayingState extends GameState {
+public class PlayingState extends GameState implements Console {
 	
 	private static final Logger logger =  LogManager.getLogger(PlayingState.class);
 	private static final InputHandler inputHandler = new InputHandler();
@@ -48,6 +49,9 @@ public class PlayingState extends GameState {
 	
 	public static final double WALK_SPEED_TPS = 12f;
 	public static final long WALK_TILE_DURATION = (long) (1000 / WALK_SPEED_TPS);
+	
+	public static final double GRID_TOGGLE_SPEED_TPS = 90f;
+	public static final long GRID_TOGGLE_LIMIT_DURATION = (long) (100 / GRID_TOGGLE_SPEED_TPS * 1.2);
 	
 	private static final Key KEY_ESCAPE = new Key(Keys.ESCAPE);
 	private static final Key KEY_UP = new Key(Keys.UP);
@@ -58,6 +62,9 @@ public class PlayingState extends GameState {
 	
 	private WorldRenderer worldRenderer;
 	private EntityRenderer entityRenderer;
+	
+	private float delta;
+	private float lastGridToggleTime;
 	
 	public static final Matrix4 NATIVE_MATRIX = new Matrix4();
 	
@@ -107,6 +114,8 @@ public class PlayingState extends GameState {
 	@Override
 	public void Update() {
 		
+		delta += Gdx.app.getGraphics().getDeltaTime();
+		
 		Location loc = player.getComponent(LocationComponent.class).getLocation();
 		
 		//TODO Instead of polling input every frame, have a State specific InputProcesser implement input logic.
@@ -114,9 +123,25 @@ public class PlayingState extends GameState {
 			Gdx.app.exit();
 		}
 		
+		//Toggles the Grid. Modify Time offset for better responsiveness.
 		if(KEY_G.ifPressed()) {
 			
-			worldRenderer.toggleBorders();
+			//this.log("Last resized at: " + lastResizeTime);
+			
+			if((lastGridToggleTime + GRID_TOGGLE_LIMIT_DURATION) < delta) {
+			
+				this.log("Last Resized at: " + lastGridToggleTime);
+				
+				this.log("Toggling Grid");
+				
+				worldRenderer.toggleBorders();
+				
+				lastGridToggleTime = delta;
+				
+			}
+				
+			
+			
 			
 		}
 		

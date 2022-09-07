@@ -20,6 +20,7 @@ public class WorldRenderer extends RenderingSystem {
 
 	private final World world;
 	SpriteBatch batch;
+	protected ShapeRenderer shapeRend;
 	private boolean tileBorders = true;
 	private int viewRange = FlamesOfThora.DEFAULT_VIEW_RANGE;
 	
@@ -50,6 +51,7 @@ public class WorldRenderer extends RenderingSystem {
 		this.batch = batch;
 		// TODO Auto-generated constructor stub
 		this.world = world;
+		shapeRend = new ShapeRenderer();
 	}
 
 	public void render() {
@@ -71,12 +73,6 @@ public class WorldRenderer extends RenderingSystem {
 			drawTilesWithoutBorders(world);
 		
 		}
-		
-		
-		
-		
-		
-		
 		shapeRend.end();
 		batch.end();
 		

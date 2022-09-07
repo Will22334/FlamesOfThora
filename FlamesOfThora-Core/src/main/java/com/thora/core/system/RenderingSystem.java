@@ -61,7 +61,6 @@ public class RenderingSystem extends SortedIteratingSystem {
 	
 	
 	protected SpriteBatch batch; // a reference to our spritebatch
-	protected ShapeRenderer shapeRend;
 	
 	private final Listener<Dimension> resizeListener = new Listener<Dimension>() {
 		@Override
@@ -107,7 +106,6 @@ public class RenderingSystem extends SortedIteratingSystem {
 		
 		// set up the camera to match our screen size
 		setCam(camera);
-		shapeRend = new ShapeRenderer();
 		//cam.position.set(FRUSTUM_WIDTH / 2f, FRUSTUM_HEIGHT / 2f, 0);
 		
 		this.resizeSignal = resizeSignal;
