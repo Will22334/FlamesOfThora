@@ -156,7 +156,7 @@ public class PlayingState extends GameState implements Console {
 		handleInput();
 		
 		//Update the camera.
-		worldCamera.update();
+		//worldCamera.update();
 		
 	}
 	
@@ -231,10 +231,10 @@ public class PlayingState extends GameState implements Console {
 		engine().addSystem(worldRenderer);
 		
 		
-		engine().addSystem(new MoveSystem(20));
-		
 		
 		engine().addSystem(new MoveValidationSystem(10));
+		
+		engine().addSystem(new MoveSystem(20));
 		
 	}
 	
@@ -342,10 +342,12 @@ public class PlayingState extends GameState implements Console {
 
 			if(!v.isZero()) {
 				player.add(engine().createComponent(MoveEventComponent.class).set(v));
+				
 				loc.shift((int)v.x, (int)v.y);
-				//worldCamera.position.add(v.x, v.y, 0);
+				worldCamera.position.add(v.x, v.y, 0);
 				v.setZero();
 				lastWalkTime = time;
+				worldCamera.update();
 			}
 		}
 

@@ -6,18 +6,23 @@ import java.util.Map;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Dimension;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.signals.Signal;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.thora.core.FlamesOfThora;
+import com.thora.core.graphics.MultiTextureComponent;
+import com.thora.core.graphics.TextureComponent;
+import com.thora.core.graphics.TransformComponent;
 import com.thora.core.system.RenderingSystem;
 
 public class WorldRenderer extends RenderingSystem {
-
+	
 	private final World world;
 	SpriteBatch batch;
 	protected ShapeRenderer shapeRend;
@@ -43,24 +48,23 @@ public class WorldRenderer extends RenderingSystem {
 			tileTextures.put(type, texture);
 		}
 	}
-
+	
 	
 	public WorldRenderer(SpriteBatch batch, World world, Camera camera, Locatable focus, Signal<Dimension> resizeSignal,
 			int priority) {
 		super(batch, camera, focus, resizeSignal, priority);
 		this.batch = batch;
-		// TODO Auto-generated constructor stub
 		this.world = world;
 		shapeRend = new ShapeRenderer();
 	}
-
+	
 	public void render() {
 		
 	}
 	
-	
+	@Override
 	public void update(float deltaTime) {
-		super.update(deltaTime);
+		//super.update(deltaTime);
 		
 		batch.begin();
 		
@@ -69,12 +73,15 @@ public class WorldRenderer extends RenderingSystem {
 			drawTilesWithBorders(world);
 			
 		} else {
-		
+			
 			drawTilesWithoutBorders(world);
-		
+			
 		}
+		
 		shapeRend.end();
 		batch.end();
+		
+		drawEntities(world);
 		
 	}
 	
@@ -168,5 +175,54 @@ public class WorldRenderer extends RenderingSystem {
 		
 	}
 	
+	protected void drawEntities(World world) {
+		// sort the renderQueue based on z index
+		//getRenderQueue().sort(comparator);
+		//this.getEntities();
+		
+		// update camera and sprite batch
+//		getCam().update();
+//		getCam().position.set(focus.getX() + .5f, focus.getY() +.5f, 0f);
+//		batch.setProjectionMatrix(getCam().combined);
+//		Gdx.gl.glEnable(GL11.GL_BLEND);
+//		batch.enableBlending();
+//		getCam().update();
+//		batch.begin();
+
+		getCam().update();
+		batch.setProjectionMatrix(getCam().combined);
+		getCam().position.set(focus.getX() + .5f, focus.getY() +.5f, 0f);
+		batch.enableBlending();
+		//getCam().update();
+		batch.begin();
+		
+		// loop through each entity in our render queue
+		for (Entity entity : this.getEntities()) {
+			
+			TransformComponent t = transformM.get(entity);
+			if(t.isHidden) continue;
+			
+			LocationComponent loc = locationM.get(entity);
+			TextureComponent tex = textureM.get(entity);
+			MultiTextureComponent tex2 = multitextureM.get(entity);
+			
+			if (loc == null || tex == null) {
+				continue;
+			}
+			TextureRegion texRegion = tex.getRegion();
+			
+			
+			float width = texRegion.getRegionWidth();
+			float height = texRegion.getRegionHeight();
+			final TextureRegion texture = tex2.getActiveComponent().getRegion();
+			
+			batch.draw(texture,
+					loc.getX() + (PPM - width)/PPM/2, loc.getY(),
+					PixelsToMeters(width), PixelsToMeters(height));
+			
+		}
+		batch.end();
+		getRenderQueue().clear();
+	}
 	
 }

@@ -16,7 +16,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.thora.core.graphics.MultiTextureComponent;
@@ -28,8 +27,8 @@ import com.thora.core.world.LocationComponent;
 
 public class RenderingSystem extends SortedIteratingSystem {
 	
-	static final float TILE_TEXTURE_SIZE = 300f;
-	static final float PPM = 300f; // sets the amount of pixels each metre of box2d objects contains
+	protected static final float TILE_TEXTURE_SIZE = 300f;
+	protected static final float PPM = 300f; // sets the amount of pixels each metre of box2d objects contains
 	protected static final float TILE_TEXTURE_DRAW_RATIO = TILE_TEXTURE_SIZE / PPM;
 	
 	// this gets the height and width of our camera frustrum based off the width and height of the screen and our pixel per meter ratio
@@ -71,10 +70,10 @@ public class RenderingSystem extends SortedIteratingSystem {
 	};
 	
 	// component mappers to get components from entities
-	private static final ComponentMapper<LocationComponent> locationM = ComponentMapper.getFor(LocationComponent.class);
-	private static final ComponentMapper<TextureComponent> textureM = ComponentMapper.getFor(TextureComponent.class);
-	private static final ComponentMapper<MultiTextureComponent> multitextureM = ComponentMapper.getFor(MultiTextureComponent.class);
-	private static final ComponentMapper<TransformComponent> transformM = ComponentMapper.getFor(TransformComponent.class);
+	public static final ComponentMapper<LocationComponent> locationM = ComponentMapper.getFor(LocationComponent.class);
+	public static final ComponentMapper<TextureComponent> textureM = ComponentMapper.getFor(TextureComponent.class);
+	public static final ComponentMapper<MultiTextureComponent> multitextureM = ComponentMapper.getFor(MultiTextureComponent.class);
+	public static final ComponentMapper<TransformComponent> transformM = ComponentMapper.getFor(TransformComponent.class);
 	
 	public static final Family FAMILY = Family.all(LocationComponent.class, TransformComponent.class, TextureComponent.class).get();
 	
@@ -84,10 +83,10 @@ public class RenderingSystem extends SortedIteratingSystem {
 	 */
 	
 	private Array<Entity> renderQueue; // an array used to allow sorting of images allowing us to draw images on top of each other
-	private Comparator<Entity> comparator; // a comparator to sort images based on the z position of the transfromComponent
+	protected Comparator<Entity> comparator; // a comparator to sort images based on the z position of the transfromComponent
 	private Camera cam; // a reference to our camera
 	
-	private Locatable focus;
+	protected Locatable focus;
 	
 	private Signal<Dimension> resizeSignal;
 	
