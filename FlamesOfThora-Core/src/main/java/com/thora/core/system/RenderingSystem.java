@@ -1,8 +1,6 @@
 package com.thora.core.system;
 
 import java.util.Comparator;
-import java.util.EnumMap;
-import java.util.Map;
 import java.util.Objects;
 
 import org.lwjgl.opengl.GL11;
@@ -16,31 +14,23 @@ import com.badlogic.ashley.signals.Signal;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.thora.core.FlamesOfThora;
 import com.thora.core.graphics.MultiTextureComponent;
 import com.thora.core.graphics.TextureComponent;
 import com.thora.core.graphics.TransformComponent;
 import com.thora.core.graphics.ZComparator;
 import com.thora.core.world.Locatable;
-import com.thora.core.world.Location;
 import com.thora.core.world.LocationComponent;
-import com.thora.core.world.Tile;
-import com.thora.core.world.TileType;
-import com.thora.core.world.World;
 
 public class RenderingSystem extends SortedIteratingSystem {
 	
 	static final float TILE_TEXTURE_SIZE = 300f;
 	static final float PPM = 300f; // sets the amount of pixels each metre of box2d objects contains
-	static final float TILE_TEXTURE_DRAW_RATIO = TILE_TEXTURE_SIZE / PPM;
+	protected static final float TILE_TEXTURE_DRAW_RATIO = TILE_TEXTURE_SIZE / PPM;
 	
 	// this gets the height and width of our camera frustrum based off the width and height of the screen and our pixel per meter ratio
 	public static float FRUSTUM_WIDTH = Gdx.graphics.getWidth()/PPM;
@@ -69,6 +59,9 @@ public class RenderingSystem extends SortedIteratingSystem {
 		return pixelValue * PIXELS_TO_METRES;
 	}
 	
+	
+	protected SpriteBatch batch; // a reference to our spritebatch
+	
 	private final Listener<Dimension> resizeListener = new Listener<Dimension>() {
 		@Override
 		public void receive(Signal<Dimension> signal, Dimension newSize) {
@@ -89,57 +82,30 @@ public class RenderingSystem extends SortedIteratingSystem {
 	 * TODO Move texture loading outside of static block so time of loading is predictable
 	 * and IO exception handling can be changed.
 	 */
-	private static final Map<TileType,Texture> tileTextures;
-	
-	private static final Texture getTileTexture(Tile tile) {
-		return getTileTexture(tile.getType());
-	}
-	
-	private static final Texture getTileTexture(TileType type) {
-		return tileTextures.get(type);
-	}
-	
-	static {
-		tileTextures = new EnumMap<>(TileType.class);
-		for(TileType type: TileType.all()) {
-			Texture texture = new Texture("assets/tiles/" + type.getName().toLowerCase() + ".png");
-			tileTextures.put(type, texture);
-		}
-	}
-	
-	
-	private final World world;
-	private SpriteBatch batch; // a reference to our spritebatch
-	private ShapeRenderer shapeRend;
 	
 	private Array<Entity> renderQueue; // an array used to allow sorting of images allowing us to draw images on top of each other
 	private Comparator<Entity> comparator; // a comparator to sort images based on the z position of the transfromComponent
 	private Camera cam; // a reference to our camera
 	
 	private Locatable focus;
-	private int viewRange = FlamesOfThora.DEFAULT_VIEW_RANGE;
-	
-	private FrameBuffer tileBack;
 	
 	private Signal<Dimension> resizeSignal;
 	
-	public RenderingSystem(SpriteBatch batch, World world, Camera camera, Locatable focus,
+	public RenderingSystem(SpriteBatch batch, Camera camera, Locatable focus,
 			Signal<Dimension> resizeSignal, int priority) {
 		// gets all entities with a TransofmComponent and TextureComponent
 		super(FAMILY, new ZComparator(), priority);
 		
-		this.world = world;
 		this.focus = Objects.requireNonNull(focus, "RenderSystem's focus object cannot be null!");
 		this.comparator = new ZComparator();
 		
-		// create the array for sorting entities
-		renderQueue = new Array<Entity>();
 		
-		this.batch = batch;  // set our batch to the one supplied in constructor
+		this.batch = batch;
+		// create the array for sorting entities
+		setRenderQueue(new Array<Entity>());
 		
 		// set up the camera to match our screen size
-		cam = camera;
-		shapeRend = new ShapeRenderer();
+		setCam(camera);
 		//cam.position.set(FRUSTUM_WIDTH / 2f, FRUSTUM_HEIGHT / 2f, 0);
 		
 		this.resizeSignal = resizeSignal;
@@ -147,38 +113,34 @@ public class RenderingSystem extends SortedIteratingSystem {
 		
 	}
 	
-	public static final Color TILE_BORDER_COLOR = new Color(0f, 0f, 0f, .2f);
-	
 	protected Locatable getFocus() {
 		return focus;
 	}
 	
 	@Override
 	public void processEntity(Entity entity, float deltaTime) {
-		renderQueue.add(entity);
+		getRenderQueue().add(entity);
 	}
 	
-	@Override
 	public void update(float deltaTime) {
 		super.update(deltaTime);
 		
 		// sort the renderQueue based on z index
-		renderQueue.sort(comparator);
+		getRenderQueue().sort(comparator);
 		this.getEntities();
 		
 		// update camera and sprite batch
-		cam.position.set(focus.getLocation().getX() + .5f, focus.getLocation().getY() +.5f, 0f);
-		cam.update();
-		batch.setProjectionMatrix(cam.combined);
+		getCam().position.set(focus.getLocation().getX() + .5f, focus.getLocation().getY() +.5f, 0f);
+		getCam().update();
+		batch.setProjectionMatrix(getCam().combined);
 		Gdx.gl.glEnable(GL11.GL_BLEND);
 		batch.enableBlending();
-		cam.update();
+		getCam().update();
 		batch.begin();
 		
-		drawTiles(world);
 		
 		// loop through each entity in our render queue
-		for (Entity entity : renderQueue) {
+		for (Entity entity : getRenderQueue()) {
 			
 			TransformComponent t = transformM.get(entity);
 			if(t.isHidden) continue;
@@ -201,85 +163,31 @@ public class RenderingSystem extends SortedIteratingSystem {
 					PixelsToMeters(width), PixelsToMeters(height));
 			
 		}
-		
-		shapeRend.end();
 		batch.end();
-		renderQueue.clear();
+		getRenderQueue().clear();
 		
 	}
-	
-	protected void drawTiles(World world) {
-		drawTileTextures(world);
-		
-		drawTileBorders(world);
-		
-	}
-	
-	private void drawTileTextures(World world) {
-		world.surroundingTiles(getFocus(), viewRange)
-		.forEach(this::drawTileTexture);
-	}
-	
-	private void drawTileBorders(World world) {
-		batch.end();
-		cam.update();
-		Gdx.gl.glEnable(GL11.GL_BLEND);
-		Gdx.gl.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		Gdx.gl.glLineWidth(1f);
-		shapeRend.setProjectionMatrix(cam.combined);
-		shapeRend.begin(ShapeRenderer.ShapeType.Line);
-		
-		world.surroundingTiles(getFocus(), viewRange)
-		.forEach(this::drawTileBorder);
-		
-		shapeRend.end();
-		batch.begin();
-	}
-	
-	protected void drawTileBorder(Tile tile) {
-		Location loc = tile.getLocation();
-		shapeRend.setColor(TILE_BORDER_COLOR);
-		
-		shapeRend.rect(loc.getX(), loc.getY(),
-				TILE_TEXTURE_DRAW_RATIO, TILE_TEXTURE_DRAW_RATIO);
-	}
-	
-	protected void drawTileTexture(Tile tile) {
-		Texture t = getTileTexture(tile);
-		Location loc = tile.getLocation();
-		int width = t.getWidth();
-		int height = t.getHeight();
-		
-		//float originX = width/2f;
-		//float originY = height/2f;
-		
-		batch.draw(t,
-				loc.getX(), loc.getY(),
-				TILE_TEXTURE_DRAW_RATIO, TILE_TEXTURE_DRAW_RATIO);
-		
-		//		batch.draw(t,
-		//				loc.getX() , loc.getY(),
-		//				0f, 0f,
-		//				width, height,
-		//				1f,
-		//				width, height,
-		//				0, 0,
-		//				width, height,
-		//				false, false);
-		
-		//		batch.draw(t,
-		//				loc.getX(), loc.getY(),
-		//				width / PPM, height / PPM,
-		//				1, 1,
-		//				1, 1,
-		//				0f,
-		//				priority, priority,
-		//				(int)width, (int)height,
-		//				false, false);
-	}
-	
+
 	// convenience method to get camera
 	public Camera getCamera() {
+		return getCam();
+	}
+
+
+
+	public Camera getCam() {
 		return cam;
+	}
+
+	public void setCam(Camera cam) {
+		this.cam = cam;
+	}
+
+	public Array<Entity> getRenderQueue() {
+		return renderQueue;
+	}
+
+	public void setRenderQueue(Array<Entity> renderQueue) {
+		this.renderQueue = renderQueue;
 	}
 }

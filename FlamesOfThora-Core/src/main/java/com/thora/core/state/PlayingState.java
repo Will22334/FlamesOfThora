@@ -1,7 +1,5 @@
 package com.thora.core.state;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Dimension;
 
@@ -20,6 +18,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.thora.core.Console;
 import com.thora.core.FlamesOfThora;
 import com.thora.core.entity.EntityType;
 import com.thora.core.entity.PlayerComponent;
@@ -32,35 +31,42 @@ import com.thora.core.input.InputListener;
 import com.thora.core.input.Key;
 import com.thora.core.system.MoveSystem;
 import com.thora.core.system.MoveValidationSystem;
-import com.thora.core.system.RenderingSystem;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
 import com.thora.core.world.LocationComponent;
 import com.thora.core.world.MovableComponent;
 import com.thora.core.world.MoveEventComponent;
+import com.thora.core.world.WorldRenderer;
 
-public class PlayingState extends GameState {
+public class PlayingState extends GameState implements Console {
 	
-	private static final Logger logger =  LogManager.getLogger(PlayingState.class);
 	private static final InputHandler inputHandler = new InputHandler();
 	private static final InputListener inputListener = new InputListener(inputHandler);
 	
 	public static final double WALK_SPEED_TPS = 12f;
 	public static final long WALK_TILE_DURATION = (long) (1000 / WALK_SPEED_TPS);
 	
+	public static final double GRID_TOGGLE_SPEED_TPS = 7.5f;
+	public static final long GRID_TOGGLE_LIMIT_DURATION = (long) (8 / GRID_TOGGLE_SPEED_TPS);
+	
 	private static final Key KEY_ESCAPE = new Key(Keys.ESCAPE);
 	private static final Key KEY_UP = new Key(Keys.UP);
 	private static final Key KEY_DOWN = new Key(Keys.DOWN);
 	private static final Key KEY_LEFT = new Key(Keys.LEFT);
 	private static final Key KEY_RIGHT = new Key(Keys.RIGHT);
+	private static final Key KEY_G = new Key(Keys.G);
 	
-	private RenderingSystem renderingSystem;
+	private WorldRenderer worldRenderer;
+	
+	private float delta;
+	private float lastGridToggleTime;
 	
 	public static final Matrix4 NATIVE_MATRIX = new Matrix4();
 	
 	private OrthographicCamera worldCamera;
 	private SpriteBatch worldBatch;
 	private SpriteBatch hudBatch;
+	private SpriteBatch entityBatch;
 	private ShapeRenderer shapeRend;
 	
 	private BitmapFont font;
@@ -85,71 +91,24 @@ public class PlayingState extends GameState {
 	}
 	
 	@Override
-	public final Logger logger() {
-		return logger;
-	}
-	
-	@Override
 	public void onCreate() {
-		logger().trace("Created Playing State!!");
 		this.appSize = new Dimension(g().getWidth(), g().getHeight());
+		this.log("Created Playing State!");
 	}
 	
-	Matrix4 uiMatrix = new Matrix4();
+	private Matrix4 uiMatrix = new Matrix4();
 	private static final Color COLOR_OFF_WHITE = new Color(1f, 1f, 1f, .5f);
 	
 	private final Vector2 v = new Vector2();
-	
-	@Override
-	public void Update() {
 		
-		Location loc = player.getComponent(LocationComponent.class).getLocation();
-		
-		//TODO Instead of polling input every frame, have a State specific InputProcesser implement input logic.
-		if(KEY_ESCAPE.ifPressed()) {
-			Gdx.app.exit();
-		}
-		
-		long time = System.currentTimeMillis();
-		if(time > lastWalkTime + WALK_TILE_DURATION) {
-			
-			if(KEY_UP.ifPressed()) {
-				v.add(0, 1);
-				player.getComponent(MultiTextureComponent.class).setActiveComponent(1);
-			}
-			
-			if(KEY_DOWN.ifPressed()) {
-				player.getComponent(MultiTextureComponent.class).setActiveComponent(0);
-				v.add(0, -1);
-			}
-			
-			if(KEY_LEFT.ifPressed()) {
-				v.add(-1, 0);
-			}
-			
-			if(KEY_RIGHT.ifPressed()) {
-				v.add(1, 0);
-			}
-			
-			if(!v.isZero()) {
-				player.add(engine().createComponent(MoveEventComponent.class).set(v));
-				loc.shift((int)v.x, (int)v.y);
-				//worldCamera.position.add(v.x, v.y, 0);
-				v.setZero();
-				lastWalkTime = time;
-			}
-		}
-		
-	}
-	
+	//Various tasks that should be completed on the render portion of the game loop.
 	@Override
 	public void onRender() {
 		Gdx.gl.glClearColor( 0, 0, 0, 1 );
 		Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
 		
-		engine().update(Gdx.graphics.getDeltaTime());
-		
-		worldCamera.update();
+		//Updates the entity system. 
+		engine().update(delta);
 		
 		float width = g().getWidth();
 		float height = g().getHeight();
@@ -186,6 +145,21 @@ public class PlayingState extends GameState {
 		Update();
 	}
 	
+	//Various tasks that should be completed on the update portion of the game loop.
+	@Override
+	public void Update() {
+		
+		//Update the Delta.
+		updateLocalDelta();
+		
+		//Handle Key Events for Keyboard Keys registered in this state.
+		handleInput();
+		
+		//Update the camera.
+		worldCamera.update();
+		
+	}
+	
 	@Override
 	public void onPause() {
 		
@@ -193,12 +167,6 @@ public class PlayingState extends GameState {
 	
 	@Override
 	public void onResume() {
-		
-	}
-	
-	@Override
-	public void setName(String name) {
-		// TODO Auto-generated method stub
 		
 	}
 	
@@ -245,7 +213,7 @@ public class PlayingState extends GameState {
 		inputHandler.RegisterKey(KEY_DOWN);
 		inputHandler.RegisterKey(KEY_LEFT);
 		inputHandler.RegisterKey(KEY_RIGHT);
-		
+		inputHandler.RegisterKey(KEY_G);
 		
 		
 		Location spawn = new Location(50, 50);
@@ -255,13 +223,12 @@ public class PlayingState extends GameState {
 		
 		worldCamera = new OrthographicCamera(g().getWidth()/viewportScale, g().getHeight()/viewportScale);
 		worldCamera.position.set(spawn.getX(), spawn.getY(), 0);
+	
 		
-		
-		
-		renderingSystem = new RenderingSystem(worldBatch, client().world(), worldCamera, player.getComponent(LocationComponent.class),
+		worldRenderer = new WorldRenderer(worldBatch, client().world(), worldCamera, player.getComponent(LocationComponent.class),
 				resizeSignal, 100);
 		
-		engine().addSystem(renderingSystem);
+		engine().addSystem(worldRenderer);
 		
 		
 		engine().addSystem(new MoveSystem(20));
@@ -308,12 +275,98 @@ public class PlayingState extends GameState {
 	@Override
 	public void exit() {
 		//Gdx.input.setInputProcessor(null);
-		engine().removeSystem(renderingSystem);
+		engine().removeSystem(worldRenderer);
 		engine().removeAllEntities();
 		worldBatch.dispose();
 		hudBatch.dispose();
 		shapeRend.dispose();
 		font.dispose();
 	}
+
+	public SpriteBatch getEntityBatch() {
+		return entityBatch;
+	}
+
+	public void setEntityBatch(SpriteBatch entityBatch) {
+		this.entityBatch = entityBatch;
+	}
 	
+	private void handleInput() {
+
+		Location loc = player.getComponent(LocationComponent.class).getLocation();
+
+		//TODO Instead of polling input every frame, have a State specific InputProcesser implement input logic.
+		if(KEY_ESCAPE.ifPressed()) {
+
+			Gdx.app.exit();
+
+		}
+
+		//Toggles the Grid. Modify Time offset for better responsiveness.
+		if(KEY_G.ifPressed()) {
+
+			if((lastGridToggleTime + GRID_TOGGLE_LIMIT_DURATION) < delta) {
+
+				this.log("Last Resized at: " + lastGridToggleTime);
+
+				this.log("Toggling Grid");
+
+				worldRenderer.toggleBorders();
+
+				lastGridToggleTime = delta;
+
+			}
+
+		}
+
+		long time = System.currentTimeMillis();
+		if(time > lastWalkTime + WALK_TILE_DURATION) {
+
+			if(KEY_UP.ifPressed()) {
+				v.add(0, 1);
+				player.getComponent(MultiTextureComponent.class).setActiveComponent(1);
+			}
+
+			if(KEY_DOWN.ifPressed()) {
+				player.getComponent(MultiTextureComponent.class).setActiveComponent(0);
+				v.add(0, -1);
+			}
+
+			if(KEY_LEFT.ifPressed()) {
+				v.add(-1, 0);
+			}
+
+			if(KEY_RIGHT.ifPressed()) {
+				v.add(1, 0);
+			}
+
+			if(!v.isZero()) {
+				player.add(engine().createComponent(MoveEventComponent.class).set(v));
+				loc.shift((int)v.x, (int)v.y);
+				//worldCamera.position.add(v.x, v.y, 0);
+				v.setZero();
+				lastWalkTime = time;
+			}
+		}
+
+	}
+
+	/* Updates the local delta time. 
+	*(The time since the playing state was created and the first update was ran)
+	*/
+	private void updateLocalDelta() {
+		
+		delta += Gdx.app.getGraphics().getDeltaTime();
+	}
+
+	@Override
+	public void setName(String name) {
+		
+		//Sets the state name to Playing State(Hard Coded for utility purposes)
+		
+		this.setName("Playing State");
+		
+	}
+
+
 }
