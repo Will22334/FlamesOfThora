@@ -1,6 +1,6 @@
 package com.thora.core.net.message;
 
-public class LoginRequestMessage {
+public class LoginRequestMessage implements ThoraMessage {
 	
 	public final String username, password;
 	public final long timeStamp, sessionKey;

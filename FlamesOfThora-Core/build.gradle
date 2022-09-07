@@ -42,7 +42,7 @@ dependencies {
     
     implementation "com.badlogicgames.gdx:gdx-platform:1.9.3:natives-desktop"
     
-    api group: 'io.netty', name: 'netty-all', version: '4.1.79.Final'
+    implementation group: 'io.netty', name: 'netty-all', version: '4.1.79.Final'
 }
 
 
