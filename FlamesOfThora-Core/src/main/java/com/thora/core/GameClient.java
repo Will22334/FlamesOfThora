@@ -1,8 +1,5 @@
 package com.thora.core;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -10,11 +7,10 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 
-public class GameClient implements ApplicationListener, Console {
+public abstract class GameClient implements ApplicationListener, Console {
 	
 	public static final Logger logger = LogManager.getLogger(GameClient.class);
 	
-	private Map<Class<GameScreen>,GameScreen> screens = new HashMap<>();
 	private GameScreen currentScreen;
 	private GameScreen prevScreen;
 	
@@ -23,18 +19,8 @@ public class GameClient implements ApplicationListener, Console {
 		return logger;
 	}
 	
-	public <S extends GameScreen> S getScreen(Class<S> c) {
-		return (S) screens.get(c);
-	}
-	
-	public <S extends GameScreen> void addScreen(Class<GameScreen> c, S screen) {
-		screens.put(c, screen);
-	}
-	
 	@Override
-	public void create() {
-		// TODO Auto-generated method stub
-	}
+	public abstract void create();
 	
 	@Override
 	public void dispose () {
@@ -67,12 +53,16 @@ public class GameClient implements ApplicationListener, Console {
 	 * @return the previously active {@link GameScreen} which may be {@code null}
 	 */
 	public GameScreen setScreen (GameScreen newScreen) {
-		if (currentScreen != null) currentScreen.hide();
+		if (currentScreen != null) {
+			currentScreen.hide();
+			currentScreen.active = false;
+		}
 		
 		prevScreen = currentScreen;
 		currentScreen = newScreen;
 		
 		if (currentScreen != null) {
+			currentScreen.active = true;
 			currentScreen.show();
 			currentScreen.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		}

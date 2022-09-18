@@ -18,7 +18,7 @@ public class IntVector {
 	}
 	
 	public final boolean isZero() {
-		return x == 0 && y == 0;
+		return equals(0,0);
 	}
 	
 	public IntVector clear() {
@@ -41,7 +41,11 @@ public class IntVector {
 		}
 		return false;
 	}
-
+	
+	public boolean equals(int x, int y) {
+		return this.x == x && this.y == y;
+	}
+	
 	@Override
 	protected IntVector clone() throws CloneNotSupportedException {
 		return new IntVector(x, y);

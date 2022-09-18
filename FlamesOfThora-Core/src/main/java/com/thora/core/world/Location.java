@@ -82,7 +82,7 @@ public class Location implements Locatable, Cloneable {
 	}
 	
 	@Override
-	protected Location clone() {
+	public Location clone() {
 		return new Location(getX(), getY());
 	}
 	

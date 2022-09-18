@@ -5,8 +5,11 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Dimension;
 
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.ashley.signals.Listener;
 import com.badlogic.ashley.signals.Signal;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -37,17 +40,15 @@ import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
 import com.thora.core.world.LocationComponent;
 import com.thora.core.world.MovableComponent;
-import com.thora.core.world.MoveEventComponent;
+import com.thora.core.world.MoveEvent;
+import com.thora.core.world.MoveRequestComponent;
 import com.thora.core.world.WorldRenderer;
 
 public class PlayingState extends GameState implements Console {
 	
 	private static final Logger logger =  LogManager.getLogger(PlayingState.class);
 	
-	private static final InputHandler inputHandler = new InputHandler();
-	private static final InputListener inputListener = new InputListener(inputHandler);
-	
-	public static final double WALK_SPEED_TPS = 12f;
+	public static final double WALK_SPEED_TPS = 10f;
 	public static final long WALK_TILE_DURATION = (long) (1000 / WALK_SPEED_TPS);
 	
 	public static final double GRID_TOGGLE_SPEED_TPS = 7.5f;
@@ -89,6 +90,9 @@ public class PlayingState extends GameState implements Console {
 	private Dimension appSize;
 	
 	private Signal<Dimension> resizeSignal = new Signal<>();
+	
+	private final InputHandler inputHandler = new InputHandler();
+	private final InputListener inputListener = new InputListener(inputHandler);
 	
 	public PlayingState(FlamesOfThora client, String name, int id) {
 		super(client, name, id);
@@ -179,7 +183,7 @@ public class PlayingState extends GameState implements Console {
 		
 	}
 	
-	public static InputListener getInputlistener() {
+	public InputListener getInputlistener() {
 		return inputListener;
 	}
 	
@@ -258,6 +262,16 @@ public class PlayingState extends GameState implements Console {
 		
 		TypeComponent type = engine.createComponent(TypeComponent.class).set(EntityType.PLAYER);
 		LocationComponent location = engine.createComponent(LocationComponent.class).setLocation(x, y);
+		MovableComponent movable = engine.createComponent(MovableComponent.class);
+		
+		movable.signal.add(new Listener<MoveEvent>() {
+			@Override
+			public void receive(Signal<MoveEvent> signal, MoveEvent event) {
+				location.getLocation().shift(event.dx(), event.dy());
+				worldCamera.position.add(event.dx(), event.dy(), 0);
+				worldCamera.update();
+			}
+		});
 		
 		TextureComponent fronttexture = engine.createComponent(TextureComponent.class).set(playerImgRegion);
 		TextureComponent backTexture = engine.createComponent(TextureComponent.class).set(playerImgBackRegion);
@@ -273,7 +287,7 @@ public class PlayingState extends GameState implements Console {
 		entity.add(player)
 		.add(type)
 		.add(location)
-		.add(MovableComponent.INSTANCE)
+		.add(movable)
 		.add(fronttexture)
 		.add(textures)
 		.add(transform);
@@ -352,13 +366,13 @@ public class PlayingState extends GameState implements Console {
 			}
 			
 			if(!v.isZero()) {
-				player.add(engine().createComponent(MoveEventComponent.class).set(v));
+				player.add(engine().createComponent(MoveRequestComponent.class).set(v.cpy()));
 				
-				loc.shift((int)v.x, (int)v.y);
-				worldCamera.position.add(v.x, v.y, 0);
+				//loc.shift((int)v.x, (int)v.y);
+				//worldCamera.position.add(v.x, v.y, 0);
 				v.setZero();
 				lastWalkTime = time;
-				worldCamera.update();
+				//worldCamera.update();
 			}
 		}
 		
