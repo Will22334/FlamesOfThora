@@ -125,7 +125,6 @@ public class HashChunkWorld extends AbstractWorld {
 		}
 		
 		protected HashChunk generate() {
-			logger().debug("Generating {}", this);
 			for(int y=0; y<chunkHeight; ++y) {
 				for(int x=0; x<chunkWidth; ++x) {
 					Location point = getOrigin().clone().shift(x, y);

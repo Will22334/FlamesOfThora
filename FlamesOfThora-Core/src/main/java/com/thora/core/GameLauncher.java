@@ -3,6 +3,7 @@ package com.thora.core;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
@@ -22,14 +23,21 @@ public class GameLauncher {
 		logger().trace("Main started");
 		
 		// A basic configuration class for the Application
-	    LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-	   
-	    //Adjust configuration parameters
-	    config = configureApplicationSettings(config);
-	    
-	    //A new Application.
-	    new LwjglApplication(new FlamesOfThora(), config);
-	      
+		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+		
+		//Adjust configuration parameters
+		config = configureApplicationSettings(config);
+		
+		
+		//Create core app listener
+		FlamesOfThora game = new FlamesOfThora();
+		
+		//A new Application.
+		Application app = new LwjglApplication(game, config);
+		
+		
+		logger().trace("Main ended");
+		
 	}
 	
 	//Reconfigures the Configuration Class

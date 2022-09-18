@@ -14,14 +14,16 @@ public class LocationComponent implements Component, Locatable {
 		return location;
 	}
 	
+	@Override
 	public final int getX() {
 		return location.getX();
 	}
-
+	
+	@Override
 	public final int getY() {
 		return location.getY();
 	}
-
+	
 	public final LocationComponent setLocation(Location location) {
 		this.location = location;
 		return this;

@@ -1,5 +1,7 @@
 package com.thora.core.world;
 
+import com.badlogic.ashley.core.Entity;
+
 /**
  * Anything that has a {@link Location}. This interface delegates Location methods to {@link #getLocation()}
  * for re-usability and convenience.
@@ -7,6 +9,10 @@ package com.thora.core.world;
  *
  */
 public interface Locatable {
+	
+	public static Locatable getComp(Entity e) {
+		return LocationComponent.MAPPER.get(e);
+	}
 	
 	public Location getLocation();
 	

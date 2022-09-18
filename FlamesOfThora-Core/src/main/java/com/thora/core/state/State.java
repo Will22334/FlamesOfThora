@@ -1,32 +1,44 @@
 package com.thora.core.state;
 
+import java.util.Objects;
+
 public abstract class State {
 	
-	private int id;
-	
-	private String stateName;
+	private final int id;
+	private final String stateName;
 	
 	public State(String name, int id) {
-		
-		stateName = name;
+		this.stateName = name;
 		this.id = id;
 	}
 	
-	public int getID() {
+	public final int getID() {
 		return id;
 	}
 	
-	public void setId(int id) {
-		this.id = id;
-	}
-	
-	public String getStateName() {
+	public final String getStateName() {
 		return stateName;
 	}
 	
 	@Override
 	public String toString() {
 		return getStateName();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o == null) return false;
+		if(o instanceof State) {
+			State s = (State) o;
+			return this.id == s.id &&
+					this.stateName.equals(s.stateName);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, stateName);
 	}
 	
 }

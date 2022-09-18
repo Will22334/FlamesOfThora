@@ -8,8 +8,8 @@ public class StateManager implements Console {
 
 	private static StateList States = new StateList();
 	
-	private GameState activeState;
-	private GameState lastState;
+	private GameState currentState;
+	private GameState prevState;
 	
 	private int statecounter = 0;
 	
@@ -29,16 +29,36 @@ public class StateManager implements Console {
 	
 	public void setActiveState(int id) {
 		
-		lastState = activeState;
+		//Keep local references to current and new state before altering member fields
+		GameState newState = States.getState(id);
+		GameState oldState = currentState;
 		
-		if(lastState != null) lastState.exit();
-		activeState = States.getState(id);
+		logger().info("Changing State: [{}] -> [{}]", oldState, newState);
+		
+		if(oldState != null) {
+			oldState.exit();
+		}
+		
+		prevState = oldState;
+		currentState = newState;
+		
 		setStateFinished(false);
-		if(activeState != null) activeState.enter();
+		
+		if(currentState != null) {
+			currentState.enter();
+		}
 		
 		
-		//log("Setting " + activeState.getStateName() + " as the active state");
-		logger().info("Gamstate: [{}] -> [{}]", lastState, activeState);
+//		prevState = currentState;
+//		
+//		if(prevState != null) prevState.exit();
+//		currentState = States.getState(id);
+//		setStateFinished(false);
+//		if(currentState != null) currentState.enter();
+//		
+//		
+//		//log("Setting " + activeState.getStateName() + " as the active state");
+//		logger().info("GameState: [{}] -> [{}]", prevState, currentState);
 		
 	}
 	
@@ -48,13 +68,13 @@ public class StateManager implements Console {
 	
 	public GameState getActiveState() {
 		
-		return activeState;
+		return currentState;
 		
 	}
 	
 	public void ReturnToLastState() {
 		
-		activeState = lastState;
+		currentState = prevState;
 	}
 	
 	//Runs the Create Method for all states in the list

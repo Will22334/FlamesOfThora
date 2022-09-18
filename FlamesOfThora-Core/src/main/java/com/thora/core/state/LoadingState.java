@@ -15,7 +15,7 @@ import com.thora.core.input.InputListener;
 public class LoadingState extends GameState implements Console {
 	
 	private static final Logger logger = LogManager.getLogger(LoadingState.class);
-
+	
 	InputHandler inputHandler = new InputHandler();
 	InputListener inputListener = new InputListener(inputHandler);
 	private static Stage stage;
@@ -30,7 +30,7 @@ public class LoadingState extends GameState implements Console {
 	public final Logger logger() {
 		return logger;
 	}
-
+	
 	public LoadingState(FlamesOfThora client, String name, int id) {
 		super(client, name, id);
 		
@@ -38,7 +38,7 @@ public class LoadingState extends GameState implements Console {
 		Gdx.input.setInputProcessor(inputListener);
 		
 	}
-
+	
 	@Override
 	public void onRender() {
 		// TODO Auto-generated method stub
@@ -47,7 +47,7 @@ public class LoadingState extends GameState implements Console {
 			deltatime = Gdx.graphics.getDeltaTime();
 			
 			boolean renderingComplete = false;
-
+			
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 			stage.act(deltatime);
 			stage.draw();
@@ -64,37 +64,37 @@ public class LoadingState extends GameState implements Console {
 				Update();
 			}
 			
-//			while(renderingComplete != false) {
-//				
-//				Update();
-//				
-//				break;
-//				
-//			}
+			//			while(renderingComplete != false) {
+			//				
+			//				Update();
+			//				
+			//				break;
+			//				
+			//			}
 			
 			break;
 		}
 		
 	}
-
+	
 	@Override
 	public void onPause() {
 		// TODO Auto-generated method stub
-
+		
 	}
-
+	
 	@Override
 	public void onResume() {
 		// TODO Auto-generated method stub
-
+		
 	}
-
+	
 	@Override
 	public void onResize(int width, int height) {
 		// TODO Auto-generated method stub
 		stage.getViewport().update(width, height);
 	}
-
+	
 	@Override
 	public void onCreate() {
 		// TODO Auto-generated method stub
@@ -103,13 +103,13 @@ public class LoadingState extends GameState implements Console {
 		//System.out.println("Created Loading State!!");
 		
 	}
-
+	
 	@Override
 	public void setName(String name) {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	public static Stage getStage() {
 		return stage;
 	}
@@ -124,39 +124,32 @@ public class LoadingState extends GameState implements Console {
 	public void exit() {
 		// TODO Auto-generated method stub
 		stage.dispose();
-
+		
 	}
-
+	
 	@Override
 	protected void Update() {
 		// TODO Auto-generated method stub
-		while(this.isFinished() != true) {
+		if(!isFinished()) {
 			//Used for various things to update "separate" from the rendering.
-			
-			
-			
 			//Handle exit is set
-			while(exitRequest != false) {
-			setFinished(true);
-			break;
-			
+			if(exitRequest) {
+				setFinished(true);
 			}
-			
-			break;
 		}
 		setFinished(true);
 	}
-
+	
 	public boolean isRenderingComplete() {
 		return renderingComplete;
 	}
-
+	
 	public void setRenderingComplete(boolean renderingComplete) {
 		this.renderingComplete = renderingComplete;
 	}
-
+	
 	public boolean isExitRequestActivated() {
 		return exitRequest;
 	}
-
+	
 }

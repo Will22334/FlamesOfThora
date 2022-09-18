@@ -86,7 +86,7 @@ public class InputListener implements InputProcessor, Console {
 		// Log the change.
 		//Console.log("Mouse move: " + screenX + ", " + screenY);
 		
-		logger().trace(() -> "Mouse move: " + screenX + ", " + screenY + "]");
+		logger().trace(() -> "Mouse move: [" + screenX + ", " + screenY + "]");
 		
 		
 		
@@ -99,7 +99,7 @@ public class InputListener implements InputProcessor, Console {
 	
 	@Override
 	public boolean scrolled(int amount) {
-		// TODO Auto-generated method stub
+		logger().trace(() -> "Mouse scroll: " + amount);
 		return false;
 	}
 	

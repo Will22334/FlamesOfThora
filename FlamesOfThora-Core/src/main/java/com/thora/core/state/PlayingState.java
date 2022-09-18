@@ -1,5 +1,7 @@
 package com.thora.core.state;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Dimension;
 
@@ -39,6 +41,8 @@ import com.thora.core.world.MoveEventComponent;
 import com.thora.core.world.WorldRenderer;
 
 public class PlayingState extends GameState implements Console {
+	
+	private static final Logger logger =  LogManager.getLogger(PlayingState.class);
 	
 	private static final InputHandler inputHandler = new InputHandler();
 	private static final InputListener inputListener = new InputListener(inputHandler);
@@ -91,6 +95,11 @@ public class PlayingState extends GameState implements Console {
 	}
 	
 	@Override
+	public Logger logger() {
+		return logger;
+	}
+	
+	@Override
 	public void onCreate() {
 		this.appSize = new Dimension(g().getWidth(), g().getHeight());
 		this.log("Created Playing State!");
@@ -100,7 +109,7 @@ public class PlayingState extends GameState implements Console {
 	private static final Color COLOR_OFF_WHITE = new Color(1f, 1f, 1f, .5f);
 	
 	private final Vector2 v = new Vector2();
-		
+	
 	//Various tasks that should be completed on the render portion of the game loop.
 	@Override
 	public void onRender() {
@@ -223,7 +232,7 @@ public class PlayingState extends GameState implements Console {
 		
 		worldCamera = new OrthographicCamera(g().getWidth()/viewportScale, g().getHeight()/viewportScale);
 		worldCamera.position.set(spawn.getX(), spawn.getY(), 0);
-	
+		
 		
 		worldRenderer = new WorldRenderer(worldBatch, client().world(), worldCamera, player.getComponent(LocationComponent.class),
 				resizeSignal, 100);
@@ -254,11 +263,11 @@ public class PlayingState extends GameState implements Console {
 		TextureComponent backTexture = engine.createComponent(TextureComponent.class).set(playerImgBackRegion);
 		
 		MultiTextureComponent textures = new MultiTextureComponent();
-				
+		
 		textures.addTextureComponent(fronttexture, 0);
 		textures.addTextureComponent(backTexture, 1);	
-				
-				
+		
+		
 		TransformComponent transform = engine.createComponent(TransformComponent.class);
 		
 		entity.add(player)
@@ -282,64 +291,66 @@ public class PlayingState extends GameState implements Console {
 		shapeRend.dispose();
 		font.dispose();
 	}
-
+	
 	public SpriteBatch getEntityBatch() {
 		return entityBatch;
 	}
-
+	
 	public void setEntityBatch(SpriteBatch entityBatch) {
 		this.entityBatch = entityBatch;
 	}
 	
 	private void handleInput() {
-
-		Location loc = player.getComponent(LocationComponent.class).getLocation();
-
+		
 		//TODO Instead of polling input every frame, have a State specific InputProcesser implement input logic.
+		
+		
+		Location loc = player.getComponent(LocationComponent.class).getLocation();
+		
 		if(KEY_ESCAPE.ifPressed()) {
-
+			
 			Gdx.app.exit();
-
+			
 		}
-
+		
 		//Toggles the Grid. Modify Time offset for better responsiveness.
 		if(KEY_G.ifPressed()) {
-
+			
 			if((lastGridToggleTime + GRID_TOGGLE_LIMIT_DURATION) < delta) {
-
+				
 				this.log("Last Resized at: " + lastGridToggleTime);
-
+				
 				this.log("Toggling Grid");
-
+				
 				worldRenderer.toggleBorders();
-
+				
 				lastGridToggleTime = delta;
-
+				
 			}
-
+			
 		}
-
+		
 		long time = System.currentTimeMillis();
 		if(time > lastWalkTime + WALK_TILE_DURATION) {
-
+			
 			if(KEY_UP.ifPressed()) {
 				v.add(0, 1);
 				player.getComponent(MultiTextureComponent.class).setActiveComponent(1);
 			}
-
+			
 			if(KEY_DOWN.ifPressed()) {
 				player.getComponent(MultiTextureComponent.class).setActiveComponent(0);
 				v.add(0, -1);
 			}
-
+			
 			if(KEY_LEFT.ifPressed()) {
 				v.add(-1, 0);
 			}
-
+			
 			if(KEY_RIGHT.ifPressed()) {
 				v.add(1, 0);
 			}
-
+			
 			if(!v.isZero()) {
 				player.add(engine().createComponent(MoveEventComponent.class).set(v));
 				
@@ -350,17 +361,17 @@ public class PlayingState extends GameState implements Console {
 				worldCamera.update();
 			}
 		}
-
+		
 	}
-
+	
 	/* Updates the local delta time. 
-	*(The time since the playing state was created and the first update was ran)
-	*/
+	 *(The time since the playing state was created and the first update was ran)
+	 */
 	private void updateLocalDelta() {
 		
 		delta += Gdx.app.getGraphics().getDeltaTime();
 	}
-
+	
 	@Override
 	public void setName(String name) {
 		
@@ -369,6 +380,6 @@ public class PlayingState extends GameState implements Console {
 		this.setName("Playing State");
 		
 	}
-
-
+	
+	
 }

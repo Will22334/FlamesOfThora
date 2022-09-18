@@ -68,15 +68,7 @@ public class WorldRenderer extends RenderingSystem {
 		
 		batch.begin();
 		
-		if(tileBorders  == true) {
-			
-			drawTilesWithBorders(world);
-			
-		} else {
-			
-			drawTilesWithoutBorders(world);
-			
-		}
+		drawTiles(world, tileBorders);
 		
 		shapeRend.end();
 		batch.end();
@@ -85,17 +77,11 @@ public class WorldRenderer extends RenderingSystem {
 		
 	}
 	
-	protected void drawTilesWithBorders(World world) {
+	protected void drawTiles(World world, boolean borders) {
 		drawTileTextures(world);
-		
-		drawTileBorders(world);
-		
-	}
-	
-	protected void drawTilesWithoutBorders(World world) {
-		
-		drawTileTextures(world);
-		
+		if(borders) {
+			drawTileBorders(world);
+		}
 	}
 	
 	private void drawTileTextures(World world) {
@@ -173,56 +159,6 @@ public class WorldRenderer extends RenderingSystem {
 		//				(int)width, (int)height,
 		//				false, false);
 		
-	}
-	
-	protected void drawEntities(World world) {
-		// sort the renderQueue based on z index
-		//getRenderQueue().sort(comparator);
-		//this.getEntities();
-		
-		// update camera and sprite batch
-//		getCam().update();
-//		getCam().position.set(focus.getX() + .5f, focus.getY() +.5f, 0f);
-//		batch.setProjectionMatrix(getCam().combined);
-//		Gdx.gl.glEnable(GL11.GL_BLEND);
-//		batch.enableBlending();
-//		getCam().update();
-//		batch.begin();
-
-		getCam().update();
-		batch.setProjectionMatrix(getCam().combined);
-		getCam().position.set(focus.getX() + .5f, focus.getY() +.5f, 0f);
-		batch.enableBlending();
-		//getCam().update();
-		batch.begin();
-		
-		// loop through each entity in our render queue
-		for (Entity entity : this.getEntities()) {
-			
-			TransformComponent t = transformM.get(entity);
-			if(t.isHidden) continue;
-			
-			LocationComponent loc = locationM.get(entity);
-			TextureComponent tex = textureM.get(entity);
-			MultiTextureComponent tex2 = multitextureM.get(entity);
-			
-			if (loc == null || tex == null) {
-				continue;
-			}
-			TextureRegion texRegion = tex.getRegion();
-			
-			
-			float width = texRegion.getRegionWidth();
-			float height = texRegion.getRegionHeight();
-			final TextureRegion texture = tex2.getActiveComponent().getRegion();
-			
-			batch.draw(texture,
-					loc.getX() + (PPM - width)/PPM/2, loc.getY(),
-					PixelsToMeters(width), PixelsToMeters(height));
-			
-		}
-		batch.end();
-		getRenderQueue().clear();
 	}
 	
 }

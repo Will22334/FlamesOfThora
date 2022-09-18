@@ -69,7 +69,7 @@ public class MenuState extends GameState {
 	@Override
 	public void exit() {
 		// TODO Auto-generated method stub
-		log("Leaving Menu State");
+		logger().trace("Leaving Menu State");
 	}
 
 	@Override

@@ -24,6 +24,7 @@ import com.thora.core.graphics.TransformComponent;
 import com.thora.core.graphics.ZComparator;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.LocationComponent;
+import com.thora.core.world.World;
 
 public class RenderingSystem extends SortedIteratingSystem {
 	
@@ -122,11 +123,11 @@ public class RenderingSystem extends SortedIteratingSystem {
 	}
 	
 	public void update(float deltaTime) {
-		super.update(deltaTime);
+		//super.update(deltaTime);
 		
 		// sort the renderQueue based on z index
-		getRenderQueue().sort(comparator);
-		this.getEntities();
+		//getRenderQueue().sort(comparator);
+		//this.getEntities();
 		
 		// update camera and sprite batch
 		getCam().position.set(focus.getLocation().getX() + .5f, focus.getLocation().getY() +.5f, 0f);
@@ -139,7 +140,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		
 		
 		// loop through each entity in our render queue
-		for (Entity entity : getRenderQueue()) {
+		for (Entity entity : getEntities()) {
 			
 			TransformComponent t = transformM.get(entity);
 			if(t.isHidden) continue;
@@ -151,7 +152,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 			if (loc == null || tex == null) {
 				continue;
 			}
-			TextureRegion texRegion = tex.getRegion();
+			TextureRegion texRegion = tex2.getRegion();
 			
 			
 			float width = texRegion.getRegionWidth();
@@ -189,4 +190,43 @@ public class RenderingSystem extends SortedIteratingSystem {
 	public void setRenderQueue(Array<Entity> renderQueue) {
 		this.renderQueue = renderQueue;
 	}
+	
+	protected void drawEntities(World world) {
+		getCam().update();
+		batch.setProjectionMatrix(getCam().combined);
+		getCam().position.set(focus.getX() + .5f, focus.getY() +.5f, 0f);
+		
+		batch.enableBlending();
+		//getCam().update();
+		batch.begin();
+		
+		// loop through each entity in our render queue
+		for (Entity entity : this.getEntities()) {
+			
+			TransformComponent t = transformM.get(entity);
+			if(t.isHidden) continue;
+			
+			LocationComponent loc = locationM.get(entity);
+			TextureComponent tex = textureM.get(entity);
+			MultiTextureComponent tex2 = multitextureM.get(entity);
+			
+			if (loc == null || tex == null) {
+				continue;
+			}
+			TextureRegion texRegion = tex.getRegion();
+			
+			
+			float width = texRegion.getRegionWidth();
+			float height = texRegion.getRegionHeight();
+			final TextureRegion texture = tex2.getActiveComponent().getRegion();
+			
+			batch.draw(texture,
+					loc.getX() + (PPM - width)/PPM/2, loc.getY(),
+					PixelsToMeters(width), PixelsToMeters(height));
+			
+		}
+		batch.end();
+		getRenderQueue().clear();
+	}
+	
 }

@@ -99,9 +99,11 @@ public class FlamesOfThora implements ApplicationListener, Console {
 	
 	@Override
 	public void render() {
-		// Render the game based on the current state
 		
-		activeState().onRender();
+		GameState oldState = activeState();
+		
+		// Render the game based on the current state
+		oldState.onRender();
 		
 		//		while(States.isStateFinished() != false) {
 		//			
@@ -110,7 +112,6 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		//			
 		//		}
 		if(States.isStateFinished()) {
-			logger().trace("Detected change in state. :  Exited : in {}", activeState());
 			States.setNextState();
 		}
 		States.checkForExit();
@@ -132,11 +133,14 @@ public class FlamesOfThora implements ApplicationListener, Console {
 	
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-		
+		logger().trace("DISPOSING:\t{}", this);
 	}
 	
-	
+	@Override
+	public String toString() {
+		return activeState().toString();
+	}
+
 	public static int getLoadingstate() {
 		return LOADINGSTATEID;
 	}
