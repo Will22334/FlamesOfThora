@@ -5,7 +5,6 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.thora.core.FlamesOfThora;
 import com.thora.core.IntVector;
 
 public class MoveRequestComponent implements Component, Poolable {
@@ -27,7 +26,6 @@ public class MoveRequestComponent implements Component, Poolable {
 	
 	@Override
 	public void reset() {
-		FlamesOfThora.logger.info("Clearing {}", this);
 		v.clear();
 	}
 

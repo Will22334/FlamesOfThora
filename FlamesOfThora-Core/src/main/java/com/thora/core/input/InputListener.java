@@ -31,19 +31,14 @@ public class InputListener implements InputProcessor, Console {
 		
 		logger().debug(() -> "KeyDown:\t" + Keys.toString(keycode) + "[" + keycode + "]");
 		
-		handler.handlePressedKeyEvent(keycode);
-		
-		//Success!
-		return true;
+		return handler.handlePressedKeyEvent(keycode);
 	}
 	
 	@Override
 	public boolean keyUp(int keycode) {
 		// TODO Auto-generated method stub
 		
-		handler.handleReleasedKeyEvent(keycode);
-		
-		return true;
+		return handler.handleReleasedKeyEvent(keycode);
 	}
 	
 	@Override

@@ -5,9 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Dimension;
 
-import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.ashley.signals.Listener;
 import com.badlogic.ashley.signals.Signal;
@@ -32,6 +30,8 @@ import com.thora.core.graphics.MultiTextureComponent;
 import com.thora.core.graphics.TextureComponent;
 import com.thora.core.graphics.TransformComponent;
 import com.thora.core.input.InputHandler;
+import com.thora.core.input.InputHandler.KeyBinding;
+import com.thora.core.input.InputHandler.KeyRecord;
 import com.thora.core.input.InputListener;
 import com.thora.core.input.Key;
 import com.thora.core.system.MoveSystem;
@@ -91,8 +91,8 @@ public class PlayingState extends GameState implements Console {
 	
 	private Signal<Dimension> resizeSignal = new Signal<>();
 	
-	private final InputHandler inputHandler = new InputHandler();
-	private final InputListener inputListener = new InputListener(inputHandler);
+	private final InputHandler in = new InputHandler();
+	private final InputListener inputListener = new InputListener(in);
 	
 	public PlayingState(FlamesOfThora client, String name, int id) {
 		super(client, name, id);
@@ -221,12 +221,15 @@ public class PlayingState extends GameState implements Console {
 		
 		Gdx.input.setInputProcessor(inputListener);
 		
-		inputHandler.RegisterKey(KEY_ESCAPE);
-		inputHandler.RegisterKey(KEY_UP);
-		inputHandler.RegisterKey(KEY_DOWN);
-		inputHandler.RegisterKey(KEY_LEFT);
-		inputHandler.RegisterKey(KEY_RIGHT);
-		inputHandler.RegisterKey(KEY_G);
+		in.bindKey(EXIT_BINDING, Keys.ESCAPE);
+		in.bindKey(SHOW_GRID_BIDING, Keys.G);
+		
+		//inputHandler.RegisterKey(KEY_ESCAPE);
+		in.RegisterKey(KEY_UP);
+		in.RegisterKey(KEY_DOWN);
+		in.RegisterKey(KEY_LEFT);
+		in.RegisterKey(KEY_RIGHT);
+		in.RegisterKey(KEY_G);
 		
 		
 		Location spawn = new Location(50, 50);
@@ -314,6 +317,25 @@ public class PlayingState extends GameState implements Console {
 		this.entityBatch = entityBatch;
 	}
 	
+	private KeyBinding EXIT_BINDING = new KeyBinding() {
+		@Override
+		public boolean onPress(KeyRecord key) {
+			Gdx.app.exit();
+			return true;
+		}
+	};
+	
+	private KeyBinding SHOW_GRID_BIDING = new KeyBinding() {
+		@Override
+		public boolean onRelease(KeyRecord key) {
+			log("Last Resized at: " + lastGridToggleTime);
+			log("Toggling Grid");
+			worldRenderer.toggleBorders();
+			lastGridToggleTime = delta;
+			return true;
+		}
+	};
+	
 	private void handleInput() {
 		
 		//TODO Instead of polling input every frame, have a State specific InputProcesser implement input logic.
@@ -321,49 +343,60 @@ public class PlayingState extends GameState implements Console {
 		
 		Location loc = player.getComponent(LocationComponent.class).getLocation();
 		
-		if(KEY_ESCAPE.ifPressed()) {
-			
-			Gdx.app.exit();
-			
-		}
+//		if(KEY_ESCAPE.ifPressed()) {
+//			
+//			Gdx.app.exit();
+//			
+//		}
 		
 		//Toggles the Grid. Modify Time offset for better responsiveness.
-		if(KEY_G.ifPressed()) {
-			
-			if((lastGridToggleTime + GRID_TOGGLE_LIMIT_DURATION) < delta) {
-				
-				this.log("Last Resized at: " + lastGridToggleTime);
-				
-				this.log("Toggling Grid");
-				
-				worldRenderer.toggleBorders();
-				
-				lastGridToggleTime = delta;
-				
-			}
-			
-		}
+//		if(KEY_G.ifPressed()) {
+//			
+//			if((lastGridToggleTime + GRID_TOGGLE_LIMIT_DURATION) < delta) {
+//				
+//				this.log("Last Resized at: " + lastGridToggleTime);
+//				
+//				this.log("Toggling Grid");
+//				
+//				worldRenderer.toggleBorders();
+//				
+//				lastGridToggleTime = delta;
+//				
+//			}
+//			
+//		}
 		
 		long time = System.currentTimeMillis();
 		if(time > lastWalkTime + WALK_TILE_DURATION) {
 			
-			if(KEY_UP.ifPressed()) {
-				v.add(0, 1);
-				player.getComponent(MultiTextureComponent.class).setActiveComponent(1);
+			if(in.isKeyDown(Keys.UP)) {
+				walk(0, 1);
+			}
+			if(in.isKeyDown(Keys.DOWN)) {
+				walk(0, -1);
+			}
+			if(in.isKeyDown(Keys.LEFT)) {
+				walk(-1, 0);
+			}
+			if(in.isKeyDown(Keys.RIGHT)) {
+				walk(1, 0);
 			}
 			
-			if(KEY_DOWN.ifPressed()) {
-				player.getComponent(MultiTextureComponent.class).setActiveComponent(0);
-				v.add(0, -1);
-			}
-			
-			if(KEY_LEFT.ifPressed()) {
-				v.add(-1, 0);
-			}
-			
-			if(KEY_RIGHT.ifPressed()) {
-				v.add(1, 0);
-			}
+//			if(KEY_UP.ifPressed()) {
+//				walk(0, 1);
+//			}
+//			
+//			if(KEY_DOWN.ifPressed()) {
+//				walk(0, -1);
+//			}
+//			
+//			if(KEY_LEFT.ifPressed()) {
+//				walk(-1, 0);
+//			}
+//			
+//			if(KEY_RIGHT.ifPressed()) {
+//				walk(1, 0);
+//			}
 			
 			if(!v.isZero()) {
 				player.add(engine().createComponent(MoveRequestComponent.class).set(v.cpy()));
@@ -376,6 +409,15 @@ public class PlayingState extends GameState implements Console {
 			}
 		}
 		
+	}
+	
+	protected void walk(int dx, int dy) {
+		v.add(dx, dy);
+		if(dy > 0) {
+			player.getComponent(MultiTextureComponent.class).setActiveComponent(1);
+		} else if(dy < 0) {
+			player.getComponent(MultiTextureComponent.class).setActiveComponent(0);
+		}
 	}
 	
 	/* Updates the local delta time. 
