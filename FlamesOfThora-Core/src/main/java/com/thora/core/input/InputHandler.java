@@ -95,10 +95,10 @@ public class InputHandler implements Console {
 				if(isBound()) {
 					if(down) {
 						//press
-						binding.onPress(this);
+						return binding.onPress(this);
 					} else {
 						//release
-						binding.onRelease(this);
+						return binding.onRelease(this);
 					}
 				}
 			}

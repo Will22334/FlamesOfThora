@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.DigestException;
 import java.security.KeyFactory;
+import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -106,6 +107,12 @@ public class EncodingUtils {
 		X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);
 		PublicKey key = kf.generatePublic(spec);
 		return key;
+	}
+	
+	public static KeyPair readKeyPair(Path privateKeyPath, Path publicKeyPath) throws Exception {
+		PrivateKey priv = readPrivateKey(privateKeyPath);
+		PublicKey pub = readPublicKey(publicKeyPath);
+		return new KeyPair(pub, priv);
 	}
 	
 	public static final Cipher generateEncCipher(SecretKey secretKey) {
