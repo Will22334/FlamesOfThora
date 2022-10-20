@@ -1,0 +1,28 @@
+package com.thora.core.world;
+
+public abstract class AbstractTile extends Tile {
+	
+	Location point;
+	protected TileType type;
+	
+	public AbstractTile(TileType type, Location point) {
+		this.point = point;
+		this.type = type;
+	}
+	
+	@Override
+	public Location getLocation() {
+		return point;
+	}
+	
+	@Override
+	public TileType getType() {
+		return type;
+	}
+
+	@Override
+	public String toString() {
+		return "[" + getType() + ": " + getLocation() + "]";
+	}
+	
+}
