@@ -7,6 +7,9 @@ import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.thora.core.Console;
@@ -33,6 +36,11 @@ public class LoadingState extends GameState implements Console {
 	private InetSocketAddress serverAddress = null;
 	private ChannelFuture bindFuture = null;
 	
+	private SpriteBatch loadingScreenGraphics;
+	private Sprite loadingBar;
+
+	private Texture loadingBarTexture;
+	
 	@Override
 	public final Logger logger() {
 		return logger;
@@ -43,6 +51,7 @@ public class LoadingState extends GameState implements Console {
 		
 		//Set the Input Processor to the Listener
 		Gdx.input.setInputProcessor(inputListener);
+		loadingScreenGraphics = new SpriteBatch();
 		
 	}
 	
@@ -55,35 +64,46 @@ public class LoadingState extends GameState implements Console {
 			
 			boolean renderingComplete = false;
 			
+			//Clears the Screen
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+			
 			stage.act(deltatime);
 			stage.draw();
 			
-			
 			//Render
+			loadingScreenGraphics.begin();
+			loadingBar.draw(loadingScreenGraphics);
+			loadingScreenGraphics.end();
 			
-			
-			
-			//Clean up
+			//Clean up. Rendering Done.
 			renderingComplete = true;
 			
+			//Update the time
 			if(renderingComplete) {
 				update(deltatime);
 			}
 			
-			//			while(renderingComplete != false) {
-			//				
-			//				Update();
-			//				
-			//				break;
-			//				
-			//			}
+						while(renderingComplete != false) {
+							
+							Update();
+							
+							break;
+							
+						}
 			
 			break;
 		}
 		
 	}
 	
+	private void Update() {
+		
+		//Updates the time spent in the state
+		
+		deltatime += Gdx.graphics.getDeltaTime() - deltatime;
+		
+	}
+
 	@Override
 	public void onPause() {
 		// TODO Auto-generated method stub
@@ -103,8 +123,18 @@ public class LoadingState extends GameState implements Console {
 	
 	@Override
 	public void initialize() {
+		//Define the connection to connect to,
 		serverAddress = new InetSocketAddress("localhost",7988);
+		
+		//Define a stage in which...
 		stage = new Stage(new ScreenViewport());
+		
+		//Create the Loading bar.
+		loadingBarTexture = new Texture(Gdx.files.internal("assets/loadingBar.png"));
+		loadingBar = new Sprite(loadingBarTexture);
+		loadingBar.setPosition((float) (Gdx.app.getGraphics().getWidth() * .5 - loadingBarTexture.getWidth() * .5), (float) (Gdx.app.getGraphics().getHeight() * .3));
+		
+		
 		logger().trace("Created Loading State!");
 	}
 	
