@@ -54,7 +54,7 @@ public abstract class GameState extends State implements Console, Comparable<Gam
 	
 	public abstract void onResume();
 	
-	public abstract void onCreate();
+	public abstract void initialize();
 	
 	public abstract void setName(String name);
 	

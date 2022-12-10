@@ -102,20 +102,19 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		//Add the states to the StateManager for indexing and management.
 		initializeStates();
 		
-		//Runs the create command for all states.
-		States.onCreate();
+		//Initialize all states.
+		States.initialize();
 		
-		TileGenerator gen = new PerlinTileGenerator((int)System.currentTimeMillis(), DEFAULT_WORLD_SCALE, DEFAULT_WORLD_FREQ);
-		Dimension size = new Dimension(300,300);
+		//Define an initial location to base the world upon
 		Pole origin = new Pole("Origin",0,0);
 		
-		
-		//world = new KeyMapWorld(ConcurrentHashMap::new, "Earth", size, origin, gen);
-		//world = new ArrayWorld("Earth", size, origin, 30, gen);
+		//Create a new World object at the location and size defined
 		world = new HashChunkWorld("Earth", origin, 15, 15, null);
 		
+		//Attempt to create the world
 		try {
 			world.initialize();
+			
 		} catch (Exception e) {
 			logger().atError().withThrowable(e).log("Failed to initialize {}", world);
 			throw new RuntimeException(e);
@@ -123,8 +122,10 @@ public class FlamesOfThora implements ApplicationListener, Console {
 		
 		logger().debug("World Backend: {} {}", world.getClass().getSimpleName(), world.getEstimatedArea());
 		
+		//Creates a new network object.
 		this.network = new NettyNetworkManager(IO_WORKER_THREADS, serverIdentity, this.publicEncCipher);
 		
+		//Sets the active state to the Loading State. 
 		States.setActiveState(LOADINGSTATEID);
 		
 	}

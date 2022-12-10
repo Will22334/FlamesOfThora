@@ -78,22 +78,13 @@ public class StateManager implements Console {
 	}
 	
 	//Runs the Create Method for all states in the list
-	public void onCreate() {
-		
-//		int i = 0;
-//		
-//		while(i < getStates().getSize()) {
-//			
-//			getStates().getGameStates().get(i).onCreate();
-//			
-//			i++;
-//		}
+	public void initialize() {
 		
 		//Call onCreate() for all game states in ID order
 		Map<Integer,GameState> states = getStates().getGameStates();
 		states.values().stream()
 		.sorted()
-		.forEach(s -> s.onCreate());
+		.forEach(s -> s.initialize());
 		
 	}
 

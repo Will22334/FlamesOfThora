@@ -104,7 +104,7 @@ public class PlayingState extends GameState implements Console {
 	}
 	
 	@Override
-	public void onCreate() {
+	public void initialize() {
 		this.appSize = new Dimension(g().getWidth(), g().getHeight());
 		this.log("Created Playing State!");
 	}

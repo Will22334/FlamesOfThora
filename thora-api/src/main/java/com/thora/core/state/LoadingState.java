@@ -102,7 +102,7 @@ public class LoadingState extends GameState implements Console {
 	}
 	
 	@Override
-	public void onCreate() {
+	public void initialize() {
 		serverAddress = new InetSocketAddress("localhost",7988);
 		stage = new Stage(new ScreenViewport());
 		logger().trace("Created Loading State!");
