@@ -1,6 +1,6 @@
 package com.thora.core.world;
 
-import com.thora.core.IntVector;
+import com.thora.core.math.IntVector;
 
 public abstract class IntVectorLocation extends Location {
 	

@@ -10,7 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.thora.core.FlamesOfThora;
-import com.thora.core.IntVector;
+import com.thora.core.math.IntVector;
 
 public class HashChunkWorld extends GeneralWorld {
 	

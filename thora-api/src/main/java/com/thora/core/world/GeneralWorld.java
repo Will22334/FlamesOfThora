@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.thora.core.math.IntVector;
 import com.thora.core.world.TileGenerator.EmptyTileGenerator;
 
 public abstract class GeneralWorld extends World {
@@ -80,6 +81,16 @@ public abstract class GeneralWorld extends World {
 				this.setTile(generate(x, y), x, y);
 			}
 		}
+	}
+
+	@Override
+	public WeakVectorLocation<? extends GeneralWorld> getLocation(IntVector v) {
+		return new WeakVectorLocation<>(this, v);
+	}
+
+	@Override
+	public WeakVectorLocation<? extends GeneralWorld> getLocation(int x, int y) {
+		return new WeakVectorLocation<>(x, y);
 	}
 	
 }

@@ -2,7 +2,8 @@ package com.thora.core.world;
 
 import java.lang.ref.WeakReference;
 
-import com.thora.core.IntVector;
+import com.thora.core.math.IntVector;
+
 
 public class WeakVectorLocation<W extends World> extends IntVectorLocation {
 	

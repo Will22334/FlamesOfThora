@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.thora.core.IntVector;
+import com.thora.core.math.IntVector;
 
 public class MoveRequestComponent implements Component, Poolable {
 	
