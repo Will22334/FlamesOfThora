@@ -8,6 +8,7 @@ import com.thora.core.net.message.LoginResponseMessage;
 import com.thora.core.net.message.ThoraMessage;
 import com.thora.core.net.netty.PodHandler;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 
 public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
@@ -32,7 +33,10 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 			session.generateSymmetricCipher(server.publicKey(), message.sessionKey);
 			
 			LoginResponseMessage response = new LoginResponseMessage(true, "Successfully logged in!");
-			session.rawChannel().writeAndFlush(response);
+			ChannelFuture cf = session.rawChannel().writeAndFlush(response);
+			if(response.isAccepted()) {
+				
+			}
 		}
 	}
 	

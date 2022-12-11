@@ -20,6 +20,15 @@ repositories {
     mavenCentral()
 }
 
+group 'com.thora.core'
+archivesBaseName = 'thora-api'
+version '0.1.0'
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
 dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'

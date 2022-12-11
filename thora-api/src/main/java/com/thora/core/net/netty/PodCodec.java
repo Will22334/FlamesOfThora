@@ -266,7 +266,7 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 				
 			} catch (IllegalBlockSizeException | BadPaddingException e) {
 				
-				throw EncodingUtils.wrapIO(e);
+				throw EncodingUtils.wrapIO("Exception while decrypting " + getMessageName() + " from " + ctx.channel(), e);
 				
 			} finally {
 				// Meant for releasing local ByteBuf

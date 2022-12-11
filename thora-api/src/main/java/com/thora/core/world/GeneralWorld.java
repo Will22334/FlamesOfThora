@@ -62,11 +62,11 @@ public abstract class GeneralWorld extends World {
 		return new Rectangle(getOrigin().getX()-width/2, getOrigin().getY()-height/2, width, height);
 	}
 	
-	protected final TileType generate(Locatable loc) {
+	protected final Material generate(Locatable loc) {
 		return generator.getTileType(loc);
 	}
 	
-	protected final TileType generate(int x, int y) {
+	protected final Material generate(int x, int y) {
 		return generator.getTileType(x, y);
 	}
 	

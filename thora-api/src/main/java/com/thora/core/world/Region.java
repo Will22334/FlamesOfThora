@@ -1,7 +1,7 @@
 package com.thora.core.world;
 
 /**
- * A pollable set of {@link Location points}. Spatial properties such as continuity, shape or size are undefined.
+ * A queryable set of {@link Location points}. Spatial properties such as continuity, shape or size are undefined.
  * @author Dave
  *
  */

@@ -1,6 +1,6 @@
 package com.thora.core;
 
-public class IntVector {
+public class IntVector implements Cloneable {
 	
 	public int x, y;
 	
@@ -12,7 +12,35 @@ public class IntVector {
 	public IntVector() {
 		this(0, 0);
 	}
-
+	
+	public int getX() {
+		return x;
+	}
+	
+	public int getY() {
+		return y;
+	}
+	
+	public IntVector setX(int x) {
+		this.x = x;
+		return this;
+	}
+	
+	public IntVector setY(int x) {
+		this.x = x;
+		return this;
+	}
+	
+	public IntVector setAs(int x, int y) {
+		this.x = x;
+		this.y = y;
+		return this;
+	}
+	
+	public IntVector setAs(IntVector v) {
+		return setAs(v.getX(), v.getY());
+	}
+	
 	public final int maxRectLength() {
 		return Math.max(Math.abs(x), Math.abs(y));
 	}
@@ -47,7 +75,7 @@ public class IntVector {
 	}
 	
 	@Override
-	protected IntVector clone() throws CloneNotSupportedException {
+	public IntVector clone() {
 		return new IntVector(x, y);
 	}
 

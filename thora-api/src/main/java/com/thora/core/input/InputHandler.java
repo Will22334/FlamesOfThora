@@ -3,9 +3,9 @@ package com.thora.core.input;
 import java.util.HashMap;
 
 import com.badlogic.gdx.Input;
-import com.thora.core.Console;
+import com.thora.core.HasLogger;
 
-public class InputHandler implements Console {
+public class InputHandler implements HasLogger {
 	
 	public static abstract class KeyBinding {
 		public boolean onPress(KeyRecord key) {

@@ -16,9 +16,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class ArrayWorld extends World implements RectangularRegion {
 	
-	private class STile extends AbstractTile {
+	private class ATile extends AbstractTile {
 		protected final int ix, iy;
-		public STile(TileType type, Location point) {
+		public ATile(Material type, Location point) {
 			super(type, point);
 			ix = ix(point.getX());
 			iy = iy(point.getY());
@@ -38,17 +38,18 @@ public class ArrayWorld extends World implements RectangularRegion {
 	
 	private Pole origin;
 	
-	private STile[][] tiles;
+	private ATile[][] tiles;
 	
 	private int xOff, yOff;
 	
 	public ArrayWorld(String name, Dimension mapSize, Locatable origin, int tilesize, TileGenerator gen) {
+		super();
 		this.name = Objects.requireNonNull(name, "World name cannot be null!");
 		this.mapSize = Objects.requireNonNull(mapSize, "Cannot create World with null mapSize!");
 	}
 	
 	public ArrayWorld(String name, Dimension mapSize, int originX, int originY, int tilesize, TileGenerator gen) {
-		this(name, mapSize, new Location(originX, originY), tilesize, gen);
+		this(name, mapSize, new WeakVectorLocation<>(null, originX, originY), tilesize, gen);
 	}
 	
 	public ArrayWorld(String name, Dimension mapSize, int tilesize, TileGenerator gen) {
@@ -73,7 +74,7 @@ public class ArrayWorld extends World implements RectangularRegion {
 		int width = size.width;
 		int height = size.height;
 		
-		tiles = new STile[width][height];
+		tiles = new ATile[width][height];
 		
 		xOff = -startX;
 		yOff = -startY;
@@ -85,16 +86,16 @@ public class ArrayWorld extends World implements RectangularRegion {
 			
 			for(int x=startX; x<xEnd; ++x) {
 				
-				TileType type = gen.getTileType(x, y);
+				Material type = gen.getTileType(x, y);
 				
-				STile tile = setTile(type, x, y);
+				ATile tile = setTile(type, x, y);
 				logger().trace("NewTile: {}", tile);
 				
 			}
 			
 		}
 		
-		spawn = new Pole("Spawn", xEnd-width/2, yEnd-height/2);
+		spawn = new Pole("Spawn", this, xEnd-width/2, yEnd-height/2);
 		
 	}
 	
@@ -160,41 +161,41 @@ public class ArrayWorld extends World implements RectangularRegion {
 	}
 	
 	@Override
-	public final STile getTile(Location point) {
+	public final ATile getTile(Location point) {
 		return getTile(point.getX(), point.getY());
 	}
 	
 	@Override
-	public final STile getTile(int x, int y) {
+	public final ATile getTile(int x, int y) {
 		return getTileInternal(ix(x), iy(y));
 	}
 	
-	protected final STile getTileInternal(int ix, int iy) {
+	protected final ATile getTileInternal(int ix, int iy) {
 		return tiles[iy][ix];
 	}
 	
 	@Override
-	public STile setTile(TileType type, Location point) {
+	public ATile setTile(Material type, Location point) {
 		int ix = ix(point.getX()), iy = iy(point.getY());
-		STile tile = getTileInternal(ix, iy);
+		ATile tile = getTileInternal(ix, iy);
 		if(tile == null) {
-			tile = new STile(type, point);
+			tile = new ATile(type, point);
 			tiles[iy][ix] = tile;
 		} else {
-			tile.type = type;
+			tile.setMaterial(type);
 		}
 		return tile;
 	}
 	
 	@Override
-	public STile setTile(TileType type, int wx, int wy) {
+	public ATile setTile(Material type, int wx, int wy) {
 		int ix = ix(wx), iy = iy(wy);
-		STile tile = getTileInternal(ix, iy);
+		ATile tile = getTileInternal(ix, iy);
 		if(tile == null) {
-			tile = new STile(type, new Location(wx, wy));
+			tile = new ATile(type, new WeakVectorLocation(this, wx, wy));
 			tiles[iy][ix] = tile;
 		} else {
-			tile.type = type;
+			tile.setMaterial(type);
 		}
 		return tile;
 	}
@@ -209,6 +210,11 @@ public class ArrayWorld extends World implements RectangularRegion {
 	public Stream<? extends Tile> tiles() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public WeakVectorLocation<ArrayWorld> getLocation(int x, int y) {
+		return new WeakVectorLocation<>(x, y);
 	}
 	
 }

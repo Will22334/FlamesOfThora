@@ -1,12 +1,22 @@
 package com.thora.core.world;
 
-public abstract class Tile implements Locatable {
+public interface Tile extends Locatable {
 	
-	public abstract World getWorld();
+//	public abstract World getWorld();
+//	
+//	@Override
+//	public abstract Location getLocation();
+//	
+//	public abstract TileType getType();
 	
-	@Override
-	public abstract Location getLocation();
+	public TileData getTileData();
 	
-	public abstract TileType getType();
+	public void setTileData(TileData tileData);
+	
+	public default Material getMaterial() {
+		return getTileData().material();
+	}
+	
+	public void setMaterial(Material material);
 	
 }

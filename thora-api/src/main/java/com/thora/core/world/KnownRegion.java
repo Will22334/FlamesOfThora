@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * A @{link Region} that has a finite amount of {@link Location points} at any given instant.
+ * A {@link Region} that has a finite amount of {@link Location points} at any given instant.
  * The region does not guarantee continuity.
  * 
  * @author Dave

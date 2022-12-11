@@ -29,7 +29,7 @@ import com.thora.core.world.TileGenerator;
 import com.thora.core.world.World;
 import com.thora.core.world.generator.PerlinTileGenerator;
 
-public class FlamesOfThora implements ApplicationListener, Console {
+public class FlamesOfThora implements ApplicationListener, HasLogger {
 	
 	public static final int IO_WORKER_THREADS = 1;
 	

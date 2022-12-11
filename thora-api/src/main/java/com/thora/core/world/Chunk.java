@@ -19,7 +19,7 @@ public abstract class Chunk implements RectangularRegion {
 	}
 	
 	public Stream<? extends Tile> tiles() {
-		Location o = getOrigin();
+		final Location o = getOrigin();
 		return getWorld().tiles(o.getX(), o.getY(), o.getX() + getWidth(), o.getY() + getHeight());
 	}
 	

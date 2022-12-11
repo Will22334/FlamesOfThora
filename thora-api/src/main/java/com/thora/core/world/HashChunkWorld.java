@@ -17,11 +17,11 @@ public class HashChunkWorld extends GeneralWorld {
 	public class HashChunk extends Chunk {
 		
 		public class CTile extends AbstractTile {
-			protected CTile(TileType type, Location point) {
-				super(type, point);
+			protected CTile(Material material, Location point) {
+				super(material, point);
 			}
 			@Override
-			public World getWorld() {
+			public HashChunkWorld getWorld() {
 				return getChunk().getWorld();
 			}
 			protected HashChunk getChunk() {
@@ -91,9 +91,9 @@ public class HashChunkWorld extends GeneralWorld {
 			return tiles[iy(wy)][ix(wx)];
 		}
 		
-		public CTile setTile(TileType type, int wx, int wy) {
+		public CTile setTile(Material type, int wx, int wy) {
 			CTile tile = getTile(wx, wy);
-			tile.type = type;
+			tile.data = new BasicTileData(type);
 			return tile;
 		}
 		
@@ -140,7 +140,7 @@ public class HashChunkWorld extends GeneralWorld {
 		}
 		
 		@Override
-		protected ChunkCoordinate clone() throws CloneNotSupportedException {
+		public ChunkCoordinate clone() {
 			return new ChunkCoordinate(x, y);
 		}
 	}
@@ -199,7 +199,7 @@ public class HashChunkWorld extends GeneralWorld {
 	}
 	
 	protected Location getChunkOrigin(int cx, int cy) {
-		return new Location(chunkWidth * cx - chunkWidth/2,
+		return new WeakVectorLocation<>(this, chunkWidth * cx - chunkWidth/2,
 				chunkHeight * cy - chunkHeight/2);
 	}
 	
@@ -262,13 +262,18 @@ public class HashChunkWorld extends GeneralWorld {
 	}
 	
 	@Override
-	public Tile setTile(TileType type, int wx, int wy) {
+	public Tile setTile(Material type, int wx, int wy) {
 		return getGeneratedChunk(wx, wy).setTile(type, wx, wy);
 	}
 	
 	@Override
-	public Tile setTile(TileType type, Location p) {
+	public Tile setTile(Material type, Location p) {
 		return setTile(type, p.getX(), p.getY());
+	}
+
+	@Override
+	public WeakVectorLocation<HashChunkWorld> getLocation(int x, int y) {
+		return new WeakVectorLocation<HashChunkWorld>(x, y);
 	}
 	
 }

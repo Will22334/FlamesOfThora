@@ -8,11 +8,11 @@ import java.security.PublicKey;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.thora.core.Console;
+import com.thora.core.HasLogger;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.world.World;
 
-public abstract class ThoraServer implements Console {
+public abstract class ThoraServer implements HasLogger {
 	
 	public static enum Status {
 		OFF(),

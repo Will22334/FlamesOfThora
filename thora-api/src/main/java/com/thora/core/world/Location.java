@@ -2,28 +2,24 @@ package com.thora.core.world;
 
 import com.thora.core.IntVector;
 
-public class Location implements Locatable, Cloneable {
+public abstract class Location implements Locatable, Cloneable {
 	
-	private int x;
-	private int y;
-	
-	public Location(int x, int y) {
-		this.x = x;
-		this.y = y;
+	public Location() {
+		
 	}
 	
-	@Override
-	public final int getX() {
-		return x;
-	}
+	public abstract World getWorld();
 	
 	@Override
-	public final int getY() {
-		return y;
-	}
+	public abstract int getX();
 	
 	@Override
-	public final Location getLocation() {
+	public abstract int getY();
+	
+	public abstract Location setAs(int x, int y);
+	
+	@Override
+	public Location getLocation() {
 		return this;
 	}
 	
@@ -47,9 +43,7 @@ public class Location implements Locatable, Cloneable {
 	 * @return This Location for chaining.
 	 */
 	public Location shift(int dx, int dy) {
-		x += dx;
-		y += dy;
-		return this;
+		return setAs(getX() + dx, getY() + dy);
 	}
 	
 	/**
@@ -82,8 +76,6 @@ public class Location implements Locatable, Cloneable {
 	}
 	
 	@Override
-	public Location clone() {
-		return new Location(getX(), getY());
-	}
+	public abstract Location clone();
 	
 }

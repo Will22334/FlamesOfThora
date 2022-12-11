@@ -21,8 +21,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
-import com.thora.core.Console;
 import com.thora.core.FlamesOfThora;
+import com.thora.core.HasLogger;
 import com.thora.core.entity.EntityType;
 import com.thora.core.entity.PlayerComponent;
 import com.thora.core.entity.TypeComponent;
@@ -42,9 +42,10 @@ import com.thora.core.world.LocationComponent;
 import com.thora.core.world.MovableComponent;
 import com.thora.core.world.MoveEvent;
 import com.thora.core.world.MoveRequestComponent;
+import com.thora.core.world.WeakVectorLocation;
 import com.thora.core.world.WorldRenderer;
 
-public class PlayingState extends GameState implements Console {
+public class PlayingState extends GameState implements HasLogger {
 	
 	private static final Logger logger =  LogManager.getLogger(PlayingState.class);
 	
@@ -106,7 +107,7 @@ public class PlayingState extends GameState implements Console {
 	@Override
 	public void initialize() {
 		this.appSize = new Dimension(g().getWidth(), g().getHeight());
-		this.log("Created Playing State!");
+		logger().debug("Created Playing State!");
 	}
 	
 	private Matrix4 uiMatrix = new Matrix4();
@@ -233,8 +234,7 @@ public class PlayingState extends GameState implements Console {
 		in.RegisterKey(KEY_RIGHT);
 		in.RegisterKey(KEY_G);
 		
-		
-		Location spawn = new Location(50, 50);
+		Location spawn = new WeakVectorLocation<>(client().world(), 50, 50);
 		player = createPlayerEntity(engine(), spawn);
 		engine().addEntity(player);
 		
@@ -330,8 +330,8 @@ public class PlayingState extends GameState implements Console {
 	private KeyBinding SHOW_GRID_BIDING = new KeyBinding() {
 		@Override
 		public boolean onRelease(KeyRecord key) {
-			log("Last Resized at: " + lastGridToggleTime);
-			log("Toggling Grid");
+			logger().debug("Last resized at: {}", lastGridToggleTime);
+			//log("Toggling Grid");
 			worldRenderer.toggleBorders();
 			lastGridToggleTime = delta;
 			return true;

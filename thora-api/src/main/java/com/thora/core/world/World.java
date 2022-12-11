@@ -8,17 +8,18 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import com.thora.core.Console;
+import com.thora.core.HasLogger;
+import com.thora.core.math.IntVector;
 
 /**
  * A general plane of {@link Tile Tiles} in which physical entities exist and operate.
  * For a class to implement {@link World} it has to define a rectangular region from {@link #getEstimatedArea()}, then
- *  implement {@link #getTile(int, int) and {@link #setTile(TileType, int, int).
+ *  implement {@link #getTile(int, int) and {@link #setTile(TileType, int, int)}.
  *  NOTE: these methods are the minimum required implementations and will most likely perform poorly without
  *   Implementing other methods.
  *
  */
-public abstract class World implements Console {
+public abstract class World implements HasLogger {
 	
 	protected static final Rectangle noEstimatedSize() {
 		return null;
@@ -38,9 +39,19 @@ public abstract class World implements Console {
 		return reverseRange(arr, 0, arr.length);
 	}
 	
+	public World() {
+		
+	}
+	
 	public abstract String getName();
 	
 	public abstract Locatable getOrigin();
+	
+	public Location getLocation(IntVector v) {
+		return getLocation(v.getX(), v.getY());
+	}
+	
+	public abstract Location getLocation(int x, int y);
 	
 	public abstract void initialize() throws Exception;
 	
@@ -68,8 +79,8 @@ public abstract class World implements Console {
 		return getTile(l.getX(), l.getY());
 	}
 	
-	public Tile setTile(TileType type, Location point) {
-		return setTile(type, point.getX(), point.getY());
+	public Tile setTile(Material material, Location point) {
+		return setTile(material, point.getX(), point.getY());
 	}
 	
 	/**
@@ -79,10 +90,10 @@ public abstract class World implements Console {
 	 * @param y the y world coordinates
 	 * @return The current tile
 	 */
-	public abstract Tile setTile(TileType type, int x, int y);
+	public abstract Tile setTile(Material material, int x, int y);
 	
 	public Tile removeTile(int x, int y) {
-		return setTile(TileType.VOID, x, y);
+		return setTile(Material.VOID, x, y);
 	}
 	
 	public abstract Stream<? extends Tile> tiles();

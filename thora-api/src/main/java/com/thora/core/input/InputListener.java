@@ -5,9 +5,9 @@ import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
-import com.thora.core.Console;
+import com.thora.core.HasLogger;
 
-public class InputListener implements InputProcessor, Console {
+public class InputListener implements InputProcessor, HasLogger {
 	
 	private static final Logger logger = LogManager.getLogger(InputListener.class);
 	

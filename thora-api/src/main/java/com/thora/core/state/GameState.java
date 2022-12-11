@@ -8,10 +8,10 @@ import org.apache.logging.log4j.Logger;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
-import com.thora.core.Console;
+import com.thora.core.HasLogger;
 import com.thora.core.FlamesOfThora;
 
-public abstract class GameState extends State implements Console, Comparable<GameState> {
+public abstract class GameState extends State implements HasLogger, Comparable<GameState> {
 	
 	private static final Logger logger = LogManager.getLogger("DefaultConsole");
 	

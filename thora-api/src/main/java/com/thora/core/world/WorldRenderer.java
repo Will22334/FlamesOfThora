@@ -26,19 +26,19 @@ public class WorldRenderer extends RenderingSystem {
 	
 	public static final Color TILE_BORDER_COLOR = new Color(0f, 0f, 0f, .2f);
 	
-	private static final Map<TileType,Texture> tileTextures;
+	private static final Map<Material,Texture> tileTextures;
 	
 	protected static final Texture getTileTexture(Tile tile) {
-		return getTileTexture(tile.getType());
+		return getTileTexture(tile.getMaterial());
 	}
 	
-	private static final Texture getTileTexture(TileType type) {
+	private static final Texture getTileTexture(Material type) {
 		return tileTextures.get(type);
 	}
 	
 	static {
-		tileTextures = new EnumMap<>(TileType.class);
-		for(TileType type: TileType.all()) {
+		tileTextures = new EnumMap<>(Material.class);
+		for(Material type: Material.all()) {
 			Texture texture = new Texture("assets/tiles/" + type.getName().toLowerCase() + ".png");
 			tileTextures.put(type, texture);
 		}
@@ -100,7 +100,7 @@ public class WorldRenderer extends RenderingSystem {
 		batch.begin();
 	}
 	
-	public void toggleBorders() {
+	public void toggleBordersOld() {
 		
 		if(tileBorders == false) {
 			
@@ -111,6 +111,14 @@ public class WorldRenderer extends RenderingSystem {
 			tileBorders = false;
 		}
 		
+	}
+	
+	public void toggleBorders() {
+		if((tileBorders = !tileBorders)) {
+			//Toggle on
+		} else {
+			//Toggle off
+		}
 	}
 	
 	protected void drawTileBorder(Tile tile) {

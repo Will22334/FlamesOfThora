@@ -7,7 +7,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 
-public abstract class GameClient implements ApplicationListener, Console {
+public abstract class GameClient implements ApplicationListener, HasLogger {
 	
 	public static final Logger logger = LogManager.getLogger(GameClient.class);
 	

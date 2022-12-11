@@ -193,6 +193,10 @@ public class EncodingUtils {
 		}
 	}
 	
+	public static final <E extends Exception> IOException wrapIO(String message, E e) {
+		return new IOException(message, e);
+	}
+	
 	public static final <E extends Exception> IOException wrapIO(E e) {
 		if(e instanceof IOException) {
 			return (IOException) e;
@@ -220,6 +224,7 @@ public class EncodingUtils {
 		buf.readerIndex(initialRead);
 		buf.writerIndex(initialRead);
 		buf.writeBytes(encBytes);
+		
 	}
 	
 	public static final void encryptOther(ByteBuf plain, ByteBuf enc, Cipher c) throws IllegalBlockSizeException, BadPaddingException {

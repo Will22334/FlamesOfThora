@@ -8,8 +8,8 @@ import java.util.stream.Stream;
 public class KeyMapWorld extends GeneralWorld {
 	
 	public class MTile extends AbstractTile {
-		private MTile(TileType type, Location point) {
-			super(type, point);
+		private MTile(Material material, Location point) {
+			super(material, point);
 		}
 		@Override
 		public KeyMapWorld getWorld() {
@@ -39,7 +39,7 @@ public class KeyMapWorld extends GeneralWorld {
 
 	@Override
 	public MTile getTile(int x, int y) {
-		return getTile(new Location(x, y));
+		return getTile(new WeakVectorLocation<>(this, x, y));
 	}
 	
 	@Override
@@ -48,25 +48,30 @@ public class KeyMapWorld extends GeneralWorld {
 	}
 	
 	@Override
-	public MTile setTile(TileType type, Location point) {
+	public MTile setTile(Material material, Location point) {
 		MTile tile = tileMap.get(point);
 		if(tile != null) {
-			tile.type = type;
+			tile.data = new BasicTileData(material);
 		} else {
-			tile = new MTile(type, point);
+			tile = new MTile(material, point);
 			tileMap.put(point, tile);
 		}
 		return tile;
 	}
 	
 	@Override
-	public MTile setTile(TileType type, int x, int y) {
-		return setTile(type, new Location(x, y));
+	public MTile setTile(Material material, int x, int y) {
+		return setTile(material, new WeakVectorLocation<>(this, x, y));
 	}
 
 	@Override
 	public Stream<MTile> tiles() {
 		return tileMap.values().stream();
+	}
+
+	@Override
+	public WeakVectorLocation<KeyMapWorld> getLocation(int x, int y) {
+		return new WeakVectorLocation<>(x, y);
 	}
 	
 }

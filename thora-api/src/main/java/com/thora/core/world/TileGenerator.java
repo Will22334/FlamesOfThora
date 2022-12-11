@@ -11,24 +11,26 @@ import java.util.Random;
  */
 public interface TileGenerator {
 	
+	public static final EmptyTileGenerator EMPTY = new EmptyTileGenerator();
+	
 	public static final class EmptyTileGenerator implements TileGenerator {
 		@Override
 		public final boolean isEmpty() {
 			return true;
 		}
 		@Override
-		public TileType getTileType(int x, int y) {
-			return TileType.VOID;
+		public Material getTileType(int x, int y) {
+			return Material.VOID;
 		}
 	}
 	
 	public static class FillTileGenerator implements TileGenerator {
-		private final TileType type;
-		public FillTileGenerator(TileType type) {
+		private final Material type;
+		public FillTileGenerator(Material type) {
 			this.type = Objects.requireNonNull(type, "TileType cannot be null!");
 		}
 		@Override
-		public TileType getTileType(int x, int y) {
+		public Material getTileType(int x, int y) {
 			return type;
 		}
 	}
@@ -39,8 +41,8 @@ public interface TileGenerator {
 			this.rand = rand;
 		}
 		@Override
-		public TileType getTileType(int x, int y) {
-			return TileType.random(rand);
+		public Material getTileType(int x, int y) {
+			return Material.random(rand);
 		}
 	}
 	
@@ -53,7 +55,7 @@ public interface TileGenerator {
 	 * @param point - The tile location
 	 * @return the tile type
 	 */
-	default TileType getTileType(Locatable point) {
+	default Material getTileType(Locatable point) {
 		return getTileType(point.getX(), point.getY());
 	}
 	
@@ -63,6 +65,6 @@ public interface TileGenerator {
 	 * @param y
 	 * @return tile type for that location
 	 */
-	TileType getTileType(int x, int y);
+	Material getTileType(int x, int y);
 	
 }

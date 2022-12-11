@@ -40,7 +40,7 @@ public class RunThoraServer {
 		try {
 			keyIdentity = ThoraServer.readKeyPair(dir);
 		} catch (Throwable t) {
-			logger().atLevel(Level.ERROR).withThrowable(t).log("Failed to read server identity!");
+			logger().atLevel(Level.ERROR).withThrowable(t).log("Failed to read server identity from {}", dir);
 			throw t;
 		}
 		

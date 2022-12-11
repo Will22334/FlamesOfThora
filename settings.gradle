@@ -8,4 +8,4 @@
  */
 
 rootProject.name = 'thora'
-include('thora-server', 'thora-api')
+include('thora-client', 'thora-server', 'thora-api')

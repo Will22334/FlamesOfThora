@@ -1,6 +1,7 @@
 package com.thora.core.input;
 
 import com.thora.core.world.Location;
+import com.thora.core.world.WeakVectorLocation;
 
 public class Mouse {
 	
@@ -9,7 +10,7 @@ public class Mouse {
 	
 	public void setLocation(int x, int y) {
 		
-		loc = new Location(x,y);
+		loc = new WeakVectorLocation<>(null, x,y);
 		
 	}
 	

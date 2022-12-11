@@ -1,5 +1,6 @@
 package com.thora.core.world.generator;
 
+import com.thora.core.world.Material;
 import com.thora.core.world.TileGenerator;
 import com.thora.core.world.TileType;
 
@@ -31,19 +32,19 @@ public class PerlinTileGenerator implements TileGenerator {
 	}
 	
 	@Override
-	public TileType getTileType(int x, int y) {
+	public Material getTileType(int x, int y) {
 		float sx = x / scale;
 		float sy = y / scale;
 		float val = noise.turbulence2(sx, sy, freq);
 		return valueToType(val);
 	}
 	
-	protected TileType valueToType(float val) {
+	protected Material valueToType(float val) {
 		if(val > .12f)
-			return TileType.GRASS;
+			return Material.GRASS;
 		else if(val > .075f)
-			return TileType.SAND;
-		return TileType.WATER;
+			return Material.SAND;
+		return Material.WATER;
 	}
 	
 }

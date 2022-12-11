@@ -12,14 +12,16 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.thora.core.Console;
+import com.thora.core.HasLogger;
 import com.thora.core.FlamesOfThora;
 import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
+import com.thora.core.net.LoginTransaction;
 
 import io.netty.channel.ChannelFuture;
+import io.netty.util.concurrent.Future;
 
-public class LoadingState extends GameState implements Console {
+public class LoadingState extends GameState implements HasLogger {
 	
 	private static final Logger logger = LogManager.getLogger(LoadingState.class);
 	
@@ -150,9 +152,9 @@ public class LoadingState extends GameState implements Console {
 	@Override
 	public void enter() {
 		this.client().network().connectAndLogin(serverAddress, "user", "pwd")
-		.addListener(f -> {
+		.addListener((Future<LoginTransaction> f) -> {
 			if(f.isSuccess()) {
-				
+				f.get();
 				//this.setFinished(true);
 			} else {
 				logger().atWarn().withThrowable(f.cause()).log("Could not login due to exception!");

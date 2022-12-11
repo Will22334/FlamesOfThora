@@ -2,9 +2,9 @@ package com.thora.core.state;
 
 import java.util.Map;
 
-import com.thora.core.Console;
+import com.thora.core.HasLogger;
 
-public class StateManager implements Console {
+public class StateManager implements HasLogger {
 
 	private static StateList States = new StateList();
 	

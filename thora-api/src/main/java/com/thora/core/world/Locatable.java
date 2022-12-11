@@ -16,6 +16,10 @@ public interface Locatable {
 	
 	public Location getLocation();
 	
+	public default World getWorld() {
+		return getLocation().getWorld();
+	}
+	
 	public default int getX() {
 		return getLocation().getX();
 	}
