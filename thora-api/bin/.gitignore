@@ -1,2 +1,8 @@
+/.gradle/
+/.classpath
+/.gitignore
+/.project
+/build/
+/javadoc/
 /main/
 /test/

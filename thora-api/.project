@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>thora-api</name>
-	<comment>Project thora-api created by Buildship.</comment>
+	<comment>Provides general game logic API used in both server and client.</comment>
 	<projects>
 	</projects>
 	<buildSpec>

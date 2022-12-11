@@ -1,6 +1,7 @@
 package com.thora.core.world;
 
 import com.thora.core.math.IntVector;
+import com.thora.core.math.Vector;
 
 public abstract class IntVectorLocation extends Location {
 	
@@ -22,12 +23,12 @@ public abstract class IntVectorLocation extends Location {
 	
 	@Override
 	public final int getX() {
-		return vector().getX();
+		return vector().getIX();
 	}
 	
 	@Override
 	public final int getY() {
-		return vector().getY();
+		return vector().getIY();
 	}
 	
 	@Override
@@ -52,12 +53,24 @@ public abstract class IntVectorLocation extends Location {
 	 * @return This Location for chaining.
 	 */
 	public IntVectorLocation shift(IntVector v) {
-		return shift(v.x, v.y);
+		return shift(v.getIX(), v.getIY());
 	}
 	
 	@Override
 	public IntVectorLocation shift(int dx, int dy) {
 		return this.setAs(getX() + dx, getY() + dy);
+	}
+	
+	
+	
+	@Override
+	public Vector<IntVector> asVector() {
+		return vector();
+	}
+
+	@Override
+	public double[] comps() {
+		return new double[] {getX(), getY()};
 	}
 
 	@Override

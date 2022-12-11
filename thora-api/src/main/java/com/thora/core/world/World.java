@@ -14,7 +14,7 @@ import com.thora.core.math.IntVector;
 /**
  * A general plane of {@link Tile Tiles} in which physical entities exist and operate.
  * For a class to implement {@link World} it has to define a rectangular region from {@link #getEstimatedArea()}, then
- *  implement {@link #getTile(int, int) and {@link #setTile(TileType, int, int)}.
+ *  implement {@link #getTile(int, int)} and setTile.
  *  NOTE: these methods are the minimum required implementations and will most likely perform poorly without
  *   Implementing other methods.
  *
@@ -48,7 +48,7 @@ public abstract class World implements HasLogger {
 	public abstract Locatable getOrigin();
 	
 	public Location getLocation(IntVector v) {
-		return getLocation(v.getX(), v.getY());
+		return getLocation(v.getIX(), v.getIY());
 	}
 	
 	public abstract Location getLocation(int x, int y);

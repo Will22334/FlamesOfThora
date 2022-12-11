@@ -1,8 +1,8 @@
 package com.thora.core.math;
 
-public class IntVector {
+public class IntVector implements Vector<IntVector> {
 	
-public int x, y;
+	protected int x, y;
 	
 	public IntVector(int x, int y) {
 		this.x = x;
@@ -13,11 +13,11 @@ public int x, y;
 		this(0, 0);
 	}
 	
-	public int getX() {
+	public int getIX() {
 		return x;
 	}
 	
-	public int getY() {
+	public int getIY() {
 		return y;
 	}
 	
@@ -31,6 +31,18 @@ public int x, y;
 		return this;
 	}
 	
+	@Override
+	public IntVector setX(double x) {
+		this.x = (int) Math.round(x);
+		return this;
+	}
+
+	@Override
+	public IntVector setY(double y) {
+		this.y = (int) Math.round(y);
+		return this;
+	}
+	
 	public IntVector setAs(int x, int y) {
 		this.x = x;
 		this.y = y;
@@ -38,7 +50,11 @@ public int x, y;
 	}
 	
 	public IntVector setAs(IntVector v) {
-		return setAs(v.getX(), v.getY());
+		return setAs(v.getIX(), v.getIY());
+	}
+	
+	public IntVector shift(int dx, int dy) {
+		return setAs(getIX() + dx, getIY() + dy);
 	}
 	
 	public final int maxRectLength() {
@@ -53,12 +69,12 @@ public int x, y;
 		x = y = 0;
 		return this;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		return 31 * (31 + x) + y;
 	}
-
+	
 	@Override
 	public boolean equals(Object o) {
 		if(o == null) return false;
@@ -78,10 +94,27 @@ public int x, y;
 	public IntVector clone() {
 		return new IntVector(x, y);
 	}
-
+	
 	@Override
 	public String toString() {
 		return "[" + x + ", " + y + "]";
+	}
+
+	@Override
+	public double getX() {
+		return x;
+	}
+
+	@Override
+	public double getY() {
+		return y;
+	}
+
+	@Override
+	public IntVector setAs(double x, double y) {
+		this.x = (int) Math.round(x);
+		this.y = (int) Math.round(y);
+		return this;
 	}
 	
 }

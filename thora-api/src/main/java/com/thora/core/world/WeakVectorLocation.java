@@ -7,6 +7,14 @@ import com.thora.core.math.IntVector;
 
 public class WeakVectorLocation<W extends World> extends IntVectorLocation {
 	
+	public static <W extends World> WeakVectorLocation<W> create(W world, IntVector v) {
+		return new WeakVectorLocation<>(world, v);
+	}
+	
+	public static <W extends World> WeakVectorLocation<W> create(W world, int x, int y) {
+		return create(world, new IntVector(x, y));
+	}
+	
 	protected WeakReference<W> worldRef;
 	
 	public WeakVectorLocation(W world, IntVector v) {
@@ -42,6 +50,11 @@ public class WeakVectorLocation<W extends World> extends IntVectorLocation {
 	public WeakVectorLocation<W> setAs(int x, int y) {
 		vector().setAs(x, y);
 		return this;
+	}
+
+	@Override
+	public double[] comps() {
+		return null;
 	}
 	
 }

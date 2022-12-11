@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 public class KeyMapWorld extends GeneralWorld {
 	
-	public class MTile extends AbstractTile {
+	public class MTile extends BasicTile {
 		private MTile(Material material, Location point) {
 			super(material, point);
 		}
@@ -71,7 +71,7 @@ public class KeyMapWorld extends GeneralWorld {
 
 	@Override
 	public WeakVectorLocation<KeyMapWorld> getLocation(int x, int y) {
-		return new WeakVectorLocation<>(x, y);
+		return new WeakVectorLocation<>(this, x, y);
 	}
 	
 }

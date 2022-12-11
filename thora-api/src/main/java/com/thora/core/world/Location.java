@@ -1,6 +1,7 @@
 package com.thora.core.world;
 
 import com.thora.core.math.IntVector;
+import com.thora.core.math.Vector;
 
 public abstract class Location implements Locatable, Cloneable {
 	
@@ -16,7 +17,23 @@ public abstract class Location implements Locatable, Cloneable {
 	@Override
 	public abstract int getY();
 	
+	
+	
 	public abstract Location setAs(int x, int y);
+	
+	public abstract Vector<?> asVector();
+	
+	public abstract double[] comps();
+	
+	public Location putComps(double[] arr, int index) {
+		arr[index] = getX();
+		arr[index + 1] = getY();
+		return this;
+	}
+	
+	public Location putComps(double[] arr) {
+		return putComps(arr, 0);
+	}
 	
 	@Override
 	public Location getLocation() {
@@ -52,7 +69,7 @@ public abstract class Location implements Locatable, Cloneable {
 	 * @return This Location for chaining.
 	 */
 	public Location shift(IntVector v) {
-		return shift(v.x, v.y);
+		return shift(v.getIX(), v.getIY());
 	}
 	
 	@Override

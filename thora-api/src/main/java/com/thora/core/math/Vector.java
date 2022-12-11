@@ -1,32 +1,31 @@
 package com.thora.core.math;
 
-public class Vector {
+public interface Vector<V extends Vector<V>> extends Cloneable {
 	
-	protected double x, y;
+	public double getX();
+	public double getY();
 	
-	public Vector(double x, double y) {
-		this.x = x;
-		this.y = y;
+	public int getIX();
+	public int getIY();
+	
+	public V setX(double x);
+	public V setY(double y);
+	
+	public V setX(int x);
+	public V setY(int y);
+	
+	public V setAs(double x, double y);
+	
+	public default Vector<V> putComps(double[] arr, int index) {
+		arr[index] = getX();
+		arr[index + 1] = getY();
+		return this;
 	}
 	
-	public Vector() {
-		this(0d, 0d);
+	public default Vector<V> putComps(double[] arr) {
+		return putComps(arr, 0);
 	}
 	
-	public double getX() {
-		return x;
-	}
-
-	public void setX(double x) {
-		this.x = x;
-	}
-
-	public double getY() {
-		return y;
-	}
-
-	public void setY(double y) {
-		this.y = y;
-	}
+	public V clone() throws CloneNotSupportedException;
 	
 }

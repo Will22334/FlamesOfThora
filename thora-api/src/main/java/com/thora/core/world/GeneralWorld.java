@@ -90,7 +90,7 @@ public abstract class GeneralWorld extends World {
 
 	@Override
 	public WeakVectorLocation<? extends GeneralWorld> getLocation(int x, int y) {
-		return new WeakVectorLocation<>(x, y);
+		return new WeakVectorLocation<>(this, x, y);
 	}
 	
 }

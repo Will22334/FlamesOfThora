@@ -98,6 +98,7 @@ public class NettyThoraServer extends ThoraServer {
 				throw e;
 			}
 		} catch(Throwable t) {
+			logger().atWarn().withThrowable(t).log("Exception while engine starting/binding to {}", address);
 			engine().stop();
 			throw t;
 		}

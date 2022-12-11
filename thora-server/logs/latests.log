@@ -1,9 +1,0 @@
-2022-12-11 05:50:54 [TRACE][RunThoraServer] Server Public Key = java.security.KeyPair@6f1de4c7
-2022-12-11 05:50:55 [INFO ][Network] Bound to localhost/127.0.0.1:7988
-2022-12-11 05:50:55 [TRACE][Network] listenChannel = [id: 0x05dec3fe, L:/127.0.0.1:7988]
-2022-12-11 05:51:06 [INFO ][Network] Connected: [id: 0xe17a1043, L:/127.0.0.1:7988 - R:/127.0.0.1:57868]
-2022-12-11 05:51:06 [INFO ][Network] New session created for Channel [id: 0xe17a1043, L:/127.0.0.1:7988 - R:/127.0.0.1:57868]
-2022-12-11 05:51:06 [TRACE][Network] Processing LoginRequestMessage from [/127.0.0.1:7988 : /127.0.0.1:57868]
-2022-12-11 05:51:06 [TRACE][Network] Received login request = com.thora.core.net.message.LoginRequestMessage@6874885b
-2022-12-11 05:51:06 [TRACE][Network] Encoding LoginResponseMessage to [id: 0xe17a1043, L:/127.0.0.1:7988 - R:/127.0.0.1:57868]
-2022-12-11 05:51:17 [INFO ][Network] Disconnected: [id: 0xe17a1043, L:/127.0.0.1:7988 ! R:/127.0.0.1:57868]

@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class ArrayWorld extends World implements RectangularRegion {
 	
-	private class ATile extends AbstractTile {
+	private class ATile extends BasicTile {
 		protected final int ix, iy;
 		public ATile(Material type, Location point) {
 			super(type, point);
@@ -192,7 +192,7 @@ public class ArrayWorld extends World implements RectangularRegion {
 		int ix = ix(wx), iy = iy(wy);
 		ATile tile = getTileInternal(ix, iy);
 		if(tile == null) {
-			tile = new ATile(type, new WeakVectorLocation(this, wx, wy));
+			tile = new ATile(type, new WeakVectorLocation<>(this, wx, wy));
 			tiles[iy][ix] = tile;
 		} else {
 			tile.setMaterial(type);

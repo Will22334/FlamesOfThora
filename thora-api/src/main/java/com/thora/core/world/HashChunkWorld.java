@@ -16,7 +16,7 @@ public class HashChunkWorld extends GeneralWorld {
 	
 	public class HashChunk extends Chunk {
 		
-		public class CTile extends AbstractTile {
+		public class CTile extends BasicTile {
 			protected CTile(Material material, Location point) {
 				super(material, point);
 			}
@@ -39,11 +39,11 @@ public class HashChunkWorld extends GeneralWorld {
 		
 		private final CTile[][] tiles;
 		protected final ChunkCoordinate coord;
-		protected final Location origin;
+		protected final Location bottomLeft;
 		
 		protected HashChunk(ChunkCoordinate coord) {
 			this.coord = coord;
-			this.origin = getChunkOrigin(coord);
+			this.bottomLeft = getChunkOrigin(coord);
 			this.tiles = new CTile[chunkHeight][chunkWidth];
 		}
 		
@@ -54,7 +54,7 @@ public class HashChunkWorld extends GeneralWorld {
 		
 		@Override
 		public Location getOrigin() {
-			return origin;
+			return bottomLeft;
 		}
 		
 		@Override
@@ -68,7 +68,7 @@ public class HashChunkWorld extends GeneralWorld {
 		}
 		
 		protected int ix(int wx) {
-			return wx - origin.getX();
+			return wx - bottomLeft.getX();
 		}
 		
 		protected int ix(Locatable loc) {
@@ -76,7 +76,7 @@ public class HashChunkWorld extends GeneralWorld {
 		}
 		
 		protected int iy(int wy) {
-			return wy - origin.getY();
+			return wy - bottomLeft.getY();
 		}
 		
 		protected int iy(Locatable loc) {
@@ -198,13 +198,13 @@ public class HashChunkWorld extends GeneralWorld {
 		return getChunkCoord(loc.getX(), loc.getY());
 	}
 	
-	protected Location getChunkOrigin(int cx, int cy) {
+	protected WeakVectorLocation<HashChunkWorld> getChunkOrigin(int cx, int cy) {
 		return new WeakVectorLocation<>(this, chunkWidth * cx - chunkWidth/2,
 				chunkHeight * cy - chunkHeight/2);
 	}
 	
 	protected Location getChunkOrigin(ChunkCoordinate c) {
-		return getChunkOrigin(c.x, c.y);
+		return getChunkOrigin(c.getIX(), c.getIY());
 	}
 	
 	protected HashChunk createGeneratedChunk(ChunkCoordinate coord) {
@@ -229,7 +229,7 @@ public class HashChunkWorld extends GeneralWorld {
 	
 	protected Stream<HashChunk> surroundingChunks(Locatable p, int chunkRange) {
 		HashChunk centerChunk = getGeneratedChunk(p);
-		int cx = centerChunk.coord.x, cy = centerChunk.coord.y;
+		int cx = centerChunk.coord.getIX(), cy = centerChunk.coord.getIY();
 		return IntStream.rangeClosed(cy-chunkRange, cy+chunkRange)
 				.mapToObj(y -> {
 					return IntStream.rangeClosed(cx-chunkRange, cx+chunkRange)
@@ -273,7 +273,7 @@ public class HashChunkWorld extends GeneralWorld {
 
 	@Override
 	public WeakVectorLocation<HashChunkWorld> getLocation(int x, int y) {
-		return new WeakVectorLocation<HashChunkWorld>(x, y);
+		return new WeakVectorLocation<HashChunkWorld>(this, x, y);
 	}
 	
 }
