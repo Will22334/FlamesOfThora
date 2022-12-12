@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.Spliterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -416,31 +415,14 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 		}
 		
 		private QuadTreeEntry<E> entry;
-		private boolean looked = false;
-		private boolean onSelfElements = true;
 		
 		private boolean hasNext() {
-			if(selfIt.hasNext()) {
-				return true;
-			} else {
-				onSelfElements = false;
-			}
-			
-			if(childrenIt.hasNext()) {
-				return false;
-			}
-			return false;
+			return selfIt.hasNext();
 		}
 		
 		private E next() {
-			if(!hasNext()) {
-				throw new NoSuchElementException();
-			}
-			if(onSelfElements) {
-				return selfIt.next().element;
-			} else {
-				return null;
-			}
+			entry = selfIt.next();
+			return entry.element;
 		}
 		
 	}
@@ -455,11 +437,10 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 		}
 		
 		private E current;
-		private E next;
 		
 		@Override
 		public boolean hasNext() {
-			if(currentNode.selfIt.hasNext()) {
+			if(currentNode.hasNext()) {
 				return true;
 			} else if(currentNode.childrenIt.hasNext()) {
 				currentNode = new ItNode(currentNode, currentNode.childrenIt.next());
@@ -498,7 +479,7 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 		
 	}
 	
-	public Stream<E> queryStream() {
+	public Stream<E> queryStreamIter() {
 		QuadIterator<E> it = new  QuadIterator<>(this.root);
 		Iterable<E> iterable = () -> it;
 		return StreamSupport.stream(iterable.spliterator(), false);
@@ -532,19 +513,52 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 		}
 		return query(space[0][0], space[0][1], space[1][0], space[1][1]);
 	}
-
-	public Stream<E> queryStream(final double[]... space) {
-		if (space.length != 2 || space[0].length != 2 || space[1].length != 2) {
-			throw new IllegalArgumentException();
-		}
-		return queryStream(space[0][0], space[0][1], space[1][0], space[1][1]);
+	
+	public Stream<E> tiles() {
+		return allTrees()
+				.flatMap(StreamQueadTree::selfTiles);
 	}
 	
-	public Stream<E> queryStream(double ax, double ay, double bx, double by) {
-		QuadIterator<E> it = new  QuadIterator<>(this.root);
-		Iterable<E> iterable = () -> it;
-		return StreamSupport.stream(iterable.spliterator(), false);
+	private Stream<E> selfTiles() {
+		return selfEntries()
+				.map(QuadTreeEntry::element);
 	}
+	
+	private final Stream<QuadTreeEntry<E>> selfEntries() {
+		return elements.stream();
+	}
+	
+	private final Stream<StreamQueadTree<E>> childTrees() {
+		return Stream.concat(Stream.of(this), children.values().stream()
+				.flatMap(StreamQueadTree::childTrees));
+	}
+	
+	protected Stream<StreamQueadTree<E>> allTrees() {
+		return findRoot().childTrees();
+	}
+	
+	protected StreamQueadTree<E> findRoot() {
+		StreamQueadTree<E> r = root;
+		if(root == null) return this;
+		StreamQueadTree<E> newRoot;
+		while((newRoot = r.parent) != null) {
+			r = newRoot;
+		}
+		return r;
+	}
+	
+//	public Stream<E> queryStream(final double[]... space) {
+//		if (space.length != 2 || space[0].length != 2 || space[1].length != 2) {
+//			throw new IllegalArgumentException();
+//		}
+//		return queryStream(space[0][0], space[0][1], space[1][0], space[1][1]);
+//	}
+//	
+//	public Stream<E> queryStream(double ax, double ay, double bx, double by) {
+//		QuadIterator<E> it = new  QuadIterator<>(this.root);
+//		Iterable<E> iterable = () -> it;
+//		return StreamSupport.stream(iterable.spliterator(), false);
+//	}
 
 	@Override
 	public boolean remove(final E e, final double... pos) {
@@ -635,7 +649,11 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 			x = xp;
 			y = yp;
 		}
-
+		
+		protected final E element() {
+			return element;
+		}
+		
 		@Override
 		public boolean equals(final Object obj) {
 			if (obj == this) {

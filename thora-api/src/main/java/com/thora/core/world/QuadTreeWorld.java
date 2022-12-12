@@ -63,8 +63,12 @@ public class QuadTreeWorld extends World {
 			return worldRef.get();
 		}
 		
+		public Stream<QuadTreeTile> tilesIter() {
+			return tree.queryStreamIter();
+		}
+		
 		public Stream<QuadTreeTile> tiles() {
-			return tree.queryStream();
+			return tree.tiles();
 		}
 		
 		public void insert(QuadTreeTile tile) {
@@ -143,8 +147,6 @@ public class QuadTreeWorld extends World {
 				this.setTile(generator.getTileType(x, y), x, y);
 			}
 		}
-		
-		this.tiles().forEach(logger::info);
 		
 	}
 
