@@ -99,14 +99,14 @@ public abstract class DoubleArrLocation extends Location {
 		return this;
 	}
 	
-	public DoubleArrLocation putComps(double[] arr, int index) {
+	public DoubleArrLocation comps(double[] arr, int index) {
 		arr[index] = getRX();
 		arr[index] = getRY();
 		return this;
 	}
 	
-	public DoubleArrLocation putComps(double[] arr) {
-		putComps(arr, 0);
+	public DoubleArrLocation comps(double[] arr) {
+		comps(arr, 0);
 		return this;
 	}
 	

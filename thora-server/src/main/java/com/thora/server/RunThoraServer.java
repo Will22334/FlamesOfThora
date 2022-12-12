@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Pole;
+import com.thora.core.world.QuadTreeWorld;
 import com.thora.core.world.TileGenerator;
 import com.thora.core.world.World;
 import com.thora.core.world.generator.PerlinTileGenerator;
@@ -52,7 +53,8 @@ public class RunThoraServer {
 		
 		Pole origin = new Pole("Origin",0,0);
 		TileGenerator gen = new PerlinTileGenerator((int)System.currentTimeMillis(), DEFAULT_WORLD_SCALE, DEFAULT_WORLD_FREQ);
-		World world = new HashChunkWorld("Earth", origin, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_SIZE, gen);
+		//World world = new HashChunkWorld("Earth", origin, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_SIZE, gen);
+		World world = new QuadTreeWorld("Earth", 50, 50, gen);
 		world.initialize();
 		
 		NettyThoraServer server = new NettyThoraServer(keyIdentity, sideThreads, bossIOThreads, workerIOThreads, world);

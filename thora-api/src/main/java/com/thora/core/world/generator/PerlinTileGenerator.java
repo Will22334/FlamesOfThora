@@ -2,7 +2,6 @@ package com.thora.core.world.generator;
 
 import com.thora.core.world.Material;
 import com.thora.core.world.TileGenerator;
-import com.thora.core.world.TileType;
 
 public class PerlinTileGenerator implements TileGenerator {
 	

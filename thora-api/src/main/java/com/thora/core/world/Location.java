@@ -25,14 +25,14 @@ public abstract class Location implements Locatable, Cloneable {
 	
 	public abstract double[] comps();
 	
-	public Location putComps(double[] arr, int index) {
+	public Location comps(double[] arr, int index) {
 		arr[index] = getX();
 		arr[index + 1] = getY();
 		return this;
 	}
 	
-	public Location putComps(double[] arr) {
-		return putComps(arr, 0);
+	public Location comps(double[] arr) {
+		return comps(arr, 0);
 	}
 	
 	@Override
