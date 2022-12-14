@@ -20,6 +20,7 @@ import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.NettyNetworkManager;
 import com.thora.core.state.GameState;
 import com.thora.core.state.LoadingState;
+import com.thora.core.state.LoginState;
 import com.thora.core.state.MenuState;
 import com.thora.core.state.PlayingState;
 import com.thora.core.state.StateManager;
@@ -40,8 +41,9 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 	public static final float DEFAULT_WORLD_FREQ = 20f;
 	
 	private final static int LOADINGSTATEID = 0;
-	private final static int MENUSTATEID = 1;
-	private final static int PLAYINGSTATEID = 2;
+	private final static int LOGINSTATEID = 1;
+	private final static int MENUSTATEID = 2;
+	private final static int PLAYINGSTATEID = 3;
 	
 	public static final Logger logger = LogManager.getLogger("Client");
 	
@@ -76,6 +78,7 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 	//Initiate the States
 	public void initializeStates() {
 		States.addStateToList(new MenuState(this, "Menu State", MENUSTATEID));
+		States.addStateToList(new LoginState(this, "Login State", LOGINSTATEID));
 		States.addStateToList(new PlayingState(this, "Playing State", PLAYINGSTATEID));
 		States.addStateToList(new LoadingState(this, "Loading State", LOADINGSTATEID));
 		
@@ -126,7 +129,7 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 		this.network = new NettyNetworkManager(IO_WORKER_THREADS, serverIdentity, this.publicEncCipher);
 		
 		//Sets the active state to the Loading State. 
-		States.setActiveState(LOADINGSTATEID);
+		States.setActiveState(LOGINSTATEID);
 		
 	}
 	
@@ -209,5 +212,9 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 		return PLAYINGSTATEID;
 	}
 	
+	public static int getLoginstateid() {
+		return LOGINSTATEID;
+	}
+ 	
 	
 }

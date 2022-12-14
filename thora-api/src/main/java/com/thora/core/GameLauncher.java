@@ -51,6 +51,7 @@ public class GameLauncher {
 		//Create core app listener
 		FlamesOfThora game = new FlamesOfThora();
 		
+		
 		//A new Application.
 		Application app = new LwjglApplication(game, config);
 		
