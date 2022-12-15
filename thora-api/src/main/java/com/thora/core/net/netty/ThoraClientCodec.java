@@ -5,6 +5,7 @@ import javax.crypto.IllegalBlockSizeException;
 
 import org.apache.logging.log4j.Logger;
 
+import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
 
@@ -32,8 +33,11 @@ public class ThoraClientCodec extends ThoraCodec {
 	@Override
 	protected void populate() {
 		this.addEncoder(new LoginRequestEncoder());
+		this.addEncoder(new ChatMessageEncoder());
+		
 		
 		this.addDecoder(new LoginResponseDecoder());
+		this.addDecoder(new ChatMessageDecoder());
 	}
 	
 	public class LoginRequestEncoder extends MessageEncoder<LoginRequestMessage> {
@@ -48,8 +52,9 @@ public class ThoraClientCodec extends ThoraCodec {
 			int startWriteIndex = buf.writerIndex();
 			buf.readerIndex(startWriteIndex);
 			
-			buf.writeLong(msg.timeStamp);
 			buf.writeLong(msg.sessionKey);
+			buf.writeLong(msg.timeStamp);
+			
 			EncodingUtils.writeVarString(msg.username, buf);
 			EncodingUtils.writeVarString(msg.password, buf);
 			
@@ -76,6 +81,31 @@ public class ThoraClientCodec extends ThoraCodec {
 			}
 			return new LoginResponseMessage(accepted, reason);
 		}
+	}
+	
+	public class ChatMessageEncoder extends EncryptedPayloadMessageEncoder<ChatMessage> {
+		protected ChatMessageEncoder() {
+			super(OPCODE_SERVER_CHAT_MESSAGE);
+		}
+
+		@Override
+		public void encodePlain(ChannelHandlerContext ctx, ChatMessage packet, ByteBuf buf) {
+			EncodingUtils.writeVarString(packet.message, buf);
+		}
+	}
+	
+	public class ChatMessageDecoder extends EncryptedPayloadMessageDecoder<ChatMessage> {
+
+		public ChatMessageDecoder() {
+			super(OPCODE_CLIENT_CHAT_MESSAGE);
+		}
+
+		@Override
+		protected ChatMessage decodePlain(ChannelHandlerContext ctx, ByteBuf buf) {
+			String text = EncodingUtils.readVarString(buf);
+			return new ChatMessage(text);
+		}
+		
 	}
 	
 }

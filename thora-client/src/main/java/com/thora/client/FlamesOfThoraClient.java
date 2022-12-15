@@ -28,7 +28,7 @@ import com.thora.core.net.netty.NettyNetworkManager;
 import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Pole;
 import com.thora.core.world.TileGenerator;
-import com.thora.core.world.World;
+import com.thora.core.world.AbstractWorld;
 import com.thora.core.world.generator.PerlinTileGenerator;
 
 public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
@@ -58,7 +58,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	public InetSocketAddress serverAddress;
 	
 	private NettyNetworkManager network;
-	private World world;
+	private AbstractWorld world;
 	
 	@Override
 	public final Logger logger() {
@@ -73,7 +73,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 		return network;
 	}
 	
-	public World world() {
+	public AbstractWorld world() {
 		return world;
 	}
 	

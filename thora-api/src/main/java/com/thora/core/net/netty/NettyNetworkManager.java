@@ -149,15 +149,21 @@ public class NettyNetworkManager {
 		
 		connectFuture.addListener((ChannelFuture f) -> {
 			if(f.isSuccess()) {
-				PlayerSession session = getOrCreateSession(f.channel());
+				final PlayerSession session = getOrCreateSession(f.channel());
+				
 				LoginTransaction t = new LoginTransaction();
-				t.request = new LoginRequestMessage(username, password, sessionRand.nextLong());
+				t.request = new LoginRequestMessage(username, password, session.getSessionID(), session.getSessionTimeStamp());
 				
 				loginTransaction = t;
 				f.channel().writeAndFlush(loginTransaction.request).addListener((ChannelFuture lf) -> {
 					if(lf.isSuccess()) {
-						PlayerSession session2 = PlayerSession.get(lf.channel());
-						session2.generateSymmetricCipher(getServerIdentity(), t.request.sessionKey);
+						final PlayerSession session2 = PlayerSession.get(lf.channel());
+						if(!session.rawChannel().equals(session2.rawChannel())) {
+							logger().warn("Session handshake/login response was from a different channel!");
+							loginPromise.setFailure(new RuntimeException("Session handshake/login response was from a different channel!"));
+							return;
+						}
+						session2.generateSymmetricCipher(getServerIdentity(), t.request.sessionKey, t.request.timeStamp);
 					} else {
 						loginPromise.setFailure(lf.cause());
 					}
@@ -168,10 +174,14 @@ public class NettyNetworkManager {
 		return loginPromise;
 	}
 	
+	protected PlayerSession getSession(SocketChannel channel) {
+		return NetworkSession.findSession(channel);
+	}
+	
 	protected PlayerSession getOrCreateSession(SocketChannel channel) {
-		PlayerSession s = NetworkSession.findSession(channel);
+		PlayerSession s = getSession(channel);
 		if(s == null) {
-			s = new PlayerSession(this, channel, secureRand.nextLong());
+			s = new PlayerSession(this, channel, secureRand.nextLong(), System.currentTimeMillis());
 			session = s;
 		}
 		return s;

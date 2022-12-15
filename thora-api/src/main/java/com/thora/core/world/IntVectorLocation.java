@@ -1,23 +1,64 @@
 package com.thora.core.world;
 
+import java.lang.ref.WeakReference;
+
+import com.thora.core.math.IntArrVector;
 import com.thora.core.math.IntVector;
-import com.thora.core.math.Vector;
 
 public abstract class IntVectorLocation extends Location {
 	
-	protected IntVector v;
-	
-	public IntVectorLocation(int x, int y) {
-		this(new IntVector(x, y));
+	public static class IntVectorRefLocation<W extends AbstractWorld> extends IntVectorLocation {
+		
+		private WeakReference<W> worldRef;
+		
+		public IntVectorRefLocation(W world, int x, int y) {
+			super(x, y);
+			this.worldRef = new WeakReference<>(world);
+		}
+		
+		public IntVectorRefLocation(int x, int y) {
+			this(null, x, y);
+		}
+
+		public IntVectorRefLocation(W world, IntArrVector v) {
+			super(v);
+			this.worldRef = new WeakReference<>(world);
+		}
+		
+		public IntVectorRefLocation(W world, IntVector v) {
+			super(new IntArrVector(v.getIX(), v.getIY()));
+			this.worldRef = new WeakReference<>(world);
+		}
+
+		@Override
+		public W getWorld() {
+			return worldRef.get();
+		}
+
+		@Override
+		public IntVectorRefLocation<W> clone() {
+			return new IntVectorRefLocation<W>(getWorld(), this.v.clone());
+		}
+		
 	}
 	
-	public IntVectorLocation(IntVector v) {
+	protected IntArrVector v;
+	
+	public IntVectorLocation(int x, int y) {
+		this(new IntArrVector(x, y));
+	}
+	
+	public IntVectorLocation(IntArrVector v) {
 		this.v = v;
 	}
 	
-	public abstract World getWorld();
+	public IntVectorLocation(IntVector v) {
+		this.v = new IntArrVector(v.getIX(), v.getIY());
+	}
 	
-	public IntVector vector() {
+	public abstract AbstractWorld getWorld();
+	
+	public IntArrVector vector() {
 		return v;
 	}
 	
@@ -37,7 +78,7 @@ public abstract class IntVectorLocation extends Location {
 		return this;
 	}
 	
-	public IntVectorLocation setAs(IntVector v) {
+	public IntVectorLocation setAs(IntArrVector v) {
 		this.v.setAs(v);
 		return this;
 	}
@@ -64,7 +105,7 @@ public abstract class IntVectorLocation extends Location {
 	
 	
 	@Override
-	public Vector<IntVector> asVector() {
+	public IntArrVector asVector() {
 		return vector();
 	}
 
@@ -72,7 +113,11 @@ public abstract class IntVectorLocation extends Location {
 	public double[] comps() {
 		return new double[] {getX(), getY()};
 	}
-
+	
+	public int[] compsI() {
+		return v.comps();
+	}
+	
 	@Override
 	public String toString() {
 		return "[" + getX() + "," + getY() + "]";

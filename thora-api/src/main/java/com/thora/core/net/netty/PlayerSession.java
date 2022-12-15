@@ -24,8 +24,6 @@ public class PlayerSession extends AbstractNettySession {
 	
 	//public static final AttributeKey<PlayerSession> ATTRIBUTE_SESSION = AttributeKey.newInstance("SESSION");
 	
-	public static final Long ABSENT_SESSION_ID = Long.valueOf(0L);
-	
 	public static PlayerSession get(ChannelHandlerContext ctx) {
 		return get(ctx.channel());
 	}
@@ -37,13 +35,16 @@ public class PlayerSession extends AbstractNettySession {
 	private final NettyNetworkManager manager;
 	private SimpleCryptographicCredentials creds = new SimpleCryptographicCredentials();
 	private final long sessionID;
+	private final long sessionTimeStamp;
 	
-	PlayerSession(NettyNetworkManager manager, NettyNetworkChannel channel, long sessionID) {
+	PlayerSession(NettyNetworkManager manager, NettyNetworkChannel channel, long sessionID, long sessionTimeStamp) {
 		super(channel);
 		this.manager = manager;
 		this.sessionID = sessionID;
-		this.creds.assymetricKey = new AsymmetricKeyCipher(manager.getServerIdentity(), manager.getPublicCipher());
+		this.sessionTimeStamp = sessionTimeStamp;
 		SocketChannel rawChannel = channel.rawChannel();
+		this.creds.assymetricKey = new AsymmetricKeyCipher(manager.getServerIdentity(), manager.getPublicCipher());
+		
 		boolean set = rawChannel.attr(ATTRIBUTE_SESSION).compareAndSet(null, this);
 		if(!set) {
 			//Session already associated for the channel
@@ -51,8 +52,8 @@ public class PlayerSession extends AbstractNettySession {
 		}
 	}
 	
-	PlayerSession(NettyNetworkManager manager, SocketChannel channel, long sessionID) {
-		this(manager, new NettyNetworkChannel(channel), sessionID);
+	PlayerSession(NettyNetworkManager manager, SocketChannel channel, long sessionID, long sessionTimeStamp) {
+		this(manager, new NettyNetworkChannel(channel), sessionID, sessionTimeStamp);
 	}
 	
 	protected NettyNetworkManager manager() {
@@ -76,6 +77,10 @@ public class PlayerSession extends AbstractNettySession {
 		return sessionID;
 	}
 	
+	public long getSessionTimeStamp() {
+		return sessionTimeStamp;
+	}
+	
 	protected boolean attach(SocketChannel channel) {
 		boolean set = channel.attr(ATTRIBUTE_SESSION).compareAndSet(null, this);
 		if(set) {
@@ -86,12 +91,15 @@ public class PlayerSession extends AbstractNettySession {
 		return set;
 	}
 	
-	protected void generateSymmetricCipher(PublicKey serverIdentity, long sessionID) {
+	protected void generateSymmetricCipher(PublicKey serverIdentity, long sessionID, long timeStamp) {
 		
 		ByteBuf buf = alloc().buffer();
 		try {
+			
 			buf.writeBytes(serverIdentity.getEncoded());
 			buf.writeLong(sessionID);
+			buf.writeLong(timeStamp);
+			
 			EncodingUtils.sha256(buf);
 			byte[] keyData = new byte[buf.readableBytes()];
 			buf.readBytes(keyData);

@@ -10,11 +10,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A {@link World} implementation that is backed by a single 2d array of tiles.
+ * A {@link AbstractWorld} implementation that is backed by a single 2d array of tiles.
  * @author Dave
  *
  */
-public class ArrayWorld extends World implements RectangularRegion {
+public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 	
 	private class ATile extends BasicTile {
 		protected final int ix, iy;

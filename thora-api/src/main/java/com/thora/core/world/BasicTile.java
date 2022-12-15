@@ -25,8 +25,10 @@ public abstract class BasicTile implements Tile {
 	}
 	
 	@Override
-	public void setTileData(TileData tileData) {
+	public TileData setTileData(TileData tileData) {
+		final TileData old = tileData;
 		this.data = tileData;
+		return old;
 	}
 	
 	@Override

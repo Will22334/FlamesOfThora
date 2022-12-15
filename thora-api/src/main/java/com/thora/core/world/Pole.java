@@ -23,7 +23,7 @@ public class Pole implements Locatable {
 	}
 	
 	//A generic Constructor
-	public Pole(String name, World world, int x, int y) {
+	public Pole(String name, AbstractWorld world, int x, int y) {
 		
 		this(name, new WeakVectorLocation<>(world, x, y));
 	}

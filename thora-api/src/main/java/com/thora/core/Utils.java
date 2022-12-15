@@ -2,10 +2,14 @@ package com.thora.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -15,6 +19,107 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class Utils {
+	
+	public static class Timer {
+		
+		public static final int DEFAULT_HISTORY_SIZE = 4;
+		public static final int DEFAULT_HISTORY_GROWTH_SIZE = 0;
+		
+		public static String pretty(long time) {
+			return time + "ms";
+		}
+		
+		private AtomicBoolean atomicStarted = new AtomicBoolean();
+		private boolean started;
+		private long startTime;
+		private final List<Long> marks, safeMarks;
+		
+		public Timer() {
+			this(DEFAULT_HISTORY_SIZE, DEFAULT_HISTORY_GROWTH_SIZE);
+		}
+		
+		public Timer(int initialSize, int growthIncrement) {
+			marks = new Vector<>(initialSize, growthIncrement);
+			safeMarks = Collections.unmodifiableList(marks);
+		}
+		
+		protected long getCurrentTime() {
+			return System.currentTimeMillis();
+		}
+		
+		public final boolean hasStarted() {
+			return started;
+		}
+		
+		public long getStartTime() {
+			return startTime;
+		}
+		
+		public Timer start() {
+			if(atomicStarted.compareAndSet(false, true)) {
+				startTime = getCurrentTime();
+				started = true;
+			}
+			return this;
+		}
+		
+		public long mark() {
+			if(!hasStarted())
+				throw new IllegalStateException(this + " cannot call mark() until start() is called!");
+			long timeDiff = getCurrentTime() - getStartTime();
+			marks.add(timeDiff);
+			return timeDiff;
+		}
+		
+		public String prettyMark() {
+			return pretty(mark());
+		}
+		
+		public long nextMark() {
+			if(!hasStarted())
+				throw new IllegalStateException(this + " cannot call mark() until start() is called!");
+			long timeDiff = getCurrentTime() - getStartTime();
+			marks.add(timeDiff);
+			if(marks.size() > 1)
+				timeDiff -= marks.get(marks.size()-2);
+			return timeDiff;
+		}
+		
+		public String nextPrettyMark() {
+			return pretty(nextMark());
+		}
+		
+		public List<Long> getMarks() {
+			return safeMarks;
+		}
+		
+		public Stream<Long> marks() {
+			return getMarks().stream();
+		}
+		
+		public long getMark(int occurrence) {
+			return getMarks().get(occurrence);
+		}
+		
+		public Collection<Long> getMarkTimes() {
+			return markTimes()
+					.collect(Collectors.toList());
+		}
+		
+		public Stream<Long> markTimes() {
+			return marks()
+					.map(this::computeMarkDifference);
+		}
+		
+		protected final long computeMarkDifference(long mark) {
+			return mark - startTime;
+		}
+		
+		public long getMarkTime(int occurrence) {
+			return getMark(occurrence) - startTime;
+		}
+		
+	}
 	
 	public static void assertNull(Object o, String message) {
 		if(o == null) throw new NullPointerException(message);

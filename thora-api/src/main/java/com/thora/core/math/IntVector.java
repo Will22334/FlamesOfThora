@@ -4,6 +4,10 @@ public class IntVector implements Vector<IntVector> {
 	
 	protected int x, y;
 	
+	IntVector(int[] comps) {
+		this(comps[0], comps[1]);
+	}
+	
 	public IntVector(int x, int y) {
 		this.x = x;
 		this.y = y;

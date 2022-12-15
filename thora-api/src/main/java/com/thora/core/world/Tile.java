@@ -1,22 +1,34 @@
 package com.thora.core.world;
 
+import java.util.function.Predicate;
+
 public interface Tile extends Locatable {
-	
-//	public abstract World getWorld();
-//	
-//	@Override
-//	public abstract Location getLocation();
-//	
-//	public abstract TileType getType();
 	
 	public TileData getTileData();
 	
-	public void setTileData(TileData tileData);
+	public TileData setTileData(TileData tileData);
 	
 	public default Material getMaterial() {
-		return getTileData().material();
+		TileData data = getTileData();
+		if(data == null) data = TileData.VOID;
+		return data.material();
 	}
 	
-	public void setMaterial(Material material);
+	public default void setMaterial(Material material) {
+		this.setTileData(new BasicTileData(material));
+	}
+	
+	@Override
+	public default boolean isInWalkingRange(Locatable l, double walkRange) {
+		return getWalkingDistance(l) <= walkRange;
+	}
+	
+	public default Predicate<Tile> inWalkingRangePred(double walkRange) {
+		return (t) -> this.isInWalkingRange(t, walkRange);
+	}
+	
+	public static Predicate<Double> inWalkingRangePred(Locatable l) {
+		return (r) -> l.isInWalkingRange(l, r);
+	}
 	
 }

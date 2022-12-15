@@ -17,6 +17,8 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -782,6 +784,67 @@ public class EncodingUtils {
 			arr[i] = buf.readLong();
 		}
 		return arr;
+	}
+	
+	/**
+	 * Encodes a List of Objects that can be encoded into a ByteBuf by passing a mapping function.
+	 * The list has a header consisting of the length of the list as a PosVarIntCount
+	 * and if the list is not empty then a signed Int  that indicates how long the rest of the encoded List is in bytes,
+	 * @param <M> The message type to be encoded
+	 * @param buf The ByteBuf to encode the bytes into
+	 * @param list The list of objects to be encoded
+	 * @param encoder The encoding function that consumes a element and writes it to a passed ByteBuf.
+	 * @return
+	 */
+	public static final <M> ByteBuf encodeObjectList(ByteBuf buf, List<M> list, BiConsumer<? super M,ByteBuf> encoder) {
+		if(list.isEmpty()) {
+			EncodingUtils.writePosVarIntCount(0, buf);
+			return buf;
+		}
+		
+		int sizeIndex = buf.writerIndex();
+		buf.writeInt(0);
+		
+		for(M m: list) {
+			encoder.accept(m, buf);
+		}
+		
+		buf.setInt(sizeIndex, buf.writerIndex()-sizeIndex+1);
+		return buf;
+	}
+	
+	/**
+	 * Encodes an array of Objects that can be encoded into a ByteBuf by passing an encoding BiConsumer.
+	 * The array has a header consisting of the length of the list as a PosVarIntCount
+	 * and if the list is not empty then a signed Int  that indicates how long the rest of the encoded List is in bytes,
+	 * @param <M> The message type to be encoded
+	 * @param buf The ByteBuf to encode the bytes into
+	 * @param list The array of objects to be encoded
+	 * @param encoder The encoding function that consumes a element and writes it to a passed ByteBuf.
+	 * @return
+	 */
+	public static final <M> ByteBuf encodeObjectArray(ByteBuf buf, M[] arr, BiConsumer<? super M,ByteBuf> encoder) {
+		return encodeObjectList(buf, Arrays.asList(arr), encoder);
+	}
+	
+	
+	
+	
+	
+	
+	public static final <M> ByteBuf encode2DObjectArray(ByteBuf buf, M[][] arr, BiConsumer<? super M,ByteBuf> encoder) {
+		if(arr == null || arr.length == 0) {
+			EncodingUtils.writePosVarIntCount(0, buf);
+			return buf;
+		}
+		
+		buf.writeInt(arr.length);
+		int tableIndex = buf.writerIndex();
+		for(M[] subArr : arr) {
+			buf.writeInt(0);
+		}
+		
+		return buf;
 	}
 	
 	public static ByteBuf decryptSameFast(ByteBuf buf, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException, ShortBufferException  {

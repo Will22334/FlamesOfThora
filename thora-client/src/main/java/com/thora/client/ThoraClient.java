@@ -9,7 +9,7 @@ import com.badlogic.ashley.core.PooledEngine;
 import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Pole;
 import com.thora.core.world.TileGenerator;
-import com.thora.core.world.World;
+import com.thora.core.world.AbstractWorld;
 import com.thora.core.world.generator.PerlinTileGenerator;
 
 public class ThoraClient extends GameClient {
@@ -22,13 +22,13 @@ public class ThoraClient extends GameClient {
 	public static final Logger logger = LogManager.getLogger("Client");
 	
 	private PooledEngine engine = new PooledEngine();
-	private World world;
+	private AbstractWorld world;
 	
 	public PooledEngine engine() {
 		return engine;
 	}
 	
-	public World world() {
+	public AbstractWorld world() {
 		return world;
 	}
 	

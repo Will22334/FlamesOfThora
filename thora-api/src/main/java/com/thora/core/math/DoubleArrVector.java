@@ -6,7 +6,7 @@ public class DoubleArrVector implements Vector<DoubleArrVector>{
 	
 	protected final double[] comps;
 	
-	DoubleArrVector(double[] comps) {
+	public DoubleArrVector(double[] comps) {
 		this.comps = comps;
 	}
 	
@@ -22,11 +22,6 @@ public class DoubleArrVector implements Vector<DoubleArrVector>{
 	@Override
 	public double getY() {
 		return comps[1];
-	}
-
-	@Override
-	public DoubleArrVector clone() {
-		return new DoubleArrVector(Arrays.copyOf(comps, 2));
 	}
 
 	@Override
@@ -72,6 +67,15 @@ public class DoubleArrVector implements Vector<DoubleArrVector>{
 
 	public double[] comps() {
 		return comps;
+	}
+	
+	public double[] copyComps() {
+		return Arrays.copyOf(comps, 2);
+	}
+	
+	@Override
+	public DoubleArrVector clone() {
+		return new DoubleArrVector(Arrays.copyOf(comps, 2));
 	}
 	
 }

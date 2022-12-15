@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -25,51 +26,58 @@ import javax.annotation.Nonnull;
 import org.danilopianini.util.FlexibleQuadTree;
 import org.danilopianini.util.SpatialIndex;
 
+import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
-public final class StreamQueadTree<E> implements SpatialIndex<E> {
+public final class StreamQuadTree<E> implements SpatialIndex<E> {
 
 	/**
 	 * Default maximum number of entries per node.
 	 */
 	public static final int DEFAULT_CAPACITY = 10;
 	private static final long serialVersionUID = 0L;
-	private final Map<Child, StreamQueadTree<E>> children;
+	private final Map<Child, StreamQuadTree<E>> children;
 	private final Deque<QuadTreeEntry<E>> elements;
 	private final int maxElements;
 	private Rectangle2D bounds;
-	private StreamQueadTree<E> parent;
+	private StreamQuadTree<E> parent;
 
 	/**
 	 * root is NOT consistent everywhere. It is only guaranteed to be consistent
 	 * in the entry point node and in the current root.
 	 */
-	private StreamQueadTree<E> root;
+	private StreamQuadTree<E> root;
 
 	/**
-	 * Builds a {@link FlexibleQuadTree} with the default node capacity.
+	 * Builds a {@link StreamQuadTree} with the default node capacity.
 	 */
-	public StreamQueadTree() {
+	public StreamQuadTree() {
 		this(DEFAULT_CAPACITY);
 	}
-
-	private StreamQueadTree(
-			final double minx,
-			final double maxx,
-			final double miny,
-			final double maxy,
+	
+	/**
+	 * 
+	 * @param elemPerQuad maximum number of elements per quad
+	 */
+	public StreamQuadTree(final int elemPerQuad) {
+		this(elemPerQuad, null, null);
+	}
+	
+	private StreamQuadTree(
+			final double minx, final double maxx,
+			final double miny, final double maxy,
 			final int elemPerQuad,
-			final StreamQueadTree<E> rootNode,
-			final StreamQueadTree<E> parentNode
+			final StreamQuadTree<E> rootNode,
+			final StreamQuadTree<E> parentNode
 			) {
 		this(elemPerQuad, rootNode, parentNode);
 		bounds = new Rectangle2D(minx, miny, maxx, maxy);
 	}
 
-	private StreamQueadTree(
+	private StreamQuadTree(
 			final int elemPerQuad,
-			final StreamQueadTree<E> rootNode,
-			final StreamQueadTree<E> parentNode
+			final StreamQuadTree<E> rootNode,
+			final StreamQuadTree<E> parentNode
 			) {
 		if (elemPerQuad < 2) {
 			throw new IllegalArgumentException("At least two elements per quadtree are required for this index to work properly");
@@ -79,13 +87,6 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 		maxElements = elemPerQuad;
 		parent = parentNode;
 		root = rootNode == null ? this : rootNode;
-	}
-
-	/**
-	 * @param elemPerQuad maximum number of elements per quad
-	 */
-	public StreamQueadTree(final int elemPerQuad) {
-		this(elemPerQuad, null, null);
 	}
 
 	private double centerX() {
@@ -100,14 +101,12 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 		return bounds == null || bounds.contains(x, y);
 	}
 
-	private StreamQueadTree<E> create(
-			final double minx,
-			final double maxx,
-			final double miny,
-			final double maxy,
-			final StreamQueadTree<E> father
+	private StreamQuadTree<E> create(
+			final double minx, final double maxx,
+			final double miny, final double maxy,
+			final StreamQuadTree<E> father
 			) {
-		return new StreamQueadTree<>(minx, maxx, miny, maxy, getMaxElementsNumber(), root, father);
+		return new StreamQuadTree<>(minx, maxx, miny, maxy, getMaxElementsNumber(), root, father);
 	}
 
 	private void createChildIfAbsent(final Child c) {
@@ -327,12 +326,12 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 	}
 
 	private boolean moveFromNode(
-			final StreamQueadTree<E> root,
+			final StreamQuadTree<E> root,
 			final E e,
 			final double sx, final double sy,
 			final double fx, final double fy) {
 		final QuadTreeEntry<E> toRemove = new QuadTreeEntry<>(e, sx, sy);
-		for (StreamQueadTree<E> cur = root; cur.contains(sx, sy); cur = cur.selectChild(sx, sy)) {
+		for (StreamQuadTree<E> cur = root; cur.contains(sx, sy); cur = cur.selectChild(sx, sy)) {
 			if (cur.elements.remove(toRemove)) {
 				/*
 				 * Node found.
@@ -363,7 +362,7 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Same of querying with arrays, but with explicit parameters.
 	 *
@@ -379,7 +378,43 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 		root.query(min(x1, x2), min(y1, y2), max(x1, x2), max(y1, y2), result);
 		return result;
 	}
-
+	
+	/**
+	 * Same of querying with arrays, but with explicit parameters.
+	 *
+	 * @param x1 Rectangle X coordinate of the first point
+	 * @param y1 Rectangle Y coordinate of the first point
+	 * @param x2 Rectangle X coordinate of the second point
+	 * @param y2 Rectangle Y coordinate of the second point
+	 *
+	 * @return {@link List} of Objects in range.
+	 */
+	public void queryConsume(final double x1, final double y1, final double x2, final double y2,
+			final Consumer<? super E> consumer) {
+		root.queryForEach(min(x1, x2), min(y1, y2), max(x1, x2), max(y1, y2), consumer);
+	}
+	
+	private void queryForEach(// NOPMD: False positive
+			final double sx,
+			final double sy,
+			final double fx,
+			final double fy,
+			final Consumer<? super E> consumer
+			) {
+		assert !(bounds == null && !children.isEmpty());
+		if (bounds == null || bounds.intersects(sx, sy, fx, fy)) {
+			for (final QuadTreeEntry<E> entry : elements) {
+				if (entry.isIn(sx, sy, fx, fy)) {
+					consumer.accept(entry.element);
+				}
+			}
+			// If there are no children, this will skip them.
+			for (final StreamQuadTree<E> childOpt : children.values()) {
+				childOpt.queryForEach(sx, sy, fx, fy, consumer);
+			}
+		}
+	}
+	
 	private void query(// NOPMD: False positive
 			final double sx,
 			final double sy,
@@ -395,49 +430,49 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 				}
 			}
 			// If there are no children, this will skip them.
-			for (final StreamQueadTree<E> childOpt : children.values()) {
+			for (final StreamQuadTree<E> childOpt : children.values()) {
 				childOpt.query(sx, sy, fx, fy, results);
 			}
 		}
 	}
-	
+
 	private class ItNode<E> {
 		ItNode<E> parent;
-		StreamQueadTree<E> currentTree;
+		StreamQuadTree<E> currentTree;
 		Iterator<QuadTreeEntry<E>> selfIt;
-		Iterator<StreamQueadTree<E>> childrenIt;
-		
-		ItNode(ItNode<E> parent, StreamQueadTree<E> tree) {
+		Iterator<StreamQuadTree<E>> childrenIt;
+
+		ItNode(ItNode<E> parent, StreamQuadTree<E> tree) {
 			this.parent = parent;
 			this.currentTree = tree;
 			selfIt = tree.elements.iterator();
 			childrenIt = tree.children.values().iterator();
 		}
-		
+
 		private QuadTreeEntry<E> entry;
-		
+
 		private boolean hasNext() {
 			return selfIt.hasNext();
 		}
-		
+
 		private E next() {
 			entry = selfIt.next();
 			return entry.element;
 		}
-		
+
 	}
-	
+
 	private class QuadIterator<E> implements Iterator<E> {
-		
+
 		ItNode<E> currentNode;
-		
-		QuadIterator(StreamQueadTree<E> root) {
+
+		QuadIterator(StreamQuadTree<E> root) {
 			ItNode<E> node = new ItNode<>(null, root);
 			currentNode = node;
 		}
-		
+
 		private E current;
-		
+
 		@Override
 		public boolean hasNext() {
 			if(currentNode.hasNext()) {
@@ -476,35 +511,35 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 			}
 			throw new NoSuchElementException("End of QuadTree Iterator");
 		}
-		
+
 	}
-	
+
 	public Stream<E> queryStreamIter() {
 		QuadIterator<E> it = new  QuadIterator<>(this.root);
 		Iterable<E> iterable = () -> it;
 		return StreamSupport.stream(iterable.spliterator(), false);
 	}
-	
-//	private void queryStream(// NOPMD: False positive
-//			final double sx,
-//			final double sy,
-//			final double fx,
-//			final double fy,
-//			final Iterator<E> it
-//			) {
-//		assert !(bounds == null && !children.isEmpty());
-//		if (bounds == null || bounds.intersects(sx, sy, fx, fy)) {
-//			for (final QuadTreeEntry<E> entry : elements) {
-//				if (entry.isIn(sx, sy, fx, fy)) {
-//					results.add(entry.element);
-//				}
-//			}
-//			// If there are no children, this will skip them.
-//			for (final StreamQueadTree<E> childOpt : children.values()) {
-//				childOpt.query(sx, sy, fx, fy, results);
-//			}
-//		}
-//	}
+
+	//	private void queryStream(// NOPMD: False positive
+	//			final double sx,
+	//			final double sy,
+	//			final double fx,
+	//			final double fy,
+	//			final Iterator<E> it
+	//			) {
+	//		assert !(bounds == null && !children.isEmpty());
+	//		if (bounds == null || bounds.intersects(sx, sy, fx, fy)) {
+	//			for (final QuadTreeEntry<E> entry : elements) {
+	//				if (entry.isIn(sx, sy, fx, fy)) {
+	//					results.add(entry.element);
+	//				}
+	//			}
+	//			// If there are no children, this will skip them.
+	//			for (final StreamQueadTree<E> childOpt : children.values()) {
+	//				childOpt.query(sx, sy, fx, fy, results);
+	//			}
+	//		}
+	//	}
 
 	@Override
 	public List<E> query(final double[]... space) {
@@ -513,52 +548,52 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 		}
 		return query(space[0][0], space[0][1], space[1][0], space[1][1]);
 	}
-	
+
 	public Stream<E> tiles() {
 		return allTrees()
-				.flatMap(StreamQueadTree::selfTiles);
+				.flatMap(StreamQuadTree::selfTiles);
 	}
-	
+
 	private Stream<E> selfTiles() {
 		return selfEntries()
 				.map(QuadTreeEntry::element);
 	}
-	
+
 	private final Stream<QuadTreeEntry<E>> selfEntries() {
 		return elements.stream();
 	}
-	
-	private final Stream<StreamQueadTree<E>> childTrees() {
+
+	private final Stream<StreamQuadTree<E>> childTrees() {
 		return Stream.concat(Stream.of(this), children.values().stream()
-				.flatMap(StreamQueadTree::childTrees));
+				.flatMap(StreamQuadTree::childTrees));
 	}
-	
-	protected Stream<StreamQueadTree<E>> allTrees() {
+
+	protected Stream<StreamQuadTree<E>> allTrees() {
 		return findRoot().childTrees();
 	}
-	
-	protected StreamQueadTree<E> findRoot() {
-		StreamQueadTree<E> r = root;
+
+	protected StreamQuadTree<E> findRoot() {
+		StreamQuadTree<E> r = root;
 		if(root == null) return this;
-		StreamQueadTree<E> newRoot;
+		StreamQuadTree<E> newRoot;
 		while((newRoot = r.parent) != null) {
 			r = newRoot;
 		}
 		return r;
 	}
-	
-//	public Stream<E> queryStream(final double[]... space) {
-//		if (space.length != 2 || space[0].length != 2 || space[1].length != 2) {
-//			throw new IllegalArgumentException();
-//		}
-//		return queryStream(space[0][0], space[0][1], space[1][0], space[1][1]);
-//	}
-//	
-//	public Stream<E> queryStream(double ax, double ay, double bx, double by) {
-//		QuadIterator<E> it = new  QuadIterator<>(this.root);
-//		Iterable<E> iterable = () -> it;
-//		return StreamSupport.stream(iterable.spliterator(), false);
-//	}
+
+	//	public Stream<E> queryStream(final double[]... space) {
+	//		if (space.length != 2 || space[0].length != 2 || space[1].length != 2) {
+	//			throw new IllegalArgumentException();
+	//		}
+	//		return queryStream(space[0][0], space[0][1], space[1][0], space[1][1]);
+	//	}
+	//	
+	//	public Stream<E> queryStream(double ax, double ay, double bx, double by) {
+	//		QuadIterator<E> it = new  QuadIterator<>(this.root);
+	//		Iterable<E> iterable = () -> it;
+	//		return StreamSupport.stream(iterable.spliterator(), false);
+	//	}
 
 	@Override
 	public boolean remove(final E e, final double... pos) {
@@ -590,7 +625,7 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 		return children.values().stream().anyMatch(c -> c.removeHere(e, x, y));
 	}
 
-	private StreamQueadTree<E> selectChild(final double x, final double y) {
+	private StreamQuadTree<E> selectChild(final double x, final double y) {
 		assert !children.isEmpty();
 		if (x < centerX()) {
 			return y < centerY() ? children.get(Child.BL) : children.get(Child.TL);
@@ -599,7 +634,7 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 		}
 	}
 
-	private void setChild(final Child c, final StreamQueadTree<E> child) {
+	private void setChild(final Child c, final StreamQuadTree<E> child) {
 		if (children.put(c, child) != null) {
 			throw new IllegalStateException();
 		}
@@ -641,6 +676,9 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 
 	private static class QuadTreeEntry<E> implements Serializable {
 		private static final long serialVersionUID = 9021533648086596986L;
+		private static final HashFunction HASHER = Hashing.murmur3_32(0);
+		
+		
 		private final E element;
 		private final double x, y;
 
@@ -649,11 +687,11 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 			x = xp;
 			y = yp;
 		}
-		
+
 		protected final E element() {
 			return element;
 		}
-		
+
 		@Override
 		public boolean equals(final Object obj) {
 			if (obj == this) {
@@ -673,7 +711,7 @@ public final class StreamQueadTree<E> implements SpatialIndex<E> {
 		@Override
 		@SuppressWarnings("UnstableApiUsage")
 		public int hashCode() {
-			return Hashing.murmur3_128().newHasher()
+			return HASHER.newHasher()
 					.putDouble(x)
 					.putDouble(y)
 					.putInt(element.hashCode())

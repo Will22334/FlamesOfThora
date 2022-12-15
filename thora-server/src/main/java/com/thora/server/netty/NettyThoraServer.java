@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 import com.thora.core.net.NetworkSession;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.ThoraCodec;
-import com.thora.core.world.World;
+import com.thora.core.world.AbstractWorld;
 import com.thora.server.ThoraGameEngine;
 import com.thora.server.ThoraServer;
 
@@ -46,7 +46,7 @@ public class NettyThoraServer extends ThoraServer {
 	private static final Logger networkLogger = LogManager.getLogger(NettyThoraServer.class.getPackage().getName() + ".Network");
 	
 	private final ThoraGameEngine engine;
-	private final World world;
+	private final AbstractWorld world;
 	
 	protected ServerBootstrap bootstrap;
 	protected EventLoopGroup bossGroup, childGroup;
@@ -57,7 +57,7 @@ public class NettyThoraServer extends ThoraServer {
 	private final Map<InetSocketAddress,ClientSession> sessions = new ConcurrentHashMap<>();
 	
 	public NettyThoraServer(KeyPair identity, int sideThreads, int bossIOThreads, int workerIOThreads,
-			World world) {
+			AbstractWorld world) {
 		super(identity);
 		this.bossIOThreads = bossIOThreads;
 		this.workerIOThreads = workerIOThreads;
@@ -73,12 +73,12 @@ public class NettyThoraServer extends ThoraServer {
 		return networkLogger;
 	}
 	
-	public final World world() {
+	public final AbstractWorld world() {
 		return world;
 	}
 	
 	@Override
-	public World getWorld() {
+	public AbstractWorld getWorld() {
 		return world;
 	}
 	
@@ -205,7 +205,7 @@ public class NettyThoraServer extends ThoraServer {
 				ctx.close();
 				return;
 			}
-			netLogger().atWarn().withThrowable(cause).log("Exception not handled at end of pipeline: ", ctx);
+			netLogger().atWarn().withThrowable(cause).log("Exception not handled at end of pipeline: {}", ctx);
 		}
 		public boolean isCasual(Throwable cause) {
 			return CLOSE_MESSAGE_FORCE.equals(cause.getMessage())

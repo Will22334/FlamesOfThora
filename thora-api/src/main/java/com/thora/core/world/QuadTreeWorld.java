@@ -10,9 +10,11 @@ import java.util.stream.StreamSupport;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.thora.core.Utils;
 import com.thora.core.world.DoubleArrLocation.DoubleArrRefLocation;
+import com.thora.core.world.IntVectorLocation.IntVectorRefLocation;
 
-public class QuadTreeWorld extends World {
+public class QuadTreeWorld extends AbstractWorld {
 	
 	private static final Logger logger = LogManager.getLogger(QuadTreeWorld.class);
 	
@@ -21,22 +23,26 @@ public class QuadTreeWorld extends World {
 		return logger;
 	}
 	
-	protected static class QuadTreeTile extends AbstractTile<DoubleArrRefLocation<QuadTreeWorld>> {
+	public static interface QuadTreeTile {
+		
+	}
+	
+	protected static class QuadTreeTileD extends AbstractTile<DoubleArrRefLocation<QuadTreeWorld>> implements QuadTreeTile {
 
-		public QuadTreeTile(Material material, DoubleArrRefLocation<QuadTreeWorld> point) {
+		public QuadTreeTileD(Material material, DoubleArrRefLocation<QuadTreeWorld> point) {
 			super(material, point);
 		}
 
 
-		public QuadTreeTile(TileData data, DoubleArrRefLocation<QuadTreeWorld> point) {
+		public QuadTreeTileD(TileData data, DoubleArrRefLocation<QuadTreeWorld> point) {
 			super(data, point);
 		}
 		
-		public QuadTreeTile(QuadTreeWorld world, TileData data, int x, int y) {
+		public QuadTreeTileD(QuadTreeWorld world, TileData data, int x, int y) {
 			this(data, new DoubleArrRefLocation<>(world, x, y));
 		}
 		
-		public QuadTreeTile(QuadTreeWorld world, Material material, int x, int y) {
+		public QuadTreeTileD(QuadTreeWorld world, Material material, int x, int y) {
 			this(material, new DoubleArrRefLocation<>(world, x, y));
 		}
 
@@ -50,12 +56,41 @@ public class QuadTreeWorld extends World {
 		
 	}
 	
-	private static class QuadTree {
+	protected static class QuadTreeTileI extends AbstractTile<IntVectorRefLocation<QuadTreeWorld>> implements QuadTreeTile {
 
-		private final StreamQueadTree<QuadTreeTile> tree = new StreamQueadTree<>();
+		public QuadTreeTileI(Material material, IntVectorRefLocation<QuadTreeWorld> point) {
+			super(material, point);
+		}
+
+
+		public QuadTreeTileI(TileData data, IntVectorRefLocation<QuadTreeWorld> point) {
+			super(data, point);
+		}
+		
+		public QuadTreeTileI(QuadTreeWorld world, TileData data, int x, int y) {
+			this(data, new IntVectorRefLocation<>(world, x, y));
+		}
+		
+		public QuadTreeTileI(QuadTreeWorld world, Material material, int x, int y) {
+			this(material, new IntVectorRefLocation<>(world, x, y));
+		}
+
+
+		@Override
+		public String toString() {
+			return "" + getMaterial() + getLocation();
+		}
+		
+		
+		
+	}
+	
+	private static class QuadTreeD {
+
+		private final StreamQuadTree<QuadTreeTileD> tree = new StreamQuadTree<>();
 		private WeakReference<QuadTreeWorld> worldRef;
 
-		public QuadTree(QuadTreeWorld world) {
+		public QuadTreeD(QuadTreeWorld world) {
 			this.worldRef = new WeakReference<QuadTreeWorld>(world);
 		}
 
@@ -63,39 +98,39 @@ public class QuadTreeWorld extends World {
 			return worldRef.get();
 		}
 		
-		public Stream<QuadTreeTile> tilesIter() {
+		public Stream<QuadTreeTileD> tilesIter() {
 			return tree.queryStreamIter();
 		}
 		
-		public Stream<QuadTreeTile> tiles() {
+		public Stream<QuadTreeTileD> tiles() {
 			return tree.tiles();
 		}
 		
-		public void insert(QuadTreeTile tile) {
+		public void insert(QuadTreeTileD tile) {
 			insert(tile, tile.getLocation().comps());
 		}
 
-		public void insert(QuadTreeTile tile, double... position) {
+		public void insert(QuadTreeTileD tile, double... position) {
 			tree.insert(tile, position);
 		}
 		
-		public void remove(QuadTreeTile tile) {
+		public void remove(QuadTreeTileD tile) {
 			remove(tile, tile.getLocation().comps());
 		}
 		
-		public boolean remove(QuadTreeTile tile, double... position) {
+		public boolean remove(QuadTreeTileD tile, double... position) {
 			return tree.remove(tile, position);
 		}
 		
-		public void move(QuadTreeTile tile, double[] end) {
+		public void move(QuadTreeTileD tile, double[] end) {
 			move(tile, tile.getLocation().comps(), end);
 		}
 		
-		public boolean move(QuadTreeTile tile, double[] start, double[] end) {
+		public boolean move(QuadTreeTileD tile, double[] start, double[] end) {
 			return tree.move(tile, start, end);
 		}
 
-		public List<QuadTreeTile> query(double[]... parallelotope) {
+		public List<QuadTreeTileD> query(double[]... parallelotope) {
 			return tree.query(parallelotope);
 		}
 
@@ -105,18 +140,73 @@ public class QuadTreeWorld extends World {
 
 	}
 	
-	private QuadTree tileTree;
+	private static class QuadTreeI {
+
+		private final StreamIntQuadTree<QuadTreeTileI> tree = new StreamIntQuadTree<>();
+		private WeakReference<QuadTreeWorld> worldRef;
+
+		public QuadTreeI(QuadTreeWorld world) {
+			this.worldRef = new WeakReference<QuadTreeWorld>(world);
+		}
+
+		public QuadTreeWorld getWorld() {
+			return worldRef.get();
+		}
+		
+		public Stream<QuadTreeTileI> tilesIter() {
+			return tree.queryStreamIter();
+		}
+		
+		public Stream<QuadTreeTileI> tiles() {
+			return tree.tiles();
+		}
+		
+		public void insert(QuadTreeTileI tile) {
+			insert(tile, tile.getLocation().v.comps());
+		}
+
+		public void insert(QuadTreeTileI tile, int... position) {
+			tree.insert(tile, position);
+		}
+		
+		public void remove(QuadTreeTileI tile) {
+			remove(tile, tile.getLocation().v.comps());
+		}
+		
+		public boolean remove(QuadTreeTileI tile, int... position) {
+			return tree.remove(tile, position);
+		}
+		
+		public void move(QuadTreeTileI tile, int[] end) {
+			move(tile, tile.getLocation().v.comps(), end);
+		}
+		
+		public boolean move(QuadTreeTileI tile, int[] start, int[] end) {
+			return tree.move(tile, start, end);
+		}
+
+		public List<QuadTreeTileI> query(int[]... parallelotope) {
+			return tree.query(parallelotope);
+		}
+
+		public int getDimensions() {
+			return tree.getDimensions();
+		}
+
+	}
+	
+	private QuadTreeD tileTree;
 	
 	private final String name;
-	private final DoubleArrRefLocation<QuadTreeWorld> origin;
+	private final IntVectorRefLocation<QuadTreeWorld> origin;
 	
 	private final Rectangle size;;
 	private final TileGenerator generator;
 	
 	public QuadTreeWorld(String name, int width, int height, TileGenerator generator) {
 		this.name = name;
-		this.tileTree = new QuadTree(this);
-		this.origin = new DoubleArrRefLocation<>(this, 0d, 0d);
+		this.tileTree = new QuadTreeD(this);
+		this.origin = new IntVectorRefLocation<>(this, 0, 0);
 		this.size = new Rectangle(-width/2, -height/2, width, height);
 		this.generator = generator;
 	}
@@ -132,8 +222,8 @@ public class QuadTreeWorld extends World {
 	}
 
 	@Override
-	public DoubleArrRefLocation<QuadTreeWorld> getLocation(int x, int y) {
-		return new DoubleArrRefLocation<QuadTreeWorld>(this, x, y);
+	public IntVectorRefLocation<QuadTreeWorld> getLocation(int x, int y) {
+		return new IntVectorRefLocation<QuadTreeWorld>(this, x, y);
 	}
 
 	@Override
@@ -142,11 +232,22 @@ public class QuadTreeWorld extends World {
 		Rectangle rect = this.size;
 		Location start = this.getLocation(rect.x, rect.y);
 		Location end = start.clone().shift(rect.width, rect.height);
+		
+		Utils.Timer tm = new Utils.Timer();
+		tm.start();
+		
 		for(int y=start.getY(); y<end.getY(); ++y) {
 			for(int x=start.getX(); x<end.getX(); ++x) {
 				this.setTile(generator.getTileType(x, y), x, y);
 			}
 		}
+		
+		long genDur = tm.mark();
+		
+		
+		long size = this.tiles().count();
+		long streamDur = tm.nextMark();
+		logger().info("Took {}ms to generate {} tiles and stream through them in {}ms", genDur, size, streamDur, this);
 		
 	}
 
@@ -156,26 +257,26 @@ public class QuadTreeWorld extends World {
 	}
 
 	@Override
-	public QuadTreeTile getTile(int x, int y) {
+	public QuadTreeTileD getTile(int x, int y) {
 		return getTile(new double[] {x, y});
 	}
 	
-	public QuadTreeTile getTile(double[] comps) {
-		List<QuadTreeTile> tiles = tileTree.query(comps, comps);
+	public QuadTreeTileD getTile(double[] comps) {
+		List<QuadTreeTileD> tiles = tileTree.query(comps, comps);
 		assert tiles.size() < 2 : "More than 1 Tile at " + comps;
 		return tiles.get(0);
 	}
 	
 	@Override
-	public QuadTreeTile setTile(Material material, int x, int y) {
-		logger().debug("Setting [{}x{}] to {}", x, y, material);
-		QuadTreeTile tile = new QuadTreeTile(this, material, x, y);
+	public QuadTreeTileD setTile(Material material, int x, int y) {
+		//logger().trace("Setting [{}x{}] to {}", x, y, material);
+		QuadTreeTileD tile = new QuadTreeTileD(this, material, x, y);
 		tileTree.insert(tile);
 		return tile;
 	}
 
 	@Override
-	public Stream<QuadTreeTile> tiles() {
+	public Stream<QuadTreeTileD> tiles() {
 		return this.tileTree.tiles();
 	}
 

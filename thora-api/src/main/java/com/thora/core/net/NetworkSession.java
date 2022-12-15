@@ -14,6 +14,7 @@ public abstract class NetworkSession implements HasCryptographicCredentials {
 		return findSession(ctx.channel());
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static final <S extends NetworkSession> S findSession(Channel channel) {
 		return (S) channel.attr(ATTRIBUTE_SESSION).get();
 	}
