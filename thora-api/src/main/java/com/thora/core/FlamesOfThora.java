@@ -162,18 +162,18 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 		
 		// Render the game based on the current state
 		oldState.updateAndRender();
-		//oldState.render(Gdx.graphics.getDeltaTime());
+		oldState.render(Gdx.graphics.getDeltaTime());
 		
-		//		while(States.isStateFinished() != false) {
-		//			
-		//			log("Detected change in state. :  Exited : in " + States.getActiveState().getName());
-		//			States.setActiveState(States.getActiveState().getID() + 1);
-		//			
-		//		}
-//		if(States.isStateFinished()) {
-//			States.setNextState();
-//		}
-//		States.checkForExit();
+				while(States.isStateFinished() != false) {
+					
+					logger.debug("Detected change in state. :  Exited : in " + States.getActiveState().getName());
+					States.setActiveState(States.getActiveState().getID() + 1);
+					
+				}
+		if(States.isStateFinished()) {
+			States.setNextState();
+		}
+		States.checkForExit();
 	}
 	
 	@Override
