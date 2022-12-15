@@ -45,7 +45,7 @@ public class LoginState extends GameState {
 	//Stage for UI Objects
 	private Stage uiStage;
 	
-	private Skin skin;
+	private Skin skin = new Skin(Gdx.files.internal("assets/skin/uiskin.json"));
 	
 	//Table for UI Objects
 	Table loginscreenuiTable;
@@ -97,8 +97,6 @@ public class LoginState extends GameState {
 		
 		try {
 			
-			skin = new Skin(Gdx.files.internal("assets/skin/uiskin.json"));
-			
 			loginscreenuiTable = new Table();
 			
 			// Create the UI Stage
@@ -127,7 +125,6 @@ public class LoginState extends GameState {
 			skin.add("default", textButtonStyle);
 			
 			//Create the TextBoxes for the username and password
-			skin.get(LabelStyle.class).font.getData().markupEnabled = true;
 			
 			final Label usernameLabel = new Label("Username: ", skin);
 			
