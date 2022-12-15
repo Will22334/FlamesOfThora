@@ -14,12 +14,16 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.thora.core.FlamesOfThora;
@@ -46,14 +50,6 @@ public class LoginState extends GameState {
 	//Table for UI Objects
 	Table loginscreenuiTable;
 	
-	//Text Boxes
-	UITextBox usernameField = new UITextBox("Username: ", new UIPosition((int) (Gdx.graphics.getWidth() * 0.5), (int) (Gdx.graphics.getHeight() * 0.3)));
-	UITextBox passwordField = new UITextBox("Password: ", new UIPosition((int) (Gdx.graphics.getWidth() * 0.5), (int) (Gdx.graphics.getHeight() * 0.4)));
-	
-	//Labels (Login and Password)
-	Label usernameLabel;
-	Label passwordLabel;
-	
 	//Constructor
 	public LoginState(FlamesOfThora client, String name, int id) {
 		super(client, name, id);
@@ -66,17 +62,6 @@ public class LoginState extends GameState {
 	@Override
 	public final Logger logger() {
 		return logger;
-	}
-
-	@Override
-	public void render(float dt) {
-		
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		
-		//Render the UI
-		uiStage.act(dt);
-		uiStage.draw();
-		
 	}
 
 	@Override
@@ -98,18 +83,32 @@ public class LoginState extends GameState {
 	}
 
 	@Override
+	public void render(float dt) {
+		
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		//Render the UI
+		uiStage.act(dt);
+		uiStage.draw();
+		
+	}
+	@Override
 	public void initialize() {
 		
 		try {
 			
-			skin = new Skin();
+			skin = new Skin(Gdx.files.internal("assets/skin/uiskin.json"));
+			
+			loginscreenuiTable = new Table();
 			
 			// Create the UI Stage
 			uiStage = new Stage(new ScreenViewport());
 			Gdx.input.setInputProcessor(uiStage);
 			
-			loginscreenuiTable = new Table();
-
+			//Create the background
+			Image loginscreenBackground = new Image(new Texture("assets/LoginScreenBackground.png"));
+			skin.add("background", loginscreenBackground);
+		
 			// Generate a 1x1 white texture and store it in the skin named "white".
 			Pixmap pixmap = new Pixmap(1, 1, Format.RGBA8888);
 			pixmap.setColor(Color.WHITE);
@@ -128,30 +127,65 @@ public class LoginState extends GameState {
 			skin.add("default", textButtonStyle);
 			
 			//Create the TextBoxes for the username and password
-
-			final TextButton button = new TextButton("Click me!", skin);
-			loginscreenuiTable.add(button);
+			skin.get(LabelStyle.class).font.getData().markupEnabled = true;
+			
+			final Label usernameLabel = new Label("Username: ", skin);
+			
+			final Label passwordLabel = new Label("Password: ", skin);
+			
+			//User Name Text Field
+			final UITextBox usernameField = new UITextBox("Username: ", new UIPosition((int) (Gdx.graphics.getWidth() * 0.5), (int) (Gdx.graphics.getHeight() * 0.3)));
+			usernameField.setColor(Color.GRAY);
+			
+			//Password text Field
+			final UITextBox passwordField = new UITextBox("Password: ", new UIPosition((int) (Gdx.graphics.getWidth() * 0.5), (int) (Gdx.graphics.getHeight() * 0.4)));
+			
+			//Login Button
+			final TextButton loginbutton = new TextButton("Login", skin);
+			
+			//Exit button
+			final TextButton exitbutton = new TextButton("Exit", skin);
+			
+			loginscreenuiTable.add(usernameLabel);
+			loginscreenuiTable.add(usernameField);
+			loginscreenuiTable.row();
+			loginscreenuiTable.add(passwordLabel);
+			loginscreenuiTable.add(passwordField);
+			loginscreenuiTable.row();
+			loginscreenuiTable.add(loginbutton);
+			loginscreenuiTable.add();
+			loginscreenuiTable.add(exitbutton);
 			
 			loginscreenuiTable.setPosition((float) (Gdx.graphics.getWidth() * 0.5 - MINIMUMLOGINWINDOWWIDTH * 0.5), (float) (Gdx.graphics.getHeight() * 0.5 - MINIMUMLOGINWINDOWHIEGHT * 0.5));
 			loginscreenuiTable.setWidth(MINIMUMLOGINWINDOWWIDTH);
 			loginscreenuiTable.setHeight(MINIMUMLOGINWINDOWHIEGHT);
 			
 			uiStage.addActor(loginscreenuiTable);
-			
 			//Add an event to the login button
 			
-			button.addListener(new ChangeListener() {
+			loginbutton.addListener(new ChangeListener() {
 				public void changed (ChangeEvent event, Actor actor) {
-					System.out.println("Logging in! : " + button.isChecked());
-					button.setText("...");
+					System.out.println("Logging in! : " + loginbutton.isChecked());
+					loginbutton.setText("...");
 					exit();
 				}
 			});
 			
+			//Add an event to the exit button
+			exitbutton.addListener(new ChangeListener() {
+				public void changed (ChangeEvent event, Actor actor) {
+					System.out.println("Exiting! : " + exitbutton.isChecked());
+					loginbutton.setText("...");
+					Gdx.app.exit();
+				}
+			});
+			
+			//Success
 			logger().trace("Created Login State!");
 			
 		} catch(Exception e) {
 			
+			//Failure
 			logger().trace("Failed to properly create Login State!");
 			
 		}
