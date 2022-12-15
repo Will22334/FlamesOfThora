@@ -827,26 +827,6 @@ public class EncodingUtils {
 		return encodeObjectList(buf, Arrays.asList(arr), encoder);
 	}
 	
-	
-	
-	
-	
-	
-	public static final <M> ByteBuf encode2DObjectArray(ByteBuf buf, M[][] arr, BiConsumer<? super M,ByteBuf> encoder) {
-		if(arr == null || arr.length == 0) {
-			EncodingUtils.writePosVarIntCount(0, buf);
-			return buf;
-		}
-		
-		buf.writeInt(arr.length);
-		int tableIndex = buf.writerIndex();
-		for(M[] subArr : arr) {
-			buf.writeInt(0);
-		}
-		
-		return buf;
-	}
-	
 	public static ByteBuf decryptSameFast(ByteBuf buf, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException, ShortBufferException  {
 		int initialRead = buf.readerIndex();
 		int enclength = buf.readableBytes();
