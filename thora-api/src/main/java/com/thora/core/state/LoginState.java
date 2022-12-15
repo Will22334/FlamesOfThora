@@ -107,8 +107,15 @@ public class LoginState extends GameState {
 			// Create the UI Stage
 			uiStage = new Stage(new ScreenViewport());
 			Gdx.input.setInputProcessor(uiStage);
-			loginscreenuiTable = new Table();
 			
+			loginscreenuiTable = new Table();
+
+			// Generate a 1x1 white texture and store it in the skin named "white".
+			Pixmap pixmap = new Pixmap(1, 1, Format.RGBA8888);
+			pixmap.setColor(Color.WHITE);
+			pixmap.fill();
+			
+			skin.add("white", new Texture(pixmap));
 			skin.add("default", new BitmapFont());
 
 			// Configure a TextButtonStyle and name it "default". Skin resources are stored by type, so this doesn't overwrite the font.
