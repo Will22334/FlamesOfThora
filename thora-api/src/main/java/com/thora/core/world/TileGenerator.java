@@ -5,7 +5,7 @@ import java.util.Random;
 
 /**
  * Generates a {@link TileType} for a given {@link Location} through {@link #getTileType(Location)}.
- * This interface should only be used by {@link World} instances.
+ * This interface should only be used by {@link AbstractWorld} instances.
  * @author Dave
  *
  */

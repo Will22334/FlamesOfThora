@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 public abstract class Chunk implements RectangularRegion {
 	
-	public abstract World getWorld();
+	public abstract AbstractWorld getWorld();
 	
 	public abstract Location getOrigin();
 	

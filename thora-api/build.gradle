@@ -41,7 +41,8 @@ dependencies {
     implementation group: 'org.danilopianini', name: 'java-quadtree', version: '0.2.0'
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'com.google.guava:guava:30.1.1-jre'
+    //implementation 'com.google.guava:guava:30.1.1-jre'
+    implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
     
     //GDx
     implementation "com.badlogicgames.gdx:gdx:1.9.3"

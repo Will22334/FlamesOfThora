@@ -60,12 +60,15 @@ public class ClientSession extends AbstractNettySession {
 		return creds;
 	}
 	
-	protected void generateSymmetricCipher(PublicKey serverIdentity, long sessionID) {
+	protected void generateSymmetricCipher(PublicKey serverIdentity, long sessionID, long timeStamp) {
 		
 		ByteBuf buf = alloc().buffer();
 		try {
+			
 			buf.writeBytes(serverIdentity.getEncoded());
 			buf.writeLong(sessionID);
+			buf.writeLong(timeStamp);
+			
 			EncodingUtils.sha256(buf);
 			byte[] keyData = new byte[buf.readableBytes()];
 			buf.readBytes(keyData);

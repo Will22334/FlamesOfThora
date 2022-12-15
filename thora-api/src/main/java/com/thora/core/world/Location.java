@@ -9,7 +9,7 @@ public abstract class Location implements Locatable, Cloneable {
 		
 	}
 	
-	public abstract World getWorld();
+	public abstract AbstractWorld getWorld();
 	
 	@Override
 	public abstract int getX();

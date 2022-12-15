@@ -6,18 +6,22 @@ import com.thora.core.math.DoubleArrVector;
 
 public abstract class DoubleArrLocation extends Location {
 	
-	public static class DoubleArrRefLocation<W extends World> extends Location implements Cloneable {
+	public static class DoubleArrRefLocation<W extends AbstractWorld> extends Location implements Cloneable {
 		
 		private WeakReference<W> worldRef;
 		private final DoubleArrVector v;
 		
+		public DoubleArrRefLocation(W world, double x, double y) {
+			this(world, new DoubleArrVector(x, y));
+		}
+		
+		public DoubleArrRefLocation(W world, double[] comps) {
+			this(world, new DoubleArrVector(comps));
+		}
+		
 		public DoubleArrRefLocation(W world, DoubleArrVector v) {
 			this.worldRef = new WeakReference<>(world);
 			this.v = v;
-		}
-		
-		public DoubleArrRefLocation(W world, double x, double y) {
-			this(world, new DoubleArrVector(x, y));
 		}
 		
 		@Override
@@ -36,7 +40,7 @@ public abstract class DoubleArrLocation extends Location {
 		}
 
 		@Override
-		public DoubleArrRefLocation setAs(int x, int y) {
+		public DoubleArrRefLocation<W> setAs(int x, int y) {
 			this.v.setAs(x, y);
 			return this;
 		}

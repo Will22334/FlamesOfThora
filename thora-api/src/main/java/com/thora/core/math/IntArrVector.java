@@ -10,6 +10,10 @@ public class IntArrVector implements Vector<IntArrVector> {
 		this.comps = comps;
 	}
 	
+	public IntArrVector(int x, int y) {
+		this.comps = new int[] {x, y};
+	}
+	
 	@Override
 	public double getX() {
 		return getIX();
@@ -32,14 +36,12 @@ public class IntArrVector implements Vector<IntArrVector> {
 
 	@Override
 	public IntArrVector setX(double x) {
-		this.comps[0] = (int) Math.round(x);
-		return this;
+		return setX((int) Math.round(x));
 	}
 
 	@Override
 	public IntArrVector setY(double y) {
-		this.comps[1] = (int) Math.round(y);
-		return this;
+		return setY((int) Math.round(y));
 	}
 
 	@Override
@@ -53,16 +55,33 @@ public class IntArrVector implements Vector<IntArrVector> {
 		this.comps[1] = y;
 		return this;
 	}
-
+	
+	@Override
+	public IntArrVector setAs(int x, int y) {
+		this.comps[0] = x;
+		this.comps[1] = y;
+		return this;
+	}
+	
 	@Override
 	public IntArrVector setAs(double x, double y) {
 		this.comps[0] = (int) Math.round(x);
 		this.comps[1] = (int) Math.round(y);
 		return this;
 	}
-
+	
+	public IntArrVector setAs(IntArrVector v) {
+		this.comps[0] = v.getIX();
+		this.comps[1] = v.getIY();
+		return this;
+	}
+	
+	public int[] comps() {
+		return comps;
+	}
+	
 	@Override
-	public IntArrVector clone() throws CloneNotSupportedException {
+	public IntArrVector clone() {
 		return new IntArrVector(Arrays.copyOf(comps, 2));
 	}
 

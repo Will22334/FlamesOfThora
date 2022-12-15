@@ -1,20 +1,26 @@
 package com.thora.core.ui;
 
-import com.thora.core.world.Location;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
-public abstract class UIObject {
+public abstract class UIObject extends Actor {
 	
-	private Location position;
+	private UIPosition position;
 	
 	private String name;
 	
 	private UIType type;
+	
+	public UIObject() {
+		
+		position = new UIPosition(0,0);
+	}
 
-	public Location getPosition() {
+	public UIPosition getPosition() {
 		return position;
 	}
 
-	public void setPosition(Location position) {
+	public void setPosition(UIPosition position) {
 		this.position = position;
 	}
 
@@ -32,6 +38,6 @@ public abstract class UIObject {
 
 	public void setType(UIType type) {
 		this.type = type;
-	} 
+	}
 
 }

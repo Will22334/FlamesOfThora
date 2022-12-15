@@ -24,7 +24,7 @@ import com.thora.client.graphics.TransformComponent;
 import com.thora.client.graphics.ZComparator;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.LocationComponent;
-import com.thora.core.world.World;
+import com.thora.core.world.AbstractWorld;
 
 public class RenderingSystem extends SortedIteratingSystem {
 	
@@ -191,7 +191,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		this.renderQueue = renderQueue;
 	}
 	
-	protected void drawEntities(World world) {
+	protected void drawEntities(AbstractWorld world) {
 		getCam().update();
 		batch.setProjectionMatrix(getCam().combined);
 		getCam().position.set(focus.getX() + .5f, focus.getY() +.5f, 0f);

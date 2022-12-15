@@ -18,7 +18,7 @@ import com.thora.core.system.RenderingSystem;
 
 public class WorldRenderer extends RenderingSystem {
 	
-	private final World world;
+	private final AbstractWorld world;
 	SpriteBatch batch;
 	protected ShapeRenderer shapeRend;
 	private boolean tileBorders = true;
@@ -45,7 +45,7 @@ public class WorldRenderer extends RenderingSystem {
 	}
 	
 	
-	public WorldRenderer(SpriteBatch batch, World world, Camera camera, Locatable focus, Signal<Dimension> resizeSignal,
+	public WorldRenderer(SpriteBatch batch, AbstractWorld world, Camera camera, Locatable focus, Signal<Dimension> resizeSignal,
 			int priority) {
 		super(batch, camera, focus, resizeSignal, priority);
 		this.batch = batch;
@@ -72,19 +72,19 @@ public class WorldRenderer extends RenderingSystem {
 		
 	}
 	
-	protected void drawTiles(World world, boolean borders) {
+	protected void drawTiles(AbstractWorld world, boolean borders) {
 		drawTileTextures(world);
 		if(borders) {
 			drawTileBorders(world);
 		}
 	}
 	
-	private void drawTileTextures(World world) {
+	private void drawTileTextures(AbstractWorld world) {
 		world.surroundingTiles(getFocus(), viewRange)
 		.forEach(this::drawTileTexture);
 	}
 	
-	private void drawTileBorders(World world) {
+	private void drawTileBorders(AbstractWorld world) {
 		batch.end();
 		getCam().update();
 		Gdx.gl.glEnable(GL11.GL_BLEND);

@@ -2,20 +2,26 @@ package com.thora.core.world;
 
 import java.lang.ref.WeakReference;
 
+import com.thora.core.math.IntArrVector;
 import com.thora.core.math.IntVector;
 
 
-public class WeakVectorLocation<W extends World> extends IntVectorLocation {
+public class WeakVectorLocation<W extends AbstractWorld> extends IntVectorLocation {
 	
-	public static <W extends World> WeakVectorLocation<W> create(W world, IntVector v) {
+	public static <W extends AbstractWorld> WeakVectorLocation<W> create(W world, IntVector v) {
 		return new WeakVectorLocation<>(world, v);
 	}
 	
-	public static <W extends World> WeakVectorLocation<W> create(W world, int x, int y) {
+	public static <W extends AbstractWorld> WeakVectorLocation<W> create(W world, int x, int y) {
 		return create(world, new IntVector(x, y));
 	}
 	
 	protected WeakReference<W> worldRef;
+	
+	public WeakVectorLocation(W world, IntArrVector v) {
+		super(v);
+		this.worldRef = new WeakReference<>(world);
+	}
 	
 	public WeakVectorLocation(W world, IntVector v) {
 		super(v);
@@ -54,7 +60,13 @@ public class WeakVectorLocation<W extends World> extends IntVectorLocation {
 
 	@Override
 	public double[] comps() {
-		return null;
+		double[] arr = new double[2];
+		this.vector().putComps(arr);
+		return arr;
+	}
+	
+	public int[] intComps() {
+		return new int[] {v.getIX(), v.getIY()};
 	}
 	
 }

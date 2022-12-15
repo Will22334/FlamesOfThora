@@ -27,7 +27,7 @@ import com.thora.core.state.StateManager;
 import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Pole;
 import com.thora.core.world.TileGenerator;
-import com.thora.core.world.World;
+import com.thora.core.world.AbstractWorld;
 import com.thora.core.world.generator.PerlinTileGenerator;
 
 public class FlamesOfThora implements ApplicationListener, HasLogger {
@@ -56,7 +56,7 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 	public StateManager States = new StateManager();
 	
 	private NettyNetworkManager network;
-	private World world;
+	private AbstractWorld world;
 	
 	@Override
 	public final Logger logger() {
@@ -71,7 +71,7 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 		return network;
 	}
 	
-	public World world() {
+	public AbstractWorld world() {
 		return world;
 	}
 	
@@ -162,18 +162,18 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 		
 		// Render the game based on the current state
 		oldState.updateAndRender();
-		//oldState.render(Gdx.graphics.getDeltaTime());
+		oldState.render(Gdx.graphics.getDeltaTime());
 		
-		//		while(States.isStateFinished() != false) {
-		//			
-		//			log("Detected change in state. :  Exited : in " + States.getActiveState().getName());
-		//			States.setActiveState(States.getActiveState().getID() + 1);
-		//			
-		//		}
-//		if(States.isStateFinished()) {
-//			States.setNextState();
-//		}
-//		States.checkForExit();
+				while(States.isStateFinished() != false) {
+					
+					logger.debug("Detected change in state. :  Exited : in " + States.getActiveState().getName());
+					States.setActiveState(States.getActiveState().getID() + 1);
+					
+				}
+		if(States.isStateFinished()) {
+			States.setNextState();
+		}
+		States.checkForExit();
 	}
 	
 	@Override

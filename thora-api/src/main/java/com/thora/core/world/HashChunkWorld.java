@@ -1,5 +1,6 @@
 package com.thora.core.world;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -37,7 +38,7 @@ public class HashChunkWorld extends GeneralWorld {
 		
 		
 		
-		private final CTile[][] tiles;
+		protected final CTile[][] tiles;
 		protected final ChunkCoordinate coord;
 		protected final Location bottomLeft;
 		
@@ -99,13 +100,10 @@ public class HashChunkWorld extends GeneralWorld {
 		
 		@Override
 		public Stream<CTile> tiles() {
-			return IntStream.range(0, chunkHeight)
-					.mapToObj(y -> {
-						return IntStream.range(0, chunkWidth)
-								.mapToObj(x -> tiles[y][x]);
-					})
-					.flatMap(Function.identity());
+			return Arrays.stream(tiles)
+					.flatMap(Arrays::stream);
 		}
+		
 		
 		protected boolean isGenerated() {
 			return tiles[0][0] != null;
@@ -134,7 +132,7 @@ public class HashChunkWorld extends GeneralWorld {
 		
 	}
 	
-	private static class ChunkCoordinate extends IntVector {
+	protected static class ChunkCoordinate extends IntVector {
 		public ChunkCoordinate(int x, int y) {
 			super(x, y);
 		}
@@ -147,7 +145,9 @@ public class HashChunkWorld extends GeneralWorld {
 	
 	private static final Logger logger = LogManager.getLogger(HashChunkWorld.class);
 	
-	private final int chunkWidth, chunkHeight;
+	final int chunkWidth;
+
+	final int chunkHeight;
 	
 	private Map<ChunkCoordinate,HashChunk> chunks = new HashMap<ChunkCoordinate,HashChunk>();
 	
@@ -243,12 +243,12 @@ public class HashChunkWorld extends GeneralWorld {
 		return chunks()
 				.flatMap(HashChunk::tiles);
 	}
-	
+
 	@Override
 	public Stream<HashChunk.CTile> surroundingTiles(Locatable center, int range) {
 		return surroundingChunks(center, 1)
 				.flatMap(HashChunk::tiles)
-				.filter(t -> center.getTileDistance(t) <= FlamesOfThora.DEFAULT_VIEW_RANGE);
+				.filter(t -> center.getWalkingDistance(t) <= FlamesOfThora.DEFAULT_VIEW_RANGE);
 	}
 	
 	@Override

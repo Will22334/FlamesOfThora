@@ -7,10 +7,15 @@ import javax.crypto.IllegalBlockSizeException;
 
 import org.apache.logging.log4j.Logger;
 
+import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
+import com.thora.core.net.message.TileMessage;
 import com.thora.core.net.netty.EncodingUtils;
+import com.thora.core.net.netty.PlayerSession;
 import com.thora.core.net.netty.ThoraCodec;
+import com.thora.core.net.netty.PodCodec.EncryptedPayloadMessageDecoder;
+import com.thora.core.net.netty.PodCodec.EncryptedPayloadMessageEncoder;
 import com.thora.server.ThoraServer;
 
 import io.netty.buffer.ByteBuf;
@@ -37,8 +42,12 @@ public class ThoraServerCodec extends ThoraCodec {
 	@Override
 	protected void populate() {
 		addDecoder(new LoginRequestDecoder());
+		addDecoder(new ChatMessageDecoder());
 		
 		addEncoder(new LoginResponseEncoder());
+		addEncoder(new ChatMessageEncoder());
+		
+		
 	}
 	
 	public class LoginRequestDecoder extends MessageDecoder<LoginRequestMessage> {
@@ -56,8 +65,8 @@ public class ThoraServerCodec extends ThoraCodec {
 			ByteBuf buf = ctx.alloc().buffer();
 			try {
 				EncodingUtils.decryptOther(buf, encBuf, session.getCryptoCreds().getAssymetric().getDecryptCipher());
-				long timeStamp = buf.readLong();
 				long sessionKey = buf.readLong();
+				long timeStamp = buf.readLong();
 				String username = EncodingUtils.readVarString(buf);
 				String password = EncodingUtils.readVarString(buf);
 				return new LoginRequestMessage(username, password, sessionKey, timeStamp);
@@ -79,6 +88,47 @@ public class ThoraServerCodec extends ThoraCodec {
 			buf.writeBoolean(packet.accepted);
 			if(packet.reason != null) {
 				EncodingUtils.writeVarString(packet.reason, buf);
+			}
+		}
+	}
+	
+	public class ChatMessageEncoder extends EncryptedPayloadMessageEncoder<ChatMessage> {
+		protected ChatMessageEncoder() {
+			super(OPCODE_CLIENT_CHAT_MESSAGE);
+		}
+
+		@Override
+		public void encodePlain(ChannelHandlerContext ctx, ChatMessage packet, ByteBuf buf) {
+			EncodingUtils.writeVarString(packet.message, buf);
+		}
+	}
+	
+	public class ChatMessageDecoder extends EncryptedPayloadMessageDecoder<ChatMessage> {
+
+		public ChatMessageDecoder() {
+			super(OPCODE_SERVER_CHAT_MESSAGE);
+		}
+
+		@Override
+		protected ChatMessage decodePlain(ChannelHandlerContext ctx, ByteBuf buf) {
+			String text = EncodingUtils.readVarString(buf);
+			return new ChatMessage(text);
+		}
+		
+	}
+	
+	public class TileMessageEncoder extends MessageEncoder<TileMessage> {
+		protected TileMessageEncoder() {
+			super(OPCODE_CLIENT_TILE_INFORM);
+		}
+
+		@Override
+		public void encode(ChannelHandlerContext ctx, TileMessage msg, ByteBuf buf) {
+			ClientSession session = ClientSession.get(ctx);
+			if(msg.isRect()) {
+				
+			} else {
+				
 			}
 		}
 	}

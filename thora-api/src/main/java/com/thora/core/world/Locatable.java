@@ -20,6 +20,10 @@ public interface Locatable {
 		return getLocation().getWorld();
 	}
 	
+	public default Tile getTile() {
+		return getWorld().getTile(this);
+	}
+	
 	public default int getX() {
 		return getLocation().getX();
 	}
@@ -28,7 +32,7 @@ public interface Locatable {
 		return getLocation().getY();
 	}
 	
-	public default int getTileDistance(Locatable loc) {
+	public default int getWalkingDistance(Locatable loc) {
 		return getLocation().getTileDistance(loc.getLocation());
 	}
 	
@@ -38,6 +42,10 @@ public interface Locatable {
 	
 	public default boolean isInRange(Locatable loc, double range) {
 		return getDistance(loc) <= range;
+	}
+	
+	public default boolean isInWalkingRange(Locatable loc, double range) {
+		return getLocation().isInWalkingRange(loc, range);
 	}
 	
 }

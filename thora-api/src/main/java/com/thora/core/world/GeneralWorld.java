@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 import com.thora.core.math.IntVector;
 import com.thora.core.world.TileGenerator.EmptyTileGenerator;
 
-public abstract class GeneralWorld extends World {
+public abstract class GeneralWorld extends AbstractWorld {
 	
 	private static final Logger logger = LogManager.getLogger();
 	
@@ -52,7 +52,7 @@ public abstract class GeneralWorld extends World {
 	
 	@Override
 	public Rectangle getEstimatedArea() {
-		return World.noEstimatedSize();
+		return AbstractWorld.noEstimatedSize();
 	}
 	
 	protected Rectangle getSpawnRegion() {
@@ -63,11 +63,11 @@ public abstract class GeneralWorld extends World {
 		return new Rectangle(getOrigin().getX()-width/2, getOrigin().getY()-height/2, width, height);
 	}
 	
-	protected final Material generate(Locatable loc) {
+	protected Material generate(Locatable loc) {
 		return generator.getTileType(loc);
 	}
 	
-	protected final Material generate(int x, int y) {
+	protected Material generate(int x, int y) {
 		return generator.getTileType(x, y);
 	}
 	
@@ -81,6 +81,9 @@ public abstract class GeneralWorld extends World {
 				this.setTile(generate(x, y), x, y);
 			}
 		}
+		
+		
+		
 	}
 
 	@Override

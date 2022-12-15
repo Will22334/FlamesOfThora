@@ -3,6 +3,7 @@ package com.thora.server.netty;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
+import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
 import com.thora.core.net.message.ThoraMessage;
@@ -23,6 +24,7 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 	@Override
 	protected void populate() {
 		this.addHandler(new LoginRequestHandler());
+		this.addHandler(new ChatMessageHandler());
 	}
 	
 	private final class LoginRequestHandler extends MessageConsumer<LoginRequestMessage> {
@@ -30,13 +32,21 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 		public void consume(ChannelHandlerContext ctx, LoginRequestMessage message) {
 			ClientSession session = ClientSession.get(ctx);
 			logger().atLevel(Level.TRACE).log("Received login request = {}", message);
-			session.generateSymmetricCipher(server.publicKey(), message.sessionKey);
+			session.generateSymmetricCipher(server.publicKey(), message.sessionKey, message.timeStamp);
 			
 			LoginResponseMessage response = new LoginResponseMessage(true, "Successfully logged in!");
 			ChannelFuture cf = session.rawChannel().writeAndFlush(response);
 			if(response.isAccepted()) {
 				
 			}
+		}
+	}
+	
+	private final class ChatMessageHandler extends MessageConsumer<ChatMessage> {
+		@Override
+		public void consume(ChannelHandlerContext ctx, ChatMessage message) {
+			ClientSession session = ClientSession.get(ctx);
+			logger().info("Got message \"{}\" from {}", message.message, session);
 		}
 	}
 	
