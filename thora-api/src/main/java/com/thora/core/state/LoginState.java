@@ -49,6 +49,8 @@ public class LoginState extends GameState {
 	
 	//Table for UI Objects
 	Table loginscreenuiTable;
+	protected String usernameEntry;
+	protected String passwordEntry;
 	
 	//Constructor
 	public LoginState(FlamesOfThora client, String name, int id) {
@@ -127,15 +129,15 @@ public class LoginState extends GameState {
 			//Create the TextBoxes for the username and password
 			
 			final Label usernameLabel = new Label("Username: ", skin);
+			usernameLabel.setColor(Color.WHITE);
 			
 			final Label passwordLabel = new Label("Password: ", skin);
 			
 			//User Name Text Field
-			final UITextBox usernameField = new UITextBox("Username: ", new UIPosition((int) (Gdx.graphics.getWidth() * 0.5), (int) (Gdx.graphics.getHeight() * 0.3)));
-			usernameField.setColor(Color.GRAY);
+			final TextField usernameField = new TextField("", skin);
 			
 			//Password text Field
-			final UITextBox passwordField = new UITextBox("Password: ", new UIPosition((int) (Gdx.graphics.getWidth() * 0.5), (int) (Gdx.graphics.getHeight() * 0.4)));
+			final TextField passwordField = new TextField("", skin);
 			
 			//Login Button
 			final TextButton loginbutton = new TextButton("Login", skin);
@@ -150,7 +152,6 @@ public class LoginState extends GameState {
 			loginscreenuiTable.add(passwordField);
 			loginscreenuiTable.row();
 			loginscreenuiTable.add(loginbutton);
-			loginscreenuiTable.add();
 			loginscreenuiTable.add(exitbutton);
 			
 			loginscreenuiTable.setPosition((float) (Gdx.graphics.getWidth() * 0.5 - MINIMUMLOGINWINDOWWIDTH * 0.5), (float) (Gdx.graphics.getHeight() * 0.5 - MINIMUMLOGINWINDOWHIEGHT * 0.5));
@@ -163,7 +164,12 @@ public class LoginState extends GameState {
 			loginbutton.addListener(new ChangeListener() {
 				public void changed (ChangeEvent event, Actor actor) {
 					System.out.println("Logging in! : " + loginbutton.isChecked());
-					loginbutton.setText("...");
+					
+					usernameEntry = usernameField.getText();
+					passwordEntry = passwordField.getText();
+					
+					logger.debug(usernameEntry + ", " + passwordEntry + " has been entered");
+					
 					exit();
 				}
 			});
