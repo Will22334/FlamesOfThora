@@ -85,10 +85,8 @@ public class ThoraServerCodec extends ThoraCodec {
 		}
 		@Override
 		public void encodePlain(ChannelHandlerContext ctx, LoginResponseMessage packet, ByteBuf buf) {
-			buf.writeBoolean(packet.accepted);
-			if(packet.reason != null) {
-				EncodingUtils.writeVarString(packet.reason, buf);
-			}
+			buf.writeBoolean(packet.isAccepted());
+			EncodingUtils.writeVarString(packet.getReason(), buf);
 		}
 	}
 	

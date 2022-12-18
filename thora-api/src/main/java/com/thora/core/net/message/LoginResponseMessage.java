@@ -2,8 +2,8 @@ package com.thora.core.net.message;
 
 public class LoginResponseMessage extends AbstractThoraMessage {
 	
-	public boolean accepted;
-	public String reason;
+	protected boolean accepted;
+	protected String reason;
 	
 	public LoginResponseMessage(boolean accepted, String reason) {
 		super();

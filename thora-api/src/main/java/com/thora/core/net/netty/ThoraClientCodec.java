@@ -75,10 +75,7 @@ public class ThoraClientCodec extends ThoraCodec {
 		@Override
 		protected LoginResponseMessage decodePlain(ChannelHandlerContext ctx, ByteBuf buf) {
 			boolean accepted = buf.readBoolean();
-			String reason = null;
-			if(buf.isReadable()) {
-				reason = EncodingUtils.readVarString(buf);
-			}
+			String reason = EncodingUtils.readVarString(buf);
 			return new LoginResponseMessage(accepted, reason);
 		}
 	}
@@ -95,17 +92,14 @@ public class ThoraClientCodec extends ThoraCodec {
 	}
 	
 	public class ChatMessageDecoder extends EncryptedPayloadMessageDecoder<ChatMessage> {
-
 		public ChatMessageDecoder() {
 			super(OPCODE_CLIENT_CHAT_MESSAGE);
 		}
-
 		@Override
 		protected ChatMessage decodePlain(ChannelHandlerContext ctx, ByteBuf buf) {
 			String text = EncodingUtils.readVarString(buf);
 			return new ChatMessage(text);
 		}
-		
 	}
 	
 }

@@ -47,7 +47,7 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 	protected void encode(ChannelHandlerContext ctx, M msg, ByteBuf out) throws Exception {
 		MessageEncoder<? extends M> encoder = getEncoder(msg);
 		if(encoder != null) {
-			logger().trace("Encoding {} to {}", () -> msg.getClass().getSimpleName(), () -> ctx.channel());
+			//logger().trace("Encoding {} to {}", () -> msg.getClass().getSimpleName(), () -> ctx.channel());
 			
 			EncodingUtils.writeUByte(encoder.opcode, out);
 			encoder.invoke(ctx, msg, out);
@@ -131,7 +131,7 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 		return (PodCodec<M>.MessageDecoder<P>) decoders.get(opcode);
 	}
 	
-	protected final boolean addDecoder(MessageDecoder<? extends M> decoder) {
+	protected final <P extends M> boolean addDecoder(MessageDecoder<P> decoder) {
 		return decoders.putIfAbsent(decoder.opcode(), decoder) == null;
 	}
 	
