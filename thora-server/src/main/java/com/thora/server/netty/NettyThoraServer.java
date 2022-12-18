@@ -13,6 +13,7 @@ import com.thora.core.net.NetworkSession;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.ThoraCodec;
 import com.thora.core.world.AbstractWorld;
+import com.thora.core.world.World;
 import com.thora.server.ThoraGameEngine;
 import com.thora.server.ThoraServer;
 
@@ -73,12 +74,12 @@ public class NettyThoraServer extends ThoraServer {
 		return networkLogger;
 	}
 	
-	public final AbstractWorld world() {
+	public final World world() {
 		return world;
 	}
 	
 	@Override
-	public AbstractWorld getWorld() {
+	public World getWorld() {
 		return world;
 	}
 	

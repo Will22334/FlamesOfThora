@@ -4,6 +4,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.thora.core.math.IntVector;
 import com.thora.core.net.message.ThoraMessage;
+import com.thora.core.world.Location;
 
 import io.netty.buffer.ByteBuf;
 
@@ -27,9 +28,15 @@ public abstract class ThoraCodec extends PodCodec<ThoraMessage> {
 	@Override
 	protected abstract void populate();
 	
-	public static final ByteBuf writeIntVector(IntVector v, ByteBuf buf) {
+	public ByteBuf writeIntVector(IntVector v, ByteBuf buf) {
 		EncodingUtils.writeSignedVarInt(v.getIX(), buf);
 		EncodingUtils.writeSignedVarInt(v.getIY(), buf);
+		return buf;
+	}
+	
+	public ByteBuf write2DLocation(Location point, ByteBuf buf) {
+		EncodingUtils.writeSignedVarInt(point.getX(), buf);
+		EncodingUtils.writeSignedVarInt(point.getY(), buf);
 		return buf;
 	}
 	

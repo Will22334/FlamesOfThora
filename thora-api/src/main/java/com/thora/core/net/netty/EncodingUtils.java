@@ -2,6 +2,7 @@ package com.thora.core.net.netty;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -17,7 +18,9 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -797,8 +800,8 @@ public class EncodingUtils {
 	 * @return
 	 */
 	public static final <M> ByteBuf encodeObjectList(ByteBuf buf, List<M> list, BiConsumer<? super M,ByteBuf> encoder) {
+		EncodingUtils.writePosVarIntCount(list.size(), buf);
 		if(list.isEmpty()) {
-			EncodingUtils.writePosVarIntCount(0, buf);
 			return buf;
 		}
 		
@@ -813,6 +816,19 @@ public class EncodingUtils {
 		return buf;
 	}
 	
+	public static final <M> List<M> decodeObjectList(ByteBuf buf, Function<ByteBuf,M> decoder) {
+		int count = EncodingUtils.readPosVarIntUnwrapped(buf);
+		if(count < 1) return Collections.emptyList();
+		
+		List<M> list = new ArrayList<>();
+		
+		for(int i=0; i<count; ++i) {
+			list.add(decoder.apply(buf));
+		}
+		
+		return list;
+	}
+	
 	/**
 	 * Encodes an array of Objects that can be encoded into a ByteBuf by passing an encoding BiConsumer.
 	 * The array has a header consisting of the length of the list as a PosVarIntCount
@@ -824,7 +840,78 @@ public class EncodingUtils {
 	 * @return
 	 */
 	public static final <M> ByteBuf encodeObjectArray(ByteBuf buf, M[] arr, BiConsumer<? super M,ByteBuf> encoder) {
-		return encodeObjectList(buf, Arrays.asList(arr), encoder);
+		EncodingUtils.writePosVarIntCount(arr.length, buf);
+		if(arr.length < 1) {
+			return buf;
+		}
+		
+		int sizeIndex = buf.writerIndex();
+		buf.writeInt(0);
+		
+		for(M m: arr) {
+			encoder.accept(m, buf);
+		}
+		
+		buf.setInt(sizeIndex, buf.writerIndex()-sizeIndex);
+		return buf;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static final <M> M[] decodeObjectArray(ByteBuf buf, Class<M> clazz, Function<ByteBuf,M> decoder) {
+		int length = EncodingUtils.readPosVarIntUnwrapped(buf);
+		if(length < 1) {
+			return (M[]) Array.newInstance(clazz, length);
+		}
+		
+		int readStart = buf.readerIndex();
+		int totalBytes = buf.readInt();
+		
+		M[] arr = (M[]) Array.newInstance(clazz, length);
+		
+		for(int i=0; i<length; ++i) {
+			arr[i] = decoder.apply(buf);
+		}
+		
+		int readBytes = buf.readerIndex() - readStart;
+		
+		if(readBytes != totalBytes) {
+			throw new ArrayIndexOutOfBoundsException("Decoded more bytes than should have for Object Array!");
+		}
+		
+		return arr;
+		
+	}
+	
+	public static final <M> ByteBuf encode2DObjectArrayNoIndex(ByteBuf buf, M[][] arr, BiConsumer<? super M,ByteBuf> encoder) {
+		EncodingUtils.writePosVarIntCount(arr.length, buf);
+		EncodingUtils.writePosVarIntCount(arr[0].length, buf);
+		
+		for(M[] a : arr) {
+			for(M e: a) {
+				encoder.accept(e, buf);
+			}
+		}
+		
+		return buf;
+	}
+	
+	public static final <M> M[][] decode2DObjectArrayNoIndex(ByteBuf buf, Class<M> clazz, Function<ByteBuf,M> decoder) {
+		int height = EncodingUtils.readPosVarIntUnwrapped(buf);
+		int width = EncodingUtils.readPosVarIntUnwrapped(buf);
+		
+		if(height < 1 || width < 1) {
+			return null;
+		}
+		
+		M[][] arr = (M[][]) Array.newInstance(clazz, height, width);
+		for(int y=0; y<height; ++y) {
+			for(int x=0; x<width; ++x) {
+				arr[y][x] = decoder.apply(buf);
+			}
+		}
+		
+		return arr;
+		
 	}
 	
 	public static ByteBuf decryptSameFast(ByteBuf buf, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException, ShortBufferException  {

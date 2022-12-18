@@ -1,21 +1,21 @@
 package com.thora.server.netty;
 
 import java.io.IOException;
+import java.util.function.BiConsumer;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 
 import org.apache.logging.log4j.Logger;
 
+import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
-import com.thora.core.net.message.TileMessage;
 import com.thora.core.net.netty.EncodingUtils;
-import com.thora.core.net.netty.PlayerSession;
 import com.thora.core.net.netty.ThoraCodec;
-import com.thora.core.net.netty.PodCodec.EncryptedPayloadMessageDecoder;
-import com.thora.core.net.netty.PodCodec.EncryptedPayloadMessageEncoder;
+import com.thora.core.world.Tile;
+import com.thora.core.world.TileData;
 import com.thora.server.ThoraServer;
 
 import io.netty.buffer.ByteBuf;
@@ -117,20 +117,31 @@ public class ThoraServerCodec extends ThoraCodec {
 		
 	}
 	
-	public class TileMessageEncoder extends MessageEncoder<TileMessage> {
+	public class TileMessageEncoder extends MessageEncoder<BasicTileMessage> {
 		protected TileMessageEncoder() {
 			super(OPCODE_CLIENT_TILE_INFORM);
 		}
 
 		@Override
-		public void encode(ChannelHandlerContext ctx, TileMessage msg, ByteBuf buf) {
+		public void encode(ChannelHandlerContext ctx, BasicTileMessage msg, ByteBuf buf) {
 			ClientSession session = ClientSession.get(ctx);
-			if(msg.isRect()) {
-				
+			
+			write2DLocation(msg.bottomLeft, buf);
+			
+			if(msg.isGroup()) {
+				buf.writeBoolean(true);
+				EncodingUtils.encode2DObjectArrayNoIndex(buf, msg.tiles, ThoraServerCodec::encodeTileMaterial);
 			} else {
-				
+				buf.writeBoolean(false);
+				encodeTileMaterial(msg.data, buf);
 			}
+			
 		}
+		
+	}
+	
+	private static final void encodeTileMaterial(TileData data, ByteBuf buf) {
+		buf.writeByte(data.material().ordinal());
 	}
 	
 }
