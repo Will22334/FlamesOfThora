@@ -3,7 +3,9 @@ package com.thora.core.state;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.GL20;
 import com.thora.core.FlamesOfThora;
 import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
@@ -75,6 +77,7 @@ public class MenuState extends GameState {
 	public void render(float dt) {
 		// TODO Auto-generated method stub
 		//Console.log("Rendering Menu");
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 	
 	}
 	

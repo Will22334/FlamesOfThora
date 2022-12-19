@@ -1,3 +1,0 @@
-2022-12-17 22:15:03 [TRACE][RunThoraServer] Server Public Key = java.security.KeyPair@7cc0cdad
-2022-12-17 22:15:04 [INFO ][Network] Bound to localhost/127.0.0.1:7988
-2022-12-17 22:15:04 [TRACE][Network] listenChannel = [id: 0x98c49911, L:/127.0.0.1:7988]
