@@ -126,7 +126,7 @@ public class LoadingState extends GameState implements HasLogger {
 	@Override
 	public void initialize() {
 		//Define the connection to connect to,
-		serverAddress = new InetSocketAddress("localhost",7988);
+		serverAddress = new InetSocketAddress("127.0.0.1",5000);
 		
 		//Define a stage in which...
 		stage = new Stage(new ScreenViewport());

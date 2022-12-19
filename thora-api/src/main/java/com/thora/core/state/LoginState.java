@@ -1,5 +1,7 @@
 package com.thora.core.state;
 
+import java.net.InetSocketAddress;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,6 +28,9 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.thora.core.FlamesOfThora;
 import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
+import com.thora.core.net.LoginTransaction;
+
+import io.netty.util.concurrent.Future;
 
 public class LoginState extends GameState {
 
@@ -53,6 +58,7 @@ public class LoginState extends GameState {
 	protected String passwordEntry;
 	
 	private boolean passwordMode;
+	private InetSocketAddress serverAddress;
 	
 	//Constructor
 	public LoginState(FlamesOfThora client, String name, int id) {
@@ -100,6 +106,8 @@ public class LoginState extends GameState {
 	public void initialize() {
 
 		try {
+			
+			serverAddress = new InetSocketAddress("127.0.0.1",5000);
 
 			loginscreenbackgroundContainer = new Table();
 			loginscreenbackgroundContainer.setPosition((float) (Gdx.graphics.getWidth() * 0.5 - MINIMUMLOGINWINDOWWIDTH * 0.5), (float) (Gdx.graphics.getHeight() * 0.5 - MINIMUMLOGINWINDOWHEIGHT * 0.5));
@@ -207,10 +215,11 @@ public class LoginState extends GameState {
 					usernameEntry = usernameField.getText();
 					passwordEntry = passwordField.getText();
 
-					logger.debug(usernameEntry + ", " + passwordEntry + " has been entered");
+					Login();
 
 					exit();
 				}
+				
 			});
 
 			//Add an event to the exit button
@@ -266,9 +275,22 @@ public class LoginState extends GameState {
 	public void exit() {
 
 		//Delete the UI Stage
-
+	
 		skin.dispose();
 		this.setFinished(true);
 	}
 
+	private void Login() {
+		// TODO Auto-generated method stub
+		this.client().network().connectAndLogin(serverAddress, "user", "pwd")
+		.addListener((Future<LoginTransaction> f) -> {
+			if(f.isSuccess()) {
+				f.get();
+				//this.setFinished(true);
+			} else {
+				logger().atWarn().withThrowable(f.cause()).log("Could not login due to exception!");
+				Gdx.app.exit();
+			}
+		});
+	}
 }
