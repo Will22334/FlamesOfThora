@@ -1,5 +1,7 @@
 package com.thora.core.state;
 
+import java.net.InetSocketAddress;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -11,6 +13,9 @@ import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -20,6 +25,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.thora.core.FlamesOfThora;
@@ -55,17 +61,14 @@ public class LoginState extends GameState {
 	//Table for the background
 	private Table loginscreenbackgroundContainer;
 	
-	protected String address;
-	
 	protected String usernameEntry;
 	protected String passwordEntry;
-	
-	private boolean passwordMode;
 	
 	//Constructor
 	public LoginState(FlamesOfThora client, String name, int id, String defaultAddress) {
 		super(client, name, id);
 		this.defaultAddress = defaultAddress;
+		this.addressField.setText(defaultAddress);
 	}
 	
 	public LoginState(FlamesOfThora client, String name, int id) {
@@ -109,8 +112,10 @@ public class LoginState extends GameState {
 
 	}
 	
+	final Label responseLabel = new Label("", skin);
+	
 	//User Name Text Field
-	final TextField addressField = new TextField(this.defaultAddress, skin);
+	final TextField addressField = new TextField("", skin);
 	
 	//User Name Text Field
 	final TextField usernameField = new TextField("", skin);
@@ -118,11 +123,22 @@ public class LoginState extends GameState {
 	//Password text Field
 	final TextField passwordField = new TextField("", skin);
 	
+	private InetSocketAddress getAddress() {
+		return EncodingUtils.parseSocketAddress(addressField.getText());
+	}
+	
+	protected void setResponseText(String response) {
+		this.responseLabel.setText(response);
+	}
+	
+	private TextFieldStyle goodAddressStyle;
+	private TextFieldStyle badAddressStyle;
+	
 	@Override
 	public void initialize() {
 
 		try {
-
+			
 			loginscreenbackgroundContainer = new Table();
 			loginscreenbackgroundContainer.setPosition((float) (Gdx.graphics.getWidth() * 0.5 - MINIMUMLOGINWINDOWWIDTH * 0.5), (float) (Gdx.graphics.getHeight() * 0.5 - MINIMUMLOGINWINDOWHEIGHT * 0.5));
 			loginscreenbackgroundContainer.setWidth(MINIMUMLOGINWINDOWWIDTH);
@@ -158,11 +174,35 @@ public class LoginState extends GameState {
 			textButtonStyle.over = skin.newDrawable("white", Color.LIGHT_GRAY);
 			textButtonStyle.font = skin.getFont("default");
 			skin.add("default", textButtonStyle);
-
+			
+			goodAddressStyle = addressField.getStyle();
+			
+			badAddressStyle = new TextFieldStyle(goodAddressStyle);
+			badAddressStyle.fontColor.set(Color.RED);
 	
 	//======================Create the UI========================
 			
 			final Label addressLabel = new Label("address: ", skin);
+			
+			addressField.addListener(new EventListener() {
+				@Override
+				public boolean handle(Event event) {
+					if(event instanceof InputEvent) {
+						if(getAddress() == null) {
+							addressField.setStyle(badAddressStyle);
+						} else {
+							addressField.setStyle(goodAddressStyle);
+						}
+					}
+					return false;
+				}
+			});
+			
+			if(getAddress() == null) {
+				addressField.setStyle(badAddressStyle);
+			} else {
+				addressField.setStyle(goodAddressStyle);
+			}
 			
 			//Username Label
 			final Label usernameLabel = new Label("Username: ", skin);
@@ -171,11 +211,9 @@ public class LoginState extends GameState {
 			//Password Label
 			final Label passwordLabel = new Label("Password: ", skin);
 			
-			
-			
-			passwordMode = true;
 			passwordField.setPasswordCharacter('*');
 			passwordField.setPasswordMode(true);
+			
 			
 			//Show Password CheckBox
 			final CheckBox showpasswordCheckBox = new CheckBox("Show Password", skin);
@@ -185,7 +223,13 @@ public class LoginState extends GameState {
 
 			//Exit button
 			final TextButton exitbutton = new TextButton("Exit", skin);
-
+			
+			responseLabel.setWidth(loginscreenuiTable.getWidth());
+			responseLabel.setWrap(true);
+			
+			loginscreenuiTable.add(responseLabel);
+			loginscreenuiTable.row();
+			
 			loginscreenuiTable.add(addressLabel);
 			loginscreenuiTable.add(addressField).pad(5);
 			loginscreenuiTable.row();
@@ -230,18 +274,23 @@ public class LoginState extends GameState {
 					
 					NettyNetworkManager net = new NettyNetworkManager(1, FlamesOfThora.getServerKey());
 					
-					client().network().connectAndLogin(EncodingUtils.parseSocketAddress(addressField.getText()),
-							usernameField.getText(), passwordField.getText())
+					InetSocketAddress address = getAddress();
+					
+					setResponseText("Connecting to " + address);
+					
+					client().network().connectAndLogin(address, usernameField.getText(), passwordField.getText())
 					.addListener((Future<LoginTransaction> f) -> {
 						if(f.isSuccess()) {
 							LoginTransaction result = f.get();
+							setResponseText(result.response.getReason());
 							if(!result.response.isAccepted()) {
 								
 							}
 							//this.setFinished(true);
 						} else {
+							setResponseText("Failed due to " + f.cause());
 							logger().atWarn().withThrowable(f.cause()).log("Could not login due to exception!");
-							Gdx.app.exit();
+							//Gdx.app.exit();
 						}
 					});
 					
