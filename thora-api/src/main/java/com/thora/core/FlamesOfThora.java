@@ -1,6 +1,5 @@
 package com.thora.core;
 
-import java.awt.Dimension;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,13 +23,13 @@ import com.thora.core.state.LoginState;
 import com.thora.core.state.MenuState;
 import com.thora.core.state.PlayingState;
 import com.thora.core.state.StateManager;
+import com.thora.core.world.AbstractWorld;
 import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Pole;
-import com.thora.core.world.TileGenerator;
-import com.thora.core.world.AbstractWorld;
-import com.thora.core.world.generator.PerlinTileGenerator;
 
 public class FlamesOfThora implements ApplicationListener, HasLogger {
+	
+	public static final String defaultAddress = "localhost:8080";
 	
 	public static final int IO_WORKER_THREADS = 1;
 	
@@ -54,6 +53,12 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 	
 	//Manages the various states and provides switching between them
 	public StateManager States = new StateManager();
+	
+	public static PublicKey getServerKey() {
+		return serverKey;
+	}
+	
+	private static PublicKey serverKey;
 	
 	private NettyNetworkManager network;
 	private AbstractWorld world;
@@ -97,6 +102,7 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 		try {
 			pub = readPublicKey(dir.resolve("publicKey"));
 			this.serverIdentity = pub;
+			serverKey = pub;
 			this.publicEncCipher = EncodingUtils.generateCipher(pub);
 		} catch (Exception e) {
 			throw new RuntimeException(e);

@@ -10,11 +10,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.thora.core.net.netty.EncodingUtils;
-import com.thora.core.world.Pole;
-import com.thora.core.world.QuadTreeWorld;
-import com.thora.core.world.TileGenerator;
-import com.thora.core.world.AbstractWorld;
 import com.thora.core.world.HashChunkWorld;
+import com.thora.core.world.Pole;
+import com.thora.core.world.TileGenerator;
 import com.thora.core.world.generator.PerlinTileGenerator;
 import com.thora.server.netty.NettyThoraServer;
 

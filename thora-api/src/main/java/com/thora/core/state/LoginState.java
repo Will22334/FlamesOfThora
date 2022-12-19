@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -26,13 +25,20 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.thora.core.FlamesOfThora;
 import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
+import com.thora.core.net.LoginTransaction;
+import com.thora.core.net.netty.EncodingUtils;
+import com.thora.core.net.netty.NettyNetworkManager;
+
+import io.netty.util.concurrent.Future;
 
 public class LoginState extends GameState {
 
 	//Some Constants about the Login Window
 	private static final int MINIMUMLOGINWINDOWWIDTH = 300;
 	private static final int MINIMUMLOGINWINDOWHEIGHT = 250;
-
+	
+	protected String defaultAddress;
+	
 	//Input
 	InputHandler inputHandler = new InputHandler();
 	InputListener inputListener = new InputListener(inputHandler);
@@ -48,18 +54,24 @@ public class LoginState extends GameState {
 	
 	//Table for the background
 	private Table loginscreenbackgroundContainer;
-
+	
+	protected String address;
+	
 	protected String usernameEntry;
 	protected String passwordEntry;
 	
 	private boolean passwordMode;
 	
 	//Constructor
-	public LoginState(FlamesOfThora client, String name, int id) {
+	public LoginState(FlamesOfThora client, String name, int id, String defaultAddress) {
 		super(client, name, id);
-		// TODO Auto-generated constructor stub
+		this.defaultAddress = defaultAddress;
 	}
-
+	
+	public LoginState(FlamesOfThora client, String name, int id) {
+		this(client, name, id, FlamesOfThora.defaultAddress);
+	}
+	
 	//Debug Logger
 	private static final Logger logger =  LogManager.getLogger(MenuState.class);
 
@@ -96,6 +108,16 @@ public class LoginState extends GameState {
 		uiStage.draw();
 
 	}
+	
+	//User Name Text Field
+	final TextField addressField = new TextField(this.defaultAddress, skin);
+	
+	//User Name Text Field
+	final TextField usernameField = new TextField("", skin);
+
+	//Password text Field
+	final TextField passwordField = new TextField("", skin);
+	
 	@Override
 	public void initialize() {
 
@@ -139,7 +161,9 @@ public class LoginState extends GameState {
 
 	
 	//======================Create the UI========================
-
+			
+			final Label addressLabel = new Label("address: ", skin);
+			
 			//Username Label
 			final Label usernameLabel = new Label("Username: ", skin);
 			usernameLabel.setColor(Color.WHITE);
@@ -147,11 +171,7 @@ public class LoginState extends GameState {
 			//Password Label
 			final Label passwordLabel = new Label("Password: ", skin);
 			
-			//User Name Text Field
-			final TextField usernameField = new TextField("", skin);
-
-			//Password text Field
-			final TextField passwordField = new TextField("", skin);
+			
 			passwordMode = true;
 			passwordField.setPasswordMode(true);
 			
@@ -164,16 +184,22 @@ public class LoginState extends GameState {
 			//Exit button
 			final TextButton exitbutton = new TextButton("Exit", skin);
 
+			loginscreenuiTable.add(addressLabel);
+			loginscreenuiTable.add(addressField).pad(5);
+			loginscreenuiTable.row();
 			
 			loginscreenuiTable.add(usernameLabel).pad(5);
 			loginscreenuiTable.add(usernameField);
 			loginscreenuiTable.row();
+			
 			loginscreenuiTable.add(passwordLabel).pad(5);
 			loginscreenuiTable.add(passwordField);
 			loginscreenuiTable.row();
+			
 			loginscreenuiTable.add();
 			loginscreenuiTable.add(showpasswordCheckBox);
 			loginscreenuiTable.row();
+			
 			loginscreenuiTable.add(loginbutton);
 			loginscreenuiTable.add(exitbutton);
 
@@ -203,13 +229,30 @@ public class LoginState extends GameState {
 				@Override
 				public void changed (ChangeEvent event, Actor actor) {
 					System.out.println("Logging in! : " + loginbutton.isChecked());
-
+					
 					usernameEntry = usernameField.getText();
 					passwordEntry = passwordField.getText();
 
 					logger.debug(usernameEntry + ", " + passwordEntry + " has been entered");
-
-					exit();
+					
+					NettyNetworkManager net = new NettyNetworkManager(1, FlamesOfThora.getServerKey());
+					
+					client().network().connectAndLogin(EncodingUtils.parseSocketAddress(addressField.getText()),
+							usernameField.getText(), passwordField.getText())
+					.addListener((Future<LoginTransaction> f) -> {
+						if(f.isSuccess()) {
+							LoginTransaction result = f.get();
+							if(!result.response.isAccepted()) {
+								
+							}
+							//this.setFinished(true);
+						} else {
+							logger().atWarn().withThrowable(f.cause()).log("Could not login due to exception!");
+							Gdx.app.exit();
+						}
+					});
+					
+					//exit();
 				}
 			});
 
