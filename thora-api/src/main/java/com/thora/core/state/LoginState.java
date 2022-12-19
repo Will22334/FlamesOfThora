@@ -172,7 +172,9 @@ public class LoginState extends GameState {
 			final Label passwordLabel = new Label("Password: ", skin);
 			
 			
+			
 			passwordMode = true;
+			passwordField.setPasswordCharacter('*');
 			passwordField.setPasswordMode(true);
 			
 			//Show Password CheckBox
@@ -211,17 +213,8 @@ public class LoginState extends GameState {
 			showpasswordCheckBox.addListener(new ChangeListener() {
 				@Override
 				public void changed (ChangeEvent event, Actor actor) {
-				
-					
-					if(passwordMode != true) {
-					
-						passwordField.setPasswordMode(true);
-						
-					} else {
-						
-						passwordField.setPasswordMode(false);
-					}
-						
+					logger().trace("showPasswordCheckBox event fired = {}    on {}", event, actor);
+					passwordField.setPasswordMode(!passwordField.isPasswordMode());
 				}
 			});
 			
