@@ -19,6 +19,7 @@ import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.ApplicationListener;
 import com.thora.client.state.GameState;
 import com.thora.client.state.LoadingState;
+import com.thora.client.state.LoginState;
 import com.thora.client.state.MenuState;
 import com.thora.client.state.PlayingState;
 import com.thora.client.state.StateManager;
@@ -43,9 +44,12 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	
 	private final static int LOADINGSTATEID = 0;
 	private final static int MENUSTATEID = 1;
-	private final static int PLAYINGSTATEID = 2;
+	private static final int LOGINSTATEID = 2;
+	private final static int PLAYINGSTATEID = 3;
 	
 	public static final Logger logger = LogManager.getLogger(FlamesOfThoraClient.class.getPackage().getName() + ".Client");
+
+
 	
 	private PublicKey serverIdentity = null;
 	private Cipher publicEncCipher = null;
@@ -82,6 +86,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 		States.addStateToList(new MenuState(this, "Menu State", MENUSTATEID));
 		States.addStateToList(new PlayingState(this, "Playing State", PLAYINGSTATEID));
 		States.addStateToList(new LoadingState(this, "Loading State", LOADINGSTATEID));
+		States.addStateToList(new LoginState(this, "Login State", LOGINSTATEID));
 	}
 	
 	protected GameState activeState() {
@@ -128,7 +133,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 		
 		this.network = new NettyNetworkManager(IO_WORKER_THREADS, serverIdentity, this.publicEncCipher);
 		
-		States.setActiveState(LOADINGSTATEID);
+		States.setActiveState(MENUSTATEID);
 		
 	}
 	

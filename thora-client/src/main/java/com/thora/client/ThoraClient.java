@@ -35,7 +35,6 @@ public class ThoraClient extends GameClient {
 	@Override
 	public void create() {
 		TileGenerator gen = new PerlinTileGenerator((int)System.currentTimeMillis(), DEFAULT_WORLD_SCALE, DEFAULT_WORLD_FREQ);
-		Dimension size = new Dimension(300,300);
 		Pole origin = new Pole("Origin",0,0);
 		
 		//world = new KeyMapWorld(ConcurrentHashMap::new, "Earth", size, origin, gen);
