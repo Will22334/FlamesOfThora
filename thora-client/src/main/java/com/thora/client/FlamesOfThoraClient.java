@@ -1,7 +1,6 @@
 package com.thora.client;
 
 
-import java.awt.Dimension;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,11 +25,9 @@ import com.thora.client.state.StateManager;
 import com.thora.core.HasLogger;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.NettyNetworkManager;
+import com.thora.core.world.AbstractWorld;
 import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Pole;
-import com.thora.core.world.TileGenerator;
-import com.thora.core.world.AbstractWorld;
-import com.thora.core.world.generator.PerlinTileGenerator;
 
 public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	
@@ -85,7 +82,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	public void initializeStates() {
 		States.addStateToList(new MenuState(this, "Menu State", MENUSTATEID));
 		States.addStateToList(new PlayingState(this, "Playing State", PLAYINGSTATEID));
-		States.addStateToList(new LoadingState(this, "Loading State", LOADINGSTATEID));
+		States.addStateToList(new LoadingState<>(this, "Loading State", LOADINGSTATEID));
 		States.addStateToList(new LoginState(this, "Login State", LOGINSTATEID));
 	}
 	
@@ -101,8 +98,8 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 		PublicKey pub = null;
 		try {
 			pub = readPublicKey(dir.resolve("publicKey"));
-			this.serverIdentity = pub;
 			this.publicEncCipher = EncodingUtils.generateCipher(pub);
+			this.serverIdentity = pub;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -113,21 +110,23 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 		//Runs the create command for all states.
 		States.onCreate();
 		
-		TileGenerator gen = new PerlinTileGenerator((int)System.currentTimeMillis(), DEFAULT_WORLD_SCALE, DEFAULT_WORLD_FREQ);
-		Dimension size = new Dimension(300, 300);
+		//TileGenerator gen = new PerlinTileGenerator((int)System.currentTimeMillis(), DEFAULT_WORLD_SCALE, DEFAULT_WORLD_FREQ);
+		//Dimension size = new Dimension(300, 300);
+		
+		
 		Pole origin = new Pole("Origin", 0 ,0);
 		
 		
 		//world = new KeyMapWorld(ConcurrentHashMap::new, "Earth", size, origin, gen);
 		//world = new ArrayWorld("Earth", size, origin, 30, gen);
-		world = new HashChunkWorld("Earth", origin, 15, 15, null);
+		world = new HashChunkWorld("Earth", origin, 15, 15, new PooledEngine(), null);
 		
-		try {
-			world.initialize();
-		} catch (Exception e) {
-			logger().atError().withThrowable(e).log("Failed to initialize {}", world);
-			throw new RuntimeException(e);
-		}
+//		try {
+//			world.initialize();
+//		} catch (Exception e) {
+//			logger().atError().withThrowable(e).log("Failed to initialize {}", world);
+//			throw new RuntimeException(e);
+//		}
 		
 		logger().debug("World Backend: {} {}", world.getClass().getSimpleName(), world.getEstimatedArea());
 		

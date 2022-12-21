@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.badlogic.ashley.core.PooledEngine;
 import com.thora.core.FlamesOfThora;
 import com.thora.core.math.IntVector;
 
@@ -145,14 +146,13 @@ public class HashChunkWorld extends GeneralWorld {
 	
 	private static final Logger logger = LogManager.getLogger(HashChunkWorld.class);
 	
-	final int chunkWidth;
-
-	final int chunkHeight;
+	protected final int chunkWidth;
+	protected final int chunkHeight;
 	
 	private Map<ChunkCoordinate,HashChunk> chunks = new HashMap<ChunkCoordinate,HashChunk>();
 	
-	public HashChunkWorld(String name, Locatable origin, int chunkWidth, int chunkHeight, TileGenerator generator) {
-		super(name, origin, generator);
+	public HashChunkWorld(String name, Locatable origin, int chunkWidth, int chunkHeight, PooledEngine engine, TileGenerator generator) {
+		super(name, origin, engine, generator);
 		
 		this.chunkWidth = chunkWidth;
 		this.chunkHeight = chunkHeight;

@@ -19,9 +19,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -154,8 +154,9 @@ public class EncodingUtils {
 	}
 	
 	public static final Cipher generateCipher(PrivateKey privateKey) {
+		Objects.requireNonNull(privateKey, "Cannot generate Cipher from a null PrivateKey!");
 		try {
-			Cipher cipher = Cipher.getInstance("RSA");
+			Cipher cipher = Cipher.getInstance(privateKey.getAlgorithm());
 			cipher.init(Cipher.DECRYPT_MODE, privateKey);
 			return cipher;
 		} catch (Exception e) {
@@ -165,8 +166,9 @@ public class EncodingUtils {
 	}
 	
 	public static final Cipher generateCipher(PublicKey publicKey) {
+		Objects.requireNonNull(publicKey, "Cannot generate Cipher from a null PublicKey!");
 		try {
-			Cipher cipher = Cipher.getInstance("RSA");
+			Cipher cipher = Cipher.getInstance(publicKey.getAlgorithm());
 			cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 			return cipher;
 		} catch (Exception e) {

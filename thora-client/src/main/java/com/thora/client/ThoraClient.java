@@ -1,15 +1,13 @@
 package com.thora.client;
 
-import java.awt.Dimension;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.ashley.core.PooledEngine;
+import com.thora.core.world.AbstractWorld;
 import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Pole;
 import com.thora.core.world.TileGenerator;
-import com.thora.core.world.AbstractWorld;
 import com.thora.core.world.generator.PerlinTileGenerator;
 
 public class ThoraClient extends GameClient {
@@ -39,7 +37,7 @@ public class ThoraClient extends GameClient {
 		
 		//world = new KeyMapWorld(ConcurrentHashMap::new, "Earth", size, origin, gen);
 		//world = new ArrayWorld("Earth", size, origin, 30, gen);
-		world = new HashChunkWorld("Earth", origin, 15, 15, gen);
+		world = new HashChunkWorld("Earth", origin, 15, 15, new PooledEngine(), gen);
 		
 		logger().debug("World Backend: {} {}", world.getClass().getSimpleName(), world.getEstimatedArea());
 	}

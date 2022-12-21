@@ -22,14 +22,6 @@ public class PerlinTileGenerator implements TileGenerator {
 		this(new J3DPerlinNoise(seed), scale, freq);
 	}
 	
-	public PerlinTileGenerator(J3DPerlinNoise noise, float scale) {
-		this(noise, scale, DEFAULT_TURBULANCE);
-	}
-	
-	public PerlinTileGenerator(int seed, float scale) {
-		this(new J3DPerlinNoise(seed), scale, DEFAULT_TURBULANCE);
-	}
-	
 	@Override
 	public Material getTileType(int x, int y) {
 		float sx = x / scale;

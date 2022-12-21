@@ -22,7 +22,7 @@ public class ClientHashChunkWorld extends HashChunkWorld {
 	
 	public ClientHashChunkWorld(String name, Locatable origin, int chunkWidth, int chunkHeight,
 			TileGenerator generator) {
-		super(name, origin, chunkWidth, chunkHeight, generator);
+		super(name, origin, chunkWidth, chunkHeight, null, generator);
 	}
 	
 	@Override

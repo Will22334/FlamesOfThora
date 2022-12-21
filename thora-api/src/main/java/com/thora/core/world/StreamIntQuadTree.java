@@ -19,8 +19,6 @@ import java.util.stream.StreamSupport;
 
 import javax.annotation.Nonnull;
 
-import org.danilopianini.util.FlexibleQuadTree;
-
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
@@ -481,11 +479,11 @@ public class StreamIntQuadTree<E> implements IntSpatialIndex<E> {
 			if(currentNode.hasNext()) {
 				return true;
 			} else if(currentNode.childrenIt.hasNext()) {
-				currentNode = new ItNode(currentNode, currentNode.childrenIt.next());
+				currentNode = new ItNode<>(currentNode, currentNode.childrenIt.next());
 				return currentNode.hasNext();
 			}
 			if(currentNode.parent != null) {
-				currentNode = new ItNode(currentNode, currentNode.childrenIt.next());
+				currentNode = new ItNode<>(currentNode, currentNode.childrenIt.next());
 				return currentNode.hasNext();
 			}
 			if(currentNode.parent == null) {
@@ -502,14 +500,14 @@ public class StreamIntQuadTree<E> implements IntSpatialIndex<E> {
 			if(currentNode.selfIt.hasNext()) {
 				return currentNode.selfIt.next().element;
 			} else if(currentNode.childrenIt.hasNext()) {
-				currentNode = new ItNode(currentNode, currentNode.childrenIt.next());
+				currentNode = new ItNode<>(currentNode, currentNode.childrenIt.next());
 				E e = currentNode.next();
 				if(e != null) {
 					return e;
 				}
 			}
 			if(currentNode.parent != null) {
-				currentNode = new ItNode(currentNode.parent, currentNode.childrenIt.next());
+				currentNode = new ItNode<>(currentNode.parent, currentNode.childrenIt.next());
 				return currentNode.next();
 			}
 			throw new NoSuchElementException("End of QuadTree Iterator");

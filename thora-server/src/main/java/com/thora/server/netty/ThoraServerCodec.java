@@ -1,7 +1,6 @@
 package com.thora.server.netty;
 
 import java.io.IOException;
-import java.util.function.BiConsumer;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -14,7 +13,6 @@ import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.ThoraCodec;
-import com.thora.core.world.Tile;
 import com.thora.core.world.TileData;
 import com.thora.server.ThoraServer;
 

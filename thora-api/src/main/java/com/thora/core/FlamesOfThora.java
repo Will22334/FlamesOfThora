@@ -118,7 +118,7 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 		Pole origin = new Pole("Origin",0,0);
 		
 		//Create a new World object at the location and size defined
-		world = new HashChunkWorld("Earth", origin, 15, 15, null);
+		world = new HashChunkWorld("Earth", origin, 15, 15, new PooledEngine(), null);
 		
 		//Attempt to create the world
 		try {

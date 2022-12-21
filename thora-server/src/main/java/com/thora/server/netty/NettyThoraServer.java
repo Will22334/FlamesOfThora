@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.badlogic.ashley.core.PooledEngine;
 import com.thora.core.net.NetworkSession;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.ThoraCodec;
@@ -46,7 +47,7 @@ public class NettyThoraServer extends ThoraServer {
 	
 	private static final Logger networkLogger = LogManager.getLogger(NettyThoraServer.class.getPackage().getName() + ".Network");
 	
-	private final ThoraGameEngine engine;
+	private final PooledEngine engine;
 	private final AbstractWorld world;
 	
 	protected ServerBootstrap bootstrap;
@@ -62,11 +63,11 @@ public class NettyThoraServer extends ThoraServer {
 		super(identity);
 		this.bossIOThreads = bossIOThreads;
 		this.workerIOThreads = workerIOThreads;
-		this.engine = new ThoraGameEngine(sideThreads);
+		this.engine = new PooledEngine();
 		this.world = world;
 	}
 	
-	public ThoraGameEngine engine() {
+	public PooledEngine engine() {
 		return engine;
 	}
 	
@@ -92,7 +93,6 @@ public class NettyThoraServer extends ThoraServer {
 	@Override
 	public synchronized void start(InetSocketAddress address) throws Exception {
 		try {
-			engine().start();
 			try {
 				bind(address).sync();
 			} catch (InterruptedException e) {
@@ -100,7 +100,6 @@ public class NettyThoraServer extends ThoraServer {
 			}
 		} catch(Throwable t) {
 			logger().atWarn().withThrowable(t).log("Exception while engine starting/binding to {}", address);
-			engine().stop();
 			throw t;
 		}
 	}

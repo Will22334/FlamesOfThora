@@ -27,9 +27,6 @@ public class J3DPerlinNoise
 	private static final int NP = 12;   /* 2^N */
 	private static final int NM = 0xfff;
 	
-	/** Default seed to use for the random number generation */
-	private static final int DEFAULT_SEED = 100;
-	
 	/** Default sample size to work with */
 	private static final int DEFAULT_SAMPLE_SIZE = 256;
 	
@@ -44,15 +41,6 @@ public class J3DPerlinNoise
 	private float[][] g3;
 	private float[][] g2;
 	private float[] g1;
-	
-	
-	/**
-	 * Create a new noise creator with the default seed value
-	 */
-	public J3DPerlinNoise()
-	{
-		this(DEFAULT_SEED);
-	}
 	
 	/**
 	 * Create a new noise creator with the given seed value for the randomness

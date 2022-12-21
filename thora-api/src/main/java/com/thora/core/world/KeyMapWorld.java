@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import com.badlogic.ashley.core.PooledEngine;
+
 public class KeyMapWorld extends GeneralWorld {
 	
 	public class MTile extends BasicTile {
@@ -20,14 +22,14 @@ public class KeyMapWorld extends GeneralWorld {
 	private Map<Location,MTile> safeTileMap;
 	private Map<Location,MTile> tileMap;
 	
-	public KeyMapWorld(Supplier<Map<Location,MTile>> mapSupplier, String name, Locatable origin, TileGenerator generator) {
-		super(name, origin, generator);
+	public KeyMapWorld(Supplier<Map<Location,MTile>> mapSupplier, String name, Locatable origin, PooledEngine engine, TileGenerator generator) {
+		super(name, origin, engine, generator);
 		tileMap = mapSupplier.get();
 		safeTileMap = Collections.unmodifiableMap(tileMap);
 	}
 	
-	public KeyMapWorld(Map<Location,MTile> tileMap, String name, Locatable origin, TileGenerator generator) {
-		super(name, origin, generator);
+	public KeyMapWorld(Map<Location,MTile> tileMap, String name, Locatable origin, PooledEngine engine, TileGenerator generator) {
+		super(name, origin, engine, generator);
 		this.tileMap = tileMap;
 		safeTileMap = Collections.unmodifiableMap(tileMap);
 	}

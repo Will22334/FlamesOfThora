@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.badlogic.ashley.core.PooledEngine;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Pole;
@@ -43,7 +44,7 @@ public class RunThoraServer {
 			throw t;
 		}
 		
-		logger().trace("Server Public Key = {}", keyIdentity);
+		logger().trace("Server Public Key = {}", keyIdentity.hashCode());
 		
 		int sideThreads = 4;
 		int bossIOThreads = 1;
@@ -53,8 +54,14 @@ public class RunThoraServer {
 		TileGenerator gen = new PerlinTileGenerator((int)System.currentTimeMillis(), DEFAULT_WORLD_SCALE, DEFAULT_WORLD_FREQ);
 		//World world = new HashChunkWorld("Earth", origin, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_SIZE, gen);
 		//AbstractWorld world = new QuadTreeWorld("Earth", 1000, 1000, gen);
-		HashChunkWorld world = new HashChunkWorld("Earth", origin, 25, 25, gen);
+		
+		PooledEngine engine = new PooledEngine();
+		
+		
+		HashChunkWorld world = new HashChunkWorld("Earth", origin, 25, 25, engine, gen);
 		world.initialize();
+		
+		
 		
 		NettyThoraServer server = new NettyThoraServer(keyIdentity, sideThreads, bossIOThreads, workerIOThreads, world);
 		

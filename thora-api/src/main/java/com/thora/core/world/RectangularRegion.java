@@ -37,7 +37,7 @@ public interface RectangularRegion extends KnownRegion {
 		return IntStream.rangeClosed(rect.y, rect.y + rect.height)
 				.mapToObj(y -> {
 					return IntStream.rangeClosed(rect.x, rect.x + rect.width)
-							.mapToObj(x -> new WeakVectorLocation(x, y));
+							.mapToObj(x -> new WeakVectorLocation<>(x, y));
 				})
 				.flatMap(Function.identity());
 	}

@@ -40,7 +40,7 @@ public class ThoraClient extends GameClient {
 		
 		//world = new KeyMapWorld(ConcurrentHashMap::new, "Earth", size, origin, gen);
 		//world = new ArrayWorld("Earth", size, origin, 30, gen);
-		world = new HashChunkWorld("Earth", origin, 15, 15, gen);
+		world = new HashChunkWorld("Earth", origin, 15, 15, new PooledEngine(), gen);
 		
 		logger().debug("World Backend: {} {}", world.getClass().getSimpleName(), world.getEstimatedArea());
 	}

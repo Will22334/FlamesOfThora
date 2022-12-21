@@ -3,9 +3,7 @@ package com.thora.core.world;
 import java.awt.Rectangle;
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.Spliterator;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.badlogic.ashley.core.PooledEngine;
 import com.thora.core.math.IntVector;
 import com.thora.core.world.TileGenerator.EmptyTileGenerator;
 
@@ -16,23 +17,26 @@ public abstract class GeneralWorld extends AbstractWorld {
 	protected String name;
 	protected Pole origin;
 	
+	protected final PooledEngine engine;
+	
 	protected final TileGenerator generator;
 	
-	public GeneralWorld(String name, Pole origin, TileGenerator generator) {
+	public GeneralWorld(String name, Pole origin, PooledEngine engine, TileGenerator generator) {
 		this.name = Objects.requireNonNull(name, "World name cannot be null!");
 		this.origin = Objects.requireNonNull(origin, "World origin cannot be null!");
+		this.engine = engine;
 		if(generator == null) {
 			generator = new EmptyTileGenerator();
 		}
 		this.generator = generator;
 	}
 	
-	public GeneralWorld(String name, Locatable origin, TileGenerator generator) {
-		this(name, Pole.as("origin", origin), generator);
+	public GeneralWorld(String name, Locatable origin, PooledEngine engine, TileGenerator generator) {
+		this(name, Pole.as("origin", origin), engine, generator);
 	}
 	
-	public GeneralWorld(String name, TileGenerator generator) {
-		this(name, new Pole("origin", 0,0), generator);
+	public GeneralWorld(String name, PooledEngine engine, TileGenerator generator) {
+		this(name, new Pole("origin", 0,0), engine, generator);
 	}
 	
 	@Override
