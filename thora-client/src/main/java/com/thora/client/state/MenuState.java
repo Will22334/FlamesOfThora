@@ -43,7 +43,7 @@ public class MenuState extends GameState {
 	private static Stage menuStage;
 	
 	//A Table to hold UIObjects
-	private static Table menuTable;
+	private static Table menuUITable;
 	
 	//A skin for Fonts and Textures.
 	private static Skin menuUISkin;
@@ -92,7 +92,7 @@ public class MenuState extends GameState {
 		menuscreenHeight = Gdx.graphics.getHeight();
 		
 		//Create a table to hold UI objects which defaults to an origin of 0,0 (Left Bottom Corner)
-		menuTable = new Table().left().bottom();
+		menuUITable = new Table().left().bottom();
 		sizeUITable(menuscreenWidth, menuscreenHeight);
 		
 		//Create the Skin for the UiObjects
@@ -197,25 +197,27 @@ public class MenuState extends GameState {
 		});
 		
 		//Column restraints for the table
-		menuTable.columnDefaults(0).width(200);
-		menuTable.columnDefaults(1).width(200);
-		menuTable.columnDefaults(2).width(200);
-		menuTable.columnDefaults(3).width(200);
+		menuUITable.columnDefaults(0).width(200);
+		menuUITable.columnDefaults(1).width(200);
+		menuUITable.columnDefaults(2).width(200);
+		menuUITable.columnDefaults(3).width(200);
 		
 		//Add all UI objects to the table
-		menuTable.row().height(150);
-		menuTable.add(singleplayerButton).center().fill();
-		menuTable.add(multiplayerButton).center().fill();
-		menuTable.add(optionsButton).center().fill();
-		menuTable.add(exitButton).center().fill();
-		menuTable.row();
-		menuTable.add(loggedinLabel);
-		menuTable.add();
-		menuTable.add();
-		menuTable.add(versionLabel);
+		menuUITable.row().height(150);
+		menuUITable.add(singleplayerButton).center().fill();
+		menuUITable.add(multiplayerButton).center().fill();
+		menuUITable.add(optionsButton).center().fill();
+		menuUITable.add(exitButton).center().fill();
+		menuUITable.row();
+		menuUITable.add(loggedinLabel);
+		menuUITable.add();
+		menuUITable.add();
+		menuUITable.add(versionLabel);
+		
+		menuUITable.isVisible();
 		
 		//Add the UITable to the Stage
-		menuStage.addActor(menuTable);
+		menuStage.addActor(menuUITable);
 		
 		//A debug Message!
 		logger().trace("Created Menu State!");
@@ -228,13 +230,15 @@ public class MenuState extends GameState {
 		
 		if(windowWidth >= MINIMUMLMENUWINDOWWIDTH || windowHeight >= MINIMUMMENUWINDOWHEIGHT) {
 			
-			menuTable.setFillParent(true);
+			menuUITable.setWidth(windowWidth);
+			menuUITable.setHeight(windowHeight);
+			
 			logger().debug("ResizedTableTo: -> {}x{}", windowWidth, windowHeight);
 			
 		} else {
 			
-			menuTable.setWidth(MINIMUMLMENUWINDOWWIDTH);
-			menuTable.setHeight(MINIMUMMENUWINDOWHEIGHT);
+			menuUITable.setWidth(MINIMUMLMENUWINDOWWIDTH);
+			menuUITable.setHeight(MINIMUMMENUWINDOWHEIGHT);
 			logger().debug("ResizedTableTo: -> {}x{}", MINIMUMLMENUWINDOWWIDTH, MINIMUMMENUWINDOWHEIGHT);
 			
 		}
@@ -251,6 +255,7 @@ public class MenuState extends GameState {
 		// TODO Auto-generated method stub
 		logger().debug("onResize -> {}x{}", width, height);
 		sizeUITable(width, height);
+		menuStage.getViewport().setScreenSize(width, height);
 
 
 	}
