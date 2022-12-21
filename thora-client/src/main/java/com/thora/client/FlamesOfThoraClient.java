@@ -228,11 +228,11 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 		return logger;
 	}
 
-	protected PublicKey getServerIdentity() {
+	public PublicKey getServerIdentity() {
 		return serverIdentity;
 	}
 
-	protected Cipher getPublicEncCipher() {
+	public Cipher getPublicEncCipher() {
 		return publicEncCipher;
 	}
 
