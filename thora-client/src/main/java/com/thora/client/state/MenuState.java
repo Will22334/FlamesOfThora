@@ -126,7 +126,7 @@ public class MenuState extends GameState {
 		final TextButton sinlgeplayerButton = new TextButton("Single Player", menuUISkin);
 		
 		//Multi-Player Button
-		final TextButton multiplayerButton = new TextButton("Multi Player", menuUISkin);
+		final TextButton multiplayerButton = new TextButton("Online", menuUISkin);
 		
 		//Options Button
 		final TextButton optionsButton = new TextButton("Options", menuUISkin);
@@ -258,6 +258,8 @@ public class MenuState extends GameState {
 	public void exit() {
 		// TODO Auto-generated method stub
 		logger().trace("Leaving Menu State");
+		menuStage.dispose();
+		menuUISkin.dispose();
 	}
 	
 	@Override
