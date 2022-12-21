@@ -149,8 +149,8 @@ public class MenuState extends GameState {
 
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				// TODO Auto-generated method stub
-				
+				// TODO Single Player Button Pressed
+				handleSinglePlayer();
 			}
 			
 				
@@ -161,10 +161,9 @@ public class MenuState extends GameState {
 
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				// TODO Auto-generated method stub
-				
+				// Multiplayer button Pressed
+				handleMultiPlayer();
 			}
-			
 			
 		});
 		
@@ -173,7 +172,7 @@ public class MenuState extends GameState {
 
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				// TODO Auto-generated method stub
+				// Options Button Pressed
 				
 			}
 			
@@ -223,7 +222,8 @@ public class MenuState extends GameState {
 		logger().trace("Created Menu State!");
 		
 	}
-	
+
+
 	private void sizeUITable(int windowWidth, int windowHeight) {
 		
 		//logger.debug("RESIZING! THE TABLE!");
@@ -264,8 +264,7 @@ public class MenuState extends GameState {
 	public void exit() {
 		// TODO Auto-generated method stub
 		logger().trace("Leaving Menu State");
-		menuStage.dispose();
-		menuUISkin.dispose();
+		
 	}
 	
 	@Override
@@ -291,6 +290,17 @@ public class MenuState extends GameState {
 		
 		//Entered Login State. This should only happen initially or upon logout.
 		Gdx.input.setInputProcessor(menuStage);
+	}
+	
+	
+	protected void handleSinglePlayer() {
+		// TODO Auto-generated method stub
+		this.client().States.setActiveState(FlamesOfThoraClient.getPlayingstateid());
+	}
+	
+	protected void handleMultiPlayer() {
+		// TODO Auto-generated method stub
+		this.client().States.setActiveState(FlamesOfThoraClient.getLoginstateid());
 	}
 	
 }

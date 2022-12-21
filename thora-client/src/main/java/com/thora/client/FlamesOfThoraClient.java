@@ -42,10 +42,10 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	public static final float DEFAULT_WORLD_SCALE = 35f;
 	public static final float DEFAULT_WORLD_FREQ = 20f;
 	
-	private final static int LOADINGSTATEID = 0;
-	private final static int MENUSTATEID = 1;
-	private static final int LOGINSTATEID = 2;
-	private final static int PLAYINGSTATEID = 3;
+	protected final static int LOADINGSTATEID = 0;
+	protected final static int MENUSTATEID = 1;
+	protected final static int LOGINSTATEID = 2;
+	protected final static int PLAYINGSTATEID = 3;
 	
 	public static final Logger logger = LogManager.getLogger(FlamesOfThoraClient.class.getPackage().getName() + ".Client");
 
@@ -214,6 +214,46 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	
 	public static int getPlayingstateid() {
 		return PLAYINGSTATEID;
+	}
+
+	protected static int getLoadingstateid() {
+		return LOADINGSTATEID;
+	}
+
+	public static int getLoginstateid() {
+		return LOGINSTATEID;
+	}
+
+	protected static Logger getLogger() {
+		return logger;
+	}
+
+	protected PublicKey getServerIdentity() {
+		return serverIdentity;
+	}
+
+	protected Cipher getPublicEncCipher() {
+		return publicEncCipher;
+	}
+
+	protected PooledEngine getEngine() {
+		return engine;
+	}
+
+	protected StateManager getStates() {
+		return States;
+	}
+
+	protected InetSocketAddress getServerAddress() {
+		return serverAddress;
+	}
+
+	protected NettyNetworkManager getNetwork() {
+		return network;
+	}
+
+	protected AbstractWorld getWorld() {
+		return world;
 	}
 	
 	
