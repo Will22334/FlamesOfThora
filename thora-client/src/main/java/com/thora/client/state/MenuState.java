@@ -111,7 +111,7 @@ public class MenuState extends GameState {
 		TextButtonStyle textButtonStyle = new TextButtonStyle();
 		textButtonStyle.up = menuUISkin.newDrawable("white", Color.DARK_GRAY);
 		textButtonStyle.down = menuUISkin.newDrawable("white", Color.DARK_GRAY);
-		textButtonStyle.checked = menuUISkin.newDrawable("white", Color.BLUE);
+		textButtonStyle.checked = menuUISkin.newDrawable("white", Color.WHITE);
 		textButtonStyle.over = menuUISkin.newDrawable("white", Color.LIGHT_GRAY);
 		textButtonStyle.font = menuUISkin.getFont("default");
 		menuUISkin.add("default", textButtonStyle);
@@ -123,7 +123,7 @@ public class MenuState extends GameState {
 		//======Create Four Buttons (Single Player, Multi-Player, Options, and Exit)=========
 		
 		//Single Player Button
-		final TextButton sinlgeplayerButton = new TextButton("Single Player", menuUISkin);
+		final TextButton singleplayerButton = new TextButton("Single Player", menuUISkin);
 		
 		//Multi-Player Button
 		final TextButton multiplayerButton = new TextButton("Online", menuUISkin);
@@ -145,7 +145,7 @@ public class MenuState extends GameState {
 		//=====Event Handlers=========
 		
 		//Single Player Button
-		sinlgeplayerButton.addListener(new ChangeListener() {
+		singleplayerButton.addListener(new ChangeListener() {
 
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
@@ -196,14 +196,15 @@ public class MenuState extends GameState {
 			
 		});
 		
-		//Add all UI objects to the table
-		//menuTable.columnDefaults(1).width(150);
+		//Column restraints for the table
 		menuTable.columnDefaults(0).width(200);
 		menuTable.columnDefaults(1).width(200);
 		menuTable.columnDefaults(2).width(200);
+		menuTable.columnDefaults(3).width(200);
 		
+		//Add all UI objects to the table
 		menuTable.row().height(150);
-		menuTable.add(sinlgeplayerButton).center().fill();
+		menuTable.add(singleplayerButton).center().fill();
 		menuTable.add(multiplayerButton).center().fill();
 		menuTable.add(optionsButton).center().fill();
 		menuTable.add(exitButton).center().fill();
