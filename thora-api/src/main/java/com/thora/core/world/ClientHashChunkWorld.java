@@ -1,5 +1,7 @@
 package com.thora.core.world;
 
+import java.util.Objects;
+
 import com.badlogic.ashley.core.PooledEngine;
 
 public class ClientHashChunkWorld extends HashChunkWorld {
@@ -38,18 +40,36 @@ public class ClientHashChunkWorld extends HashChunkWorld {
 	}
 	
 	@Override
+	public boolean register(IWorldEntity e) {
+		Objects.requireNonNull(e, "Cannot register null WorldEntity to World!");
+		return doRegister(e);
+	}
+
+	@Override
+	public boolean deRegister(IWorldEntity e) {
+		Objects.requireNonNull(e, "Cannot deRegister null WorldEntity from World!");
+		return doDeRegister(e);
+	}
+
+	@Override
 	protected boolean doRegister(IWorldEntity e) {
-		this.getChunk(e).addEntity(e);
-		this.entities.put(e.getID(), e);
-		return true;
+		HashChunk chunk = this.getChunk(e);
+		if(chunk != null) {
+			chunk.addEntity(e);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
 	protected boolean doDeRegister(IWorldEntity e) {
-		this.entities.remove(e.getID());
-		this.getChunk(e).removeEntity(e);
-		e.setID(IWorldEntity.EMPTY_ID);
-		return true;
+		HashChunk chunk = this.getChunk(e);
+		if(chunk != null) {
+			chunk.removeEntity(e);
+			e.setID(IWorldEntity.EMPTY_ID);
+			return true;
+		}
+		return false;
 	}
 	
 	

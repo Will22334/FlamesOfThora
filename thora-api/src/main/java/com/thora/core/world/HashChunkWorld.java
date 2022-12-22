@@ -141,8 +141,8 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		}
 		
 		public void removeEntity(IWorldEntity e) {
-			getWorld().entities.remove(e.getID());
 			this.entities.remove(e.getID());
+			getWorld().entities.remove(e.getID());
 		}
 		
 	}
