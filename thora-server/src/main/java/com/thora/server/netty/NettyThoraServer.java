@@ -287,6 +287,7 @@ public class NettyThoraServer extends ThoraServer {
 			
 			channel.pipeline()
 			.addLast(watcher)
+			.addLast(channel.eventLoop(), watcher)
 			.addLast(PIPELINE_FRAME_ENCODER, new DefaultFrameEncoder())
 			.addLast(PIPELINE_FRAME_DECODER, new DefaultFrameDecoder())
 			.addLast(PIPELINE_CODEC, new ThoraServerCodec(NettyThoraServer.this, netLogger()))

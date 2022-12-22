@@ -41,7 +41,7 @@ public abstract class AccountLoader {
 		return SimpleResult.successSimple("Both username and password are a valid tuple");
 	}
 
-	public Result<Player> getAccount(String username, String password) {
+	public Result<ServerPlayer> getAccount(String username, String password) {
 		SimpleResult validPair = isValid(username, password);
 		if(validPair.isFail())
 			return Result.fail(validPair);
@@ -55,11 +55,11 @@ public abstract class AccountLoader {
 
 	public abstract boolean accountExists(String username);
 
-	public abstract Result<Player> loadAccount(String username, String password);
+	public abstract Result<ServerPlayer> loadAccount(String username, String password);
 
-	public abstract Result<Player> createAccount(String username, String password);
+	public abstract Result<ServerPlayer> createAccount(String username, String password);
 
-	public abstract boolean saveAccount(Player player);
+	public abstract boolean saveAccount(ServerPlayer player);
 
 //	protected final Player createPlayer(String username, String password) {
 //		return Server.get().createPlayer(username, password);

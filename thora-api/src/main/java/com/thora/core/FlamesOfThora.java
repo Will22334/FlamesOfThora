@@ -24,6 +24,7 @@ import com.thora.core.state.MenuState;
 import com.thora.core.state.PlayingState;
 import com.thora.core.state.StateManager;
 import com.thora.core.world.AbstractWorld;
+import com.thora.core.world.ClientHashChunkWorld;
 import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Pole;
 
@@ -118,7 +119,7 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 		Pole origin = new Pole("Origin",0,0);
 		
 		//Create a new World object at the location and size defined
-		world = new HashChunkWorld("Earth", origin, 15, 15, new PooledEngine(), null);
+		world = new ClientHashChunkWorld("Earth", origin, 15, 15, new PooledEngine(), null);
 		
 		//Attempt to create the world
 		try {

@@ -22,7 +22,7 @@ import com.thora.core.graphics.MultiTextureComponent;
 import com.thora.core.graphics.TextureComponent;
 import com.thora.core.graphics.TransformComponent;
 import com.thora.core.graphics.ZComparator;
-import com.thora.core.world.Locatable;
+import com.thora.core.world.ILocatable;
 import com.thora.core.world.LocationComponent;
 import com.thora.core.world.AbstractWorld;
 
@@ -87,11 +87,11 @@ public class RenderingSystem extends SortedIteratingSystem {
 	protected Comparator<Entity> comparator; // a comparator to sort images based on the z position of the transfromComponent
 	private Camera cam; // a reference to our camera
 	
-	protected Locatable focus;
+	protected ILocatable focus;
 	
 	private Signal<Dimension> resizeSignal;
 	
-	public RenderingSystem(SpriteBatch batch, Camera camera, Locatable focus,
+	public RenderingSystem(SpriteBatch batch, Camera camera, ILocatable focus,
 			Signal<Dimension> resizeSignal, int priority) {
 		// gets all entities with a TransofmComponent and TextureComponent
 		super(FAMILY, new ZComparator(), priority);
@@ -113,7 +113,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 		
 	}
 	
-	protected Locatable getFocus() {
+	protected ILocatable getFocus() {
 		return focus;
 	}
 	

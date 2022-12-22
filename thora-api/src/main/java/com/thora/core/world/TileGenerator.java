@@ -55,7 +55,7 @@ public interface TileGenerator {
 	 * @param point - The tile location
 	 * @return the tile type
 	 */
-	default Material getTileType(Locatable point) {
+	default Material getTileType(ILocatable point) {
 		return getTileType(point.getX(), point.getY());
 	}
 	

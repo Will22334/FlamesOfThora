@@ -16,6 +16,7 @@ import com.thora.core.world.Pole;
 import com.thora.core.world.TileGenerator;
 import com.thora.core.world.generator.PerlinTileGenerator;
 import com.thora.server.netty.NettyThoraServer;
+import com.thora.server.world.ServerHashChunkWorld;
 
 public class RunThoraServer {
 	
@@ -58,7 +59,8 @@ public class RunThoraServer {
 		PooledEngine engine = new PooledEngine();
 		
 		
-		HashChunkWorld world = new HashChunkWorld("Earth", origin, 25, 25, engine, gen);
+		ServerHashChunkWorld world = new ServerHashChunkWorld("Earth", origin, 25, 25, engine, gen);
+		
 		world.initialize();
 		
 		

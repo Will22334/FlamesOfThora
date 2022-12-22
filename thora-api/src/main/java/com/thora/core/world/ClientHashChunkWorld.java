@@ -1,5 +1,7 @@
 package com.thora.core.world;
 
+import com.badlogic.ashley.core.PooledEngine;
+
 public class ClientHashChunkWorld extends HashChunkWorld {
 	
 	public class ClientHashChunk extends HashChunk {
@@ -20,19 +22,34 @@ public class ClientHashChunkWorld extends HashChunkWorld {
 		
 	}
 	
-	public ClientHashChunkWorld(String name, Locatable origin, int chunkWidth, int chunkHeight,
-			TileGenerator generator) {
-		super(name, origin, chunkWidth, chunkHeight, null, generator);
+	public ClientHashChunkWorld(String name, ILocatable origin, int chunkWidth, int chunkHeight,
+			PooledEngine engine, TileGenerator generator) {
+		super(name, origin, chunkWidth, chunkHeight, engine, generator);
 	}
 	
 	@Override
-	protected Material generate(Locatable loc) {
+	protected Material generate(ILocatable loc) {
 		return Material.VOID;
 	}
 
 	@Override
 	protected Material generate(int x, int y) {
 		return Material.VOID;
+	}
+	
+	@Override
+	protected boolean doRegister(IWorldEntity e) {
+		this.getChunk(e).addEntity(e);
+		this.entities.put(e.getID(), e);
+		return true;
+	}
+
+	@Override
+	protected boolean doDeRegister(IWorldEntity e) {
+		this.entities.remove(e.getID());
+		this.getChunk(e).removeEntity(e);
+		e.setID(IWorldEntity.EMPTY_ID);
+		return true;
 	}
 	
 	

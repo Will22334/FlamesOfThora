@@ -1,8 +1,8 @@
 package com.thora.core.world;
 
-public class Pole implements Locatable {
+public class Pole implements ILocatable {
 	
-	public static Pole as(String defaultName, Locatable l) {
+	public static Pole as(String defaultName, ILocatable l) {
 		if(l == null) return null;
 		if(l instanceof Pole) {
 			return (Pole) l;
@@ -15,7 +15,7 @@ public class Pole implements Locatable {
 	private Location loc;
 	
 	//A advanced Constructor
-	public Pole(String name, Locatable loc) {
+	public Pole(String name, ILocatable loc) {
 		
 		this.name = name;
 		this.loc = loc.getLocation();

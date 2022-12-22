@@ -20,6 +20,12 @@ import com.thora.core.math.IntVector;
  */
 public abstract class AbstractWorld implements World {
 	
+	protected int nextID = 0;
+	
+	protected synchronized int nextEntityID() {
+		return nextID++;
+	}
+	
 	protected static final Rectangle noEstimatedSize() {
 		return null;
 	}
@@ -45,7 +51,31 @@ public abstract class AbstractWorld implements World {
 	@Override
 	public abstract String getName();
 	
-	public abstract Locatable getOrigin();
+	public abstract ILocatable getOrigin();
+	
+	@Override
+	public boolean register(IWorldEntity e) {
+		Objects.requireNonNull(e, "Cannot register null Entity in " + this);
+		if(e.isRegistered()) {
+			throw new IllegalArgumentException("Entity already registered " + e + " in " + e.getWorld());
+		}
+		return doRegister(e);
+	}
+	
+	protected abstract boolean doRegister(IWorldEntity e);
+	
+	@Override
+	public boolean deRegister(IWorldEntity e) {
+		Objects.requireNonNull(e, "Cannot deRegister null Entity in " + this);
+		if(!e.isRegistered()) {
+			throw new IllegalArgumentException("Cannot deRegister unregisterd Entitiy " + e);
+		}
+		return doDeRegister(e);
+	}
+	
+	protected abstract boolean doDeRegister(IWorldEntity e);
+	
+	
 	
 	public Location getLocation(IntVector v) {
 		return getLocation(v.getIX(), v.getIY());
@@ -63,7 +93,7 @@ public abstract class AbstractWorld implements World {
 		return "[?,?]";
 	}
 	
-	public Tile getTile(Locatable loc) {
+	public Tile getTile(ILocatable loc) {
 		return getTile(loc.getLocation());
 	}
 	
@@ -84,7 +114,7 @@ public abstract class AbstractWorld implements World {
 		return tile;
 	}
 	
-	public Tile setTile(TileData data, Locatable l) {
+	public Tile setTile(TileData data, ILocatable l) {
 		return setTile(data, l.getTile());
 	}
 	
@@ -114,7 +144,7 @@ public abstract class AbstractWorld implements World {
 	}
 	
 	@Override
-	public Stream<? extends Tile> surroundingTiles(Locatable center, int range) {
+	public Stream<? extends Tile> surroundingTiles(ILocatable center, int range) {
 		Location point = center.getLocation();
 		return tiles(point.getX() - range, point.getY() - range,
 				point.getX() + range, point.getY() + range);

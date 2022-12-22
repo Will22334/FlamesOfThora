@@ -26,7 +26,7 @@ import com.thora.core.HasLogger;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.NettyNetworkManager;
 import com.thora.core.world.AbstractWorld;
-import com.thora.core.world.HashChunkWorld;
+import com.thora.core.world.ClientHashChunkWorld;
 import com.thora.core.world.Pole;
 
 public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
@@ -119,7 +119,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 		
 		//world = new KeyMapWorld(ConcurrentHashMap::new, "Earth", size, origin, gen);
 		//world = new ArrayWorld("Earth", size, origin, 30, gen);
-		world = new HashChunkWorld("Earth", origin, 15, 15, new PooledEngine(), null);
+		world = new ClientHashChunkWorld("Earth", origin, 15, 15, new PooledEngine(), null);
 		
 //		try {
 //			world.initialize();

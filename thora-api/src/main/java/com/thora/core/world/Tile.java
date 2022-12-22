@@ -2,7 +2,7 @@ package com.thora.core.world;
 
 import java.util.function.Predicate;
 
-public interface Tile extends Locatable {
+public interface Tile extends ILocatable {
 	
 	public TileData getTileData();
 	
@@ -19,7 +19,7 @@ public interface Tile extends Locatable {
 	}
 	
 	@Override
-	public default boolean isInWalkingRange(Locatable l, double walkRange) {
+	public default boolean isInWalkingRange(ILocatable l, double walkRange) {
 		return getWalkingDistance(l) <= walkRange;
 	}
 	
@@ -27,7 +27,7 @@ public interface Tile extends Locatable {
 		return (t) -> this.isInWalkingRange(t, walkRange);
 	}
 	
-	public static Predicate<Double> inWalkingRangePred(Locatable l) {
+	public static Predicate<Double> inWalkingRangePred(ILocatable l) {
 		return (r) -> l.isInWalkingRange(l, r);
 	}
 	

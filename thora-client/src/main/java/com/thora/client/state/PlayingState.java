@@ -37,7 +37,7 @@ import com.thora.core.HasLogger;
 import com.thora.core.entity.EntityType;
 import com.thora.core.entity.PlayerComponent;
 import com.thora.core.entity.TypeComponent;
-import com.thora.core.world.Locatable;
+import com.thora.core.world.ILocatable;
 import com.thora.core.world.Location;
 import com.thora.core.world.LocationComponent;
 import com.thora.core.world.MovableComponent;
@@ -257,7 +257,7 @@ public class PlayingState extends GameState implements HasLogger {
 		
 	}
 	
-	private Entity createPlayerEntity(PooledEngine engine, Locatable loc) {
+	private Entity createPlayerEntity(PooledEngine engine, ILocatable loc) {
 		return createPlayerEntity(engine, loc.getLocation().getX(), loc.getLocation().getY());
 	}
 	

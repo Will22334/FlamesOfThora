@@ -3,7 +3,7 @@ package com.thora.core.world;
 import com.thora.core.math.IntVector;
 import com.thora.core.math.Vector;
 
-public abstract class Location implements Locatable, Cloneable {
+public abstract class Location implements ILocatable, Cloneable {
 	
 	public Location() {
 		
@@ -49,7 +49,7 @@ public abstract class Location implements Locatable, Cloneable {
 	}
 	
 	@Override
-	public final double getDistance(Locatable loc) {
+	public final double getDistance(ILocatable loc) {
 		return getDistance(loc.getLocation());
 	}
 	

@@ -12,7 +12,7 @@ public interface World extends HasLogger {
 	
 	public String getName();
 	
-	public default Tile getTile(Locatable loc) {
+	public default Tile getTile(ILocatable loc) {
 		return getTile(loc.getLocation());
 	}
 	
@@ -33,7 +33,14 @@ public interface World extends HasLogger {
 	public Stream<? extends Tile> tiles();
 	
 	
-	public default Stream<? extends Tile> surroundingWalkableTiles(Locatable l, double viewRange) {
+	public Stream<? extends IWorldEntity> entities();
+	
+	public boolean register(IWorldEntity e);
+	
+	public boolean deRegister(IWorldEntity e);
+	
+	
+	public default Stream<? extends Tile> surroundingWalkableTiles(ILocatable l, double viewRange) {
 		final Tile center = l.getTile();
 		final Predicate<Tile> inRange = center.inWalkingRangePred(viewRange);
 		
@@ -41,7 +48,7 @@ public interface World extends HasLogger {
 				.filter(inRange);
 	}
 	
-	public default Stream<? extends Tile> surroundingTiles(Locatable center, int range) {
+	public default Stream<? extends Tile> surroundingTiles(ILocatable center, int range) {
 		Location point = center.getLocation();
 		return tiles(point.getX() - range, point.getY() - range,
 				point.getX() + range, point.getY() + range);
@@ -68,7 +75,7 @@ public interface World extends HasLogger {
 				.mapToObj(y -> getTile(x,y));
 	}
 	
-	public default Tile[][] tiles2DArray(Locatable bottomLeft, int maxX, int maxY) {
+	public default Tile[][] tiles2DArray(ILocatable bottomLeft, int maxX, int maxY) {
 		final Tile t = bottomLeft.getTile();
 		int xr = maxX - bottomLeft.getX();
 		int yr = maxY - bottomLeft.getY();
