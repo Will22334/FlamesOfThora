@@ -1,6 +1,7 @@
 /.settings/
+/.settings/**
 /build/
 /bin/
-/.classpath
 /.project
+/.classpath
 /logs/
