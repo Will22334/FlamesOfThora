@@ -14,7 +14,7 @@ public class MoveRequestComponent implements Component, Poolable {
 	
 	public IntVector v = new IntVector();
 	
-	public Location getEnd(ILocatable loc) {
+	public Location getEnd(Locatable loc) {
 		return loc.getLocation().clone().shift(v.getIX(), v.getIY());
 	}
 	

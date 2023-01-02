@@ -1,15 +1,17 @@
 package com.thora.core.world;
 
-public interface IWorldEntity extends ILocatable {
+import java.util.Objects;
+
+public interface WorldEntity extends Locatable {
 	
 	public static final int EMPTY_ID = -1;
 	
 	public int getID();
 	
-	public IWorldEntity setID(int id);
+	public WorldEntity setID(int id);
 	
 	public default boolean isRegistered(World world) {
-		return isRegistered() && world.equals(getWorld());
+		return isRegistered() && Objects.equals(getWorld(), world);
 	}
 	
 	public default boolean isRegistered() {

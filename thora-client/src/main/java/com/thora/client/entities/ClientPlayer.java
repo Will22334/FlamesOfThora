@@ -1,6 +1,6 @@
 package com.thora.client.entities;
 
-public class Player {
+public class ClientPlayer {
 
 	private String playerName;
 	
@@ -8,7 +8,7 @@ public class Player {
 	
 	
 	//A basic empty player.
-	public Player() {
+	public ClientPlayer() {
 		
 		this.playerName = "";
 		this.playerInventory = new PlayerInventory();
@@ -16,7 +16,7 @@ public class Player {
 	}
 	
 	//A new player who already has a name but needs an inventory.
-	public Player(String playerName) {
+	public ClientPlayer(String playerName) {
 		
 		this.playerName = playerName;
 		this.playerInventory = new PlayerInventory();
@@ -24,7 +24,7 @@ public class Player {
 	}
 	
 	//A new player who already has a name but needs an inventory.
-	public Player(String playerName, PlayerInventory playerInventory) {
+	public ClientPlayer(String playerName, PlayerInventory playerInventory) {
 		
 		this.playerName = playerName;
 		this.playerInventory = playerInventory;

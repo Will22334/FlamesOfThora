@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  */
 public interface RectangularRegion extends KnownRegion {
 	
-	public static Rectangle computeRect(ILocatable origin, int width, int height) {
+	public static Rectangle computeRect(Locatable origin, int width, int height) {
 		return new Rectangle(origin.getX(), origin.getY(), width, height);
 	}
 	
@@ -26,7 +26,7 @@ public interface RectangularRegion extends KnownRegion {
 	}
 	
 	@Override
-	public default boolean contains(ILocatable loc) {
+	public default boolean contains(Locatable loc) {
 		if(loc == null) return false;
 		return getRectRegion().contains(loc.getX(), loc.getY());
 	}

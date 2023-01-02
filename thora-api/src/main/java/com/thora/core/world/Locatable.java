@@ -8,9 +8,9 @@ import com.badlogic.ashley.core.Entity;
  * @author Dave
  *
  */
-public interface ILocatable {
+public interface Locatable {
 	
-	public static ILocatable getComp(Entity e) {
+	public static Locatable getComp(Entity e) {
 		return LocationComponent.MAPPER.get(e);
 	}
 	
@@ -32,19 +32,19 @@ public interface ILocatable {
 		return getLocation().getY();
 	}
 	
-	public default int getWalkingDistance(ILocatable loc) {
+	public default int getWalkingDistance(Locatable loc) {
 		return getLocation().getTileDistance(loc.getLocation());
 	}
 	
-	public default double getDistance(ILocatable loc) {
+	public default double getDistance(Locatable loc) {
 		return getLocation().getDistance(loc.getLocation());
 	}
 	
-	public default boolean isInRange(ILocatable loc, double range) {
+	public default boolean isInRange(Locatable loc, double range) {
 		return getDistance(loc) <= range;
 	}
 	
-	public default boolean isInWalkingRange(ILocatable loc, double range) {
+	public default boolean isInWalkingRange(Locatable loc, double range) {
 		return getLocation().isInWalkingRange(loc, range);
 	}
 	

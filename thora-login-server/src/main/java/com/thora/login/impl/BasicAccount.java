@@ -3,9 +3,9 @@ package com.thora.login.impl;
 import java.time.Instant;
 import java.util.UUID;
 
-import com.thora.login.IAccount;
+import com.thora.login.Account;
 
-public class BasicAccount implements IAccount {
+public class BasicAccount implements Account {
 	
 	private String username;
 	private Instant creationTime;

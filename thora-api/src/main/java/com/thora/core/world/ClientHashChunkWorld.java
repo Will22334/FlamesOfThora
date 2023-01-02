@@ -24,13 +24,13 @@ public class ClientHashChunkWorld extends HashChunkWorld {
 		
 	}
 	
-	public ClientHashChunkWorld(String name, ILocatable origin, int chunkWidth, int chunkHeight,
+	public ClientHashChunkWorld(String name, Locatable origin, int chunkWidth, int chunkHeight,
 			PooledEngine engine, TileGenerator generator) {
 		super(name, origin, chunkWidth, chunkHeight, engine, generator);
 	}
 	
 	@Override
-	protected Material generate(ILocatable loc) {
+	protected Material generate(Locatable loc) {
 		return Material.VOID;
 	}
 
@@ -40,19 +40,19 @@ public class ClientHashChunkWorld extends HashChunkWorld {
 	}
 	
 	@Override
-	public boolean register(IWorldEntity e) {
+	public boolean register(WorldEntity e) {
 		Objects.requireNonNull(e, "Cannot register null WorldEntity to World!");
 		return doRegister(e);
 	}
 
 	@Override
-	public boolean deRegister(IWorldEntity e) {
+	public boolean deRegister(WorldEntity e) {
 		Objects.requireNonNull(e, "Cannot deRegister null WorldEntity from World!");
 		return doDeRegister(e);
 	}
 
 	@Override
-	protected boolean doRegister(IWorldEntity e) {
+	protected boolean doRegister(WorldEntity e) {
 		HashChunk chunk = this.getChunk(e);
 		if(chunk != null) {
 			chunk.addEntity(e);
@@ -62,11 +62,11 @@ public class ClientHashChunkWorld extends HashChunkWorld {
 	}
 
 	@Override
-	protected boolean doDeRegister(IWorldEntity e) {
+	protected boolean doDeRegister(WorldEntity e) {
 		HashChunk chunk = this.getChunk(e);
 		if(chunk != null) {
 			chunk.removeEntity(e);
-			e.setID(IWorldEntity.EMPTY_ID);
+			e.setID(WorldEntity.EMPTY_ID);
 			return true;
 		}
 		return false;

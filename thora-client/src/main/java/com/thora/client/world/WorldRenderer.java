@@ -15,7 +15,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.thora.client.system.RenderingSystem;
-import com.thora.core.world.ILocatable;
+import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
 import com.thora.core.world.Tile;
 import com.thora.core.world.Material;
@@ -50,7 +50,7 @@ public class WorldRenderer extends RenderingSystem {
 	}
 	
 	
-	public WorldRenderer(SpriteBatch batch, AbstractWorld world, Camera camera, ILocatable focus, Signal<Dimension> resizeSignal,
+	public WorldRenderer(SpriteBatch batch, AbstractWorld world, Camera camera, Locatable focus, Signal<Dimension> resizeSignal,
 			int priority) {
 		super(batch, camera, focus, resizeSignal, priority);
 		this.batch = batch;

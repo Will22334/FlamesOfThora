@@ -51,10 +51,10 @@ public abstract class AbstractWorld implements World {
 	@Override
 	public abstract String getName();
 	
-	public abstract ILocatable getOrigin();
+	public abstract Locatable getOrigin();
 	
 	@Override
-	public boolean register(IWorldEntity e) {
+	public boolean register(WorldEntity e) {
 		Objects.requireNonNull(e, "Cannot register null Entity in " + this);
 		if(e.isRegistered()) {
 			throw new IllegalArgumentException("Entity already registered " + e + " in " + e.getWorld());
@@ -62,10 +62,10 @@ public abstract class AbstractWorld implements World {
 		return doRegister(e);
 	}
 	
-	protected abstract boolean doRegister(IWorldEntity e);
+	protected abstract boolean doRegister(WorldEntity e);
 	
 	@Override
-	public boolean deRegister(IWorldEntity e) {
+	public boolean deRegister(WorldEntity e) {
 		Objects.requireNonNull(e, "Cannot deRegister null Entity in " + this);
 		if(!e.isRegistered()) {
 			throw new IllegalArgumentException("Cannot deRegister unregisterd Entitiy " + e);
@@ -73,7 +73,7 @@ public abstract class AbstractWorld implements World {
 		return doDeRegister(e);
 	}
 	
-	protected abstract boolean doDeRegister(IWorldEntity e);
+	protected abstract boolean doDeRegister(WorldEntity e);
 	
 	
 	
@@ -93,7 +93,7 @@ public abstract class AbstractWorld implements World {
 		return "[?,?]";
 	}
 	
-	public Tile getTile(ILocatable loc) {
+	public Tile getTile(Locatable loc) {
 		return getTile(loc.getLocation());
 	}
 	
@@ -114,7 +114,7 @@ public abstract class AbstractWorld implements World {
 		return tile;
 	}
 	
-	public Tile setTile(TileData data, ILocatable l) {
+	public Tile setTile(TileData data, Locatable l) {
 		return setTile(data, l.getTile());
 	}
 	
@@ -144,7 +144,7 @@ public abstract class AbstractWorld implements World {
 	}
 	
 	@Override
-	public Stream<? extends Tile> surroundingTiles(ILocatable center, int range) {
+	public Stream<? extends Tile> surroundingTiles(Locatable center, int range) {
 		Location point = center.getLocation();
 		return tiles(point.getX() - range, point.getY() - range,
 				point.getX() + range, point.getY() + range);

@@ -8,11 +8,11 @@ package com.thora.core.world;
 public interface Region {
 	
 	/**
-	 * Returns {@code true} if the given {@link ILocatable} is inside this Region.
+	 * Returns {@code true} if the given {@link Locatable} is inside this Region.
 	 * @param loc the location in question
 	 * @return {@code true} if the Location is inside this {@link Region},
 	 * {@code false} if the Location is outside.
 	 */
-	public boolean contains(ILocatable loc);
+	public boolean contains(Locatable loc);
 	
 }

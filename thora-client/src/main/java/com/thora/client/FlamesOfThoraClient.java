@@ -23,6 +23,7 @@ import com.thora.client.state.MenuState;
 import com.thora.client.state.PlayingState;
 import com.thora.client.state.StateManager;
 import com.thora.core.HasLogger;
+import com.thora.core.Utils;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.NettyNetworkManager;
 import com.thora.core.world.AbstractWorld;
@@ -44,8 +45,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	protected final static int LOGINSTATEID = 2;
 	protected final static int PLAYINGSTATEID = 3;
 	
-	public static final Logger logger = LogManager.getLogger(FlamesOfThoraClient.class.getPackage().getName() + ".Client");
-
+	public static final Logger logger = LogManager.getLogger(Utils.getRenamedPackageClass(FlamesOfThoraClient.class, "Client"));
 
 	
 	private PublicKey serverIdentity = null;
@@ -153,6 +153,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	@Override
 	public void resize(int width, int height) {
 		// Resize the Application
+		logger().debug("onResize -> {}x{}", width, height);
 		
 		activeState().onResize(width, height);
 		

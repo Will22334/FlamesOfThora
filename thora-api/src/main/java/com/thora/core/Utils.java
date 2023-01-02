@@ -18,6 +18,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.logging.log4j.Logger;
+
 public final class Utils {
 	
 	public static class Timer {
@@ -135,11 +137,11 @@ public final class Utils {
 	
 	/**
 	 * Throws a new IllegalArgumentException if the given condition is true.
-	 * @param bool the condition.
+	 * @param condition the condition.
 	 * @param message the exception message.
 	 */
-	public static void assertArg(boolean bool, String message) {
-		if(bool) throw new IllegalArgumentException(message);
+	public static void assertArg(boolean condition, String message) {
+		if(condition) throw new IllegalArgumentException(message);
 	}
 	
 	/**
@@ -272,6 +274,14 @@ public final class Utils {
 	
 	public static final <L,A> void triggerChange(Iterable<L> all, Function<L,BiPredicate<? super A,? super A>> mapping, A from, A to) { 
 		trigger(all, l -> mapping.apply(l).test(from, to));
+	}
+	
+	public static final String getRenamedPackageClass(Class<?> c, String newClassName) {
+		return c.getPackage().getName() + "." + newClassName;
+	}
+	
+	public static final String simpleClassName(Object o) {
+		return o.getClass().getSimpleName();
 	}
 	
 	private Utils() {}

@@ -215,7 +215,7 @@ public class QuadTreeWorld extends AbstractWorld {
 	}
 
 	@Override
-	public ILocatable getOrigin() {
+	public Locatable getOrigin() {
 		return origin;
 	}
 
@@ -279,31 +279,31 @@ public class QuadTreeWorld extends AbstractWorld {
 	}
 
 	@Override
-	public Stream<? extends IWorldEntity> entities() {
+	public Stream<? extends WorldEntity> entities() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public boolean register(IWorldEntity e) {
+	public boolean register(WorldEntity e) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean deRegister(IWorldEntity e) {
+	public boolean deRegister(WorldEntity e) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	protected boolean doRegister(IWorldEntity e) {
+	protected boolean doRegister(WorldEntity e) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	protected boolean doDeRegister(IWorldEntity e) {
+	protected boolean doDeRegister(WorldEntity e) {
 		// TODO Auto-generated method stub
 		return false;
 	}

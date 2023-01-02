@@ -1,8 +1,8 @@
 package com.thora.login.impl;
 
-import com.thora.login.ILoginResponse;
+import com.thora.login.LoginResponse;
 
-public class BasicLoginResponse implements ILoginResponse {
+public class BasicLoginResponse implements LoginResponse {
 	
 	protected boolean accepted;
 	protected String reason;

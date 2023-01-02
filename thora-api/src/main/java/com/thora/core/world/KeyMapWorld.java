@@ -22,13 +22,13 @@ public class KeyMapWorld extends GeneralWorld {
 	private Map<Location,MTile> safeTileMap;
 	private Map<Location,MTile> tileMap;
 	
-	public KeyMapWorld(Supplier<Map<Location,MTile>> mapSupplier, String name, ILocatable origin, PooledEngine engine, TileGenerator generator) {
+	public KeyMapWorld(Supplier<Map<Location,MTile>> mapSupplier, String name, Locatable origin, PooledEngine engine, TileGenerator generator) {
 		super(name, origin, engine, generator);
 		tileMap = mapSupplier.get();
 		safeTileMap = Collections.unmodifiableMap(tileMap);
 	}
 	
-	public KeyMapWorld(Map<Location,MTile> tileMap, String name, ILocatable origin, PooledEngine engine, TileGenerator generator) {
+	public KeyMapWorld(Map<Location,MTile> tileMap, String name, Locatable origin, PooledEngine engine, TileGenerator generator) {
 		super(name, origin, engine, generator);
 		this.tileMap = tileMap;
 		safeTileMap = Collections.unmodifiableMap(tileMap);
@@ -77,31 +77,31 @@ public class KeyMapWorld extends GeneralWorld {
 	}
 
 	@Override
-	public Stream<? extends IWorldEntity> entities() {
+	public Stream<? extends WorldEntity> entities() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public boolean register(IWorldEntity e) {
+	public boolean register(WorldEntity e) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean deRegister(IWorldEntity e) {
+	public boolean deRegister(WorldEntity e) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	protected boolean doRegister(IWorldEntity e) {
+	protected boolean doRegister(WorldEntity e) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	protected boolean doDeRegister(IWorldEntity e) {
+	protected boolean doDeRegister(WorldEntity e) {
 		// TODO Auto-generated method stub
 		return false;
 	}

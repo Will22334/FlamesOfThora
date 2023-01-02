@@ -1,6 +1,6 @@
 package com.thora.login;
 
-public interface ILoginResponse {
+public interface LoginResponse {
 	
 	public boolean isAccepted();
 	

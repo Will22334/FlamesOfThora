@@ -12,7 +12,7 @@ public class MoveEvent {
 		this.end = end;
 	}
 	
-	public MoveEvent(Entity entity, ILocatable start) {
+	public MoveEvent(Entity entity, Locatable start) {
 		this(start.getLocation(), LocationComponent.MAPPER.get(entity).getLocation());
 	}
 	

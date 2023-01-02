@@ -45,7 +45,7 @@ public class WorldRenderer extends RenderingSystem {
 	}
 	
 	
-	public WorldRenderer(SpriteBatch batch, AbstractWorld world, Camera camera, ILocatable focus, Signal<Dimension> resizeSignal,
+	public WorldRenderer(SpriteBatch batch, AbstractWorld world, Camera camera, Locatable focus, Signal<Dimension> resizeSignal,
 			int priority) {
 		super(batch, camera, focus, resizeSignal, priority);
 		this.batch = batch;

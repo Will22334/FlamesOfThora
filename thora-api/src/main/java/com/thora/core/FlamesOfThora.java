@@ -25,7 +25,6 @@ import com.thora.core.state.PlayingState;
 import com.thora.core.state.StateManager;
 import com.thora.core.world.AbstractWorld;
 import com.thora.core.world.ClientHashChunkWorld;
-import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Pole;
 
 public class FlamesOfThora implements ApplicationListener, HasLogger {
@@ -47,19 +46,18 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 	
 	public static final Logger logger = LogManager.getLogger("Client");
 	
-	private PublicKey serverIdentity = null;
+	private static PublicKey serverPublicIdentity;
+	
+	public static PublicKey getServerPublicIdentity() {
+		return serverPublicIdentity;
+	}
+	
 	private Cipher publicEncCipher = null;
 	
 	private PooledEngine engine = new PooledEngine();
 	
 	//Manages the various states and provides switching between them
 	public StateManager States = new StateManager();
-	
-	public static PublicKey getServerKey() {
-		return serverKey;
-	}
-	
-	private static PublicKey serverKey;
 	
 	private NettyNetworkManager network;
 	private AbstractWorld world;
@@ -102,8 +100,7 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 		PublicKey pub = null;
 		try {
 			pub = readPublicKey(dir.resolve("publicKey"));
-			this.serverIdentity = pub;
-			serverKey = pub;
+			serverPublicIdentity = pub;
 			this.publicEncCipher = EncodingUtils.generateCipher(pub);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -133,7 +130,7 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 		logger().debug("World Backend: {} {}", world.getClass().getSimpleName(), world.getEstimatedArea());
 		
 		//Creates a new network object.
-		this.network = new NettyNetworkManager(IO_WORKER_THREADS, serverIdentity, this.publicEncCipher);
+		this.network = new NettyNetworkManager(IO_WORKER_THREADS, FlamesOfThora.getServerPublicIdentity(), this.publicEncCipher);
 		
 		//Sets the active state to the Loading State. 
 		States.setActiveState(LOGINSTATEID);

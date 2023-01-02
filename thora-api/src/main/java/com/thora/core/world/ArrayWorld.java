@@ -42,7 +42,7 @@ public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 	
 	private int xOff, yOff;
 	
-	public ArrayWorld(String name, Dimension mapSize, ILocatable origin, int tilesize, TileGenerator gen) {
+	public ArrayWorld(String name, Dimension mapSize, Locatable origin, int tilesize, TileGenerator gen) {
 		super();
 		this.name = Objects.requireNonNull(name, "World name cannot be null!");
 		this.mapSize = Objects.requireNonNull(mapSize, "Cannot create World with null mapSize!");
@@ -128,7 +128,7 @@ public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 	@Override
 	public Stream<Location> points() {
 		return tiles()
-				.map(ILocatable::getLocation);
+				.map(Locatable::getLocation);
 	}
 	
 	@Override
@@ -151,7 +151,7 @@ public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 	}
 	
 	@Override
-	public Stream<Tile> surroundingTiles(ILocatable cloc, int range) {
+	public Stream<Tile> surroundingTiles(Locatable cloc, int range) {
 		Location center = cloc.getLocation();
 		int minX = Math.max(0, ix(center.getX() - range));
 		int maxX = Math.min(width() - 1, ix(center.getX() + range));
@@ -218,19 +218,19 @@ public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 	}
 
 	@Override
-	public Stream<? extends IWorldEntity> entities() {
+	public Stream<? extends WorldEntity> entities() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	protected boolean doRegister(IWorldEntity e) {
+	protected boolean doRegister(WorldEntity e) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	protected boolean doDeRegister(IWorldEntity e) {
+	protected boolean doDeRegister(WorldEntity e) {
 		// TODO Auto-generated method stub
 		return false;
 	}

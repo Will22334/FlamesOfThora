@@ -31,7 +31,7 @@ public abstract class GeneralWorld extends AbstractWorld {
 		this.generator = generator;
 	}
 	
-	public GeneralWorld(String name, ILocatable origin, PooledEngine engine, TileGenerator generator) {
+	public GeneralWorld(String name, Locatable origin, PooledEngine engine, TileGenerator generator) {
 		this(name, Pole.as("origin", origin), engine, generator);
 	}
 	
@@ -67,7 +67,7 @@ public abstract class GeneralWorld extends AbstractWorld {
 		return new Rectangle(getOrigin().getX()-width/2, getOrigin().getY()-height/2, width, height);
 	}
 	
-	protected Material generate(ILocatable loc) {
+	protected Material generate(Locatable loc) {
 		return generator.getTileType(loc);
 	}
 	

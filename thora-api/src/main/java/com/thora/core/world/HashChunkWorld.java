@@ -39,7 +39,7 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		
 		
 		protected final CTile[][] tiles;
-		protected final Map<Integer,IWorldEntity> entities = new ConcurrentHashMap<>();
+		protected final Map<Integer,WorldEntity> entities = new ConcurrentHashMap<>();
 		protected final ChunkCoordinate coord;
 		protected final Location bottomLeft;
 		
@@ -73,7 +73,7 @@ public abstract class HashChunkWorld extends GeneralWorld {
 			return wx - bottomLeft.getX();
 		}
 		
-		protected int ix(ILocatable loc) {
+		protected int ix(Locatable loc) {
 			return ix(loc.getX());
 		}
 		
@@ -81,11 +81,11 @@ public abstract class HashChunkWorld extends GeneralWorld {
 			return wy - bottomLeft.getY();
 		}
 		
-		protected int iy(ILocatable loc) {
+		protected int iy(Locatable loc) {
 			return iy(loc.getY());
 		}
 		
-		public CTile getTile(ILocatable loc) {
+		public CTile getTile(Locatable loc) {
 			return getTile(loc.getX(), loc.getY());
 		}
 		
@@ -131,16 +131,16 @@ public abstract class HashChunkWorld extends GeneralWorld {
 			return this;
 		}
 		
-		public Stream<? extends IWorldEntity> entities() {
+		public Stream<? extends WorldEntity> entities() {
 			return entities.values().stream();
 		}
 		
-		public void addEntity(IWorldEntity e) {
+		public void addEntity(WorldEntity e) {
 			getWorld().entities.put(e.getID(), e);
 			this.entities.put(e.getID(), e);
 		}
 		
-		public void removeEntity(IWorldEntity e) {
+		public void removeEntity(WorldEntity e) {
 			this.entities.remove(e.getID());
 			getWorld().entities.remove(e.getID());
 		}
@@ -164,9 +164,9 @@ public abstract class HashChunkWorld extends GeneralWorld {
 	protected final int chunkHeight;
 	
 	protected final Map<ChunkCoordinate,HashChunk> chunks = new HashMap<ChunkCoordinate,HashChunk>();
-	protected final Map<Integer,IWorldEntity> entities = new ConcurrentHashMap<>();
+	protected final Map<Integer,WorldEntity> entities = new ConcurrentHashMap<>();
 	
-	public HashChunkWorld(String name, ILocatable origin, int chunkWidth, int chunkHeight, PooledEngine engine, TileGenerator generator) {
+	public HashChunkWorld(String name, Locatable origin, int chunkWidth, int chunkHeight, PooledEngine engine, TileGenerator generator) {
 		super(name, origin, engine, generator);
 		
 		this.chunkWidth = chunkWidth;
@@ -187,7 +187,7 @@ public abstract class HashChunkWorld extends GeneralWorld {
 				.ensureGenerated();
 	}
 	
-	protected HashChunk getGeneratedChunk(ILocatable loc) {
+	protected HashChunk getGeneratedChunk(Locatable loc) {
 		return getGeneratedChunk(loc.getX(), loc.getY());
 	}
 	
@@ -195,7 +195,7 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		return chunks.get(coord);
 	}
 	
-	protected HashChunk getChunk(ILocatable loc) {
+	protected HashChunk getChunk(Locatable loc) {
 		return getChunk(getChunkCoord(loc));
 	}
 	
@@ -209,7 +209,7 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		return new ChunkCoordinate(cx,cy);
 	}
 	
-	protected ChunkCoordinate getChunkCoord(ILocatable loc) {
+	protected ChunkCoordinate getChunkCoord(Locatable loc) {
 		return getChunkCoord(loc.getX(), loc.getY());
 	}
 	
@@ -242,7 +242,7 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		return chunks.values().stream();
 	}
 	
-	protected Stream<HashChunk> surroundingChunks(ILocatable p, int chunkRange) {
+	protected Stream<HashChunk> surroundingChunks(Locatable p, int chunkRange) {
 		HashChunk centerChunk = getGeneratedChunk(p);
 		int cx = centerChunk.coord.getIX(), cy = centerChunk.coord.getIY();
 		return IntStream.rangeClosed(cy-chunkRange, cy+chunkRange)
@@ -260,13 +260,13 @@ public abstract class HashChunkWorld extends GeneralWorld {
 	}
 
 	@Override
-	public Stream<HashChunk.CTile> surroundingTiles(ILocatable center, int range) {
+	public Stream<HashChunk.CTile> surroundingTiles(Locatable center, int range) {
 		return surroundingChunks(center, 1)
 				.flatMap(HashChunk::tiles)
 				.filter(t -> center.getWalkingDistance(t) <= range);
 	}
 	
-	public Stream<HashChunk.CTile> surroundingTiles(ILocatable center) {
+	public Stream<HashChunk.CTile> surroundingTiles(Locatable center) {
 		return surroundingChunks(center, 1)
 				.flatMap(HashChunk::tiles);
 	}
@@ -297,13 +297,13 @@ public abstract class HashChunkWorld extends GeneralWorld {
 	}
 	
 	@Override
-	public Stream<? extends IWorldEntity> entities() {
+	public Stream<? extends WorldEntity> entities() {
 		return chunks()
 				.flatMap(HashChunk::entities);
 	}
 	
-	protected abstract boolean doRegister(IWorldEntity e);
+	protected abstract boolean doRegister(WorldEntity e);
 	
-	protected abstract boolean doDeRegister(IWorldEntity e);
+	protected abstract boolean doDeRegister(WorldEntity e);
 	
 }

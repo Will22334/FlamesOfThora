@@ -272,7 +272,7 @@ public class LoginState extends GameState {
 
 					logger.debug(usernameEntry + ", " + passwordEntry + " has been entered");
 					
-					NettyNetworkManager net = new NettyNetworkManager(1, FlamesOfThora.getServerKey());
+					NettyNetworkManager net = new NettyNetworkManager(1, FlamesOfThora.getServerPublicIdentity());
 					
 					InetSocketAddress address = getAddress();
 					
