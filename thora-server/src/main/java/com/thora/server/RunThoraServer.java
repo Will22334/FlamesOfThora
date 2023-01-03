@@ -1,8 +1,6 @@
 package com.thora.server;
 
 import java.net.InetSocketAddress;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.KeyPair;
 
 import org.apache.logging.log4j.Level;
@@ -11,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.badlogic.ashley.core.PooledEngine;
 import com.thora.core.net.netty.EncodingUtils;
-import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Pole;
 import com.thora.core.world.TileGenerator;
 import com.thora.core.world.generator.PerlinTileGenerator;
@@ -33,19 +30,17 @@ public class RunThoraServer {
 	
 	public static void main(String[] args) throws Exception {
 		
-		InetSocketAddress bindSocket = EncodingUtils.parseSocketAddress(args[0]);
-		
-		Path dir = Paths.get("./keys/");
+		final InetSocketAddress bindSocket = EncodingUtils.parseSocketAddress(args[0]);
 		
 		KeyPair keyIdentity;
 		try {
-			keyIdentity = ThoraServer.readKeyPair(dir);
+			keyIdentity = ThoraServer.readKeyPair(ThoraServer.PATH_KEYS_DIR);
 		} catch (Throwable t) {
-			logger().atLevel(Level.ERROR).withThrowable(t).log("Failed to read server identity from {}", dir);
+			logger().atLevel(Level.ERROR).withThrowable(t).log("Failed to read server identity from {}", ThoraServer.PATH_KEYS_DIR);
 			throw t;
 		}
 		
-		logger().trace("Server Public Key = {}", keyIdentity.hashCode());
+		logger().trace("Server Public Key = {}", keyIdentity.getPublic().hashCode());
 		
 		int sideThreads = 4;
 		int bossIOThreads = 1;

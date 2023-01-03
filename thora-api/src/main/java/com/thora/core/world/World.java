@@ -28,10 +28,7 @@ public interface World extends HasLogger {
 	 */
 	public Tile getTile(int x, int y);
 	
-	
-	
 	public Stream<? extends Tile> tiles();
-	
 	
 	public Stream<? extends WorldEntity> entities();
 	

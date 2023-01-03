@@ -33,7 +33,7 @@ public class GameLauncher {
 
 		logger().trace("Main started");
 
-		Path dir = Paths.get("./keys/publicKey");
+		Path dir = Paths.get("./assets/keys/publicKey");
 
 		PublicKey keyIdentity;
 		try {

@@ -1,17 +1,11 @@
 package com.thora.client;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.PublicKey;
-
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.thora.core.net.netty.EncodingUtils;
 
 
 //Launches the Game
@@ -27,18 +21,6 @@ public class GameLauncher {
 	public static void main(String[] args) throws Throwable {
 		
 		logger().trace("Main started");
-		
-		Path dir = Paths.get("./keys/publicKey");
-		
-		PublicKey keyIdentity;
-		try {
-			keyIdentity = EncodingUtils.readPublicKey(dir);
-		} catch (Throwable t) {
-			logger().atLevel(Level.ERROR).withThrowable(t).log("Failed to read server identity!");
-			throw t;
-		}
-		
-		logger().trace("Server Public Key = {}", keyIdentity);
 		
 		
 		// A basic configuration class for the Application

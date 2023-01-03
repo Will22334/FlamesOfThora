@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.Deflater;
@@ -38,6 +39,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.thora.core.Utils;
 import com.thora.core.net.HasCryptographicCredentials;
 
 import io.netty.buffer.ByteBuf;
@@ -45,18 +47,47 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.util.ByteProcessor;
+import io.netty.util.concurrent.FastThreadLocal;
 
 public class EncodingUtils {
 	
-	public static final Pattern REGEX_SOCKET_ADDRESS = Pattern.compile("^\\s*(?<host>.*)\\:(?<port>\\d+)\\s*$");
+	public static final String REGEX_SOCKET_ADDRESS = "^\\s*(?<host>.*)\\:(?<port>\\d+)\\s*$";
+	public static final Pattern PATTERN_SOCKET_ADDRESS = Pattern.compile(REGEX_SOCKET_ADDRESS);
 	
-	public static final int TEMP_BYTE_BUFFER_SIZE = 10 * 1024;
+	public static final int TEMP_BYTE_BUFFER_SIZE = 4 * 1024;
 	
-	private static ThreadLocal<ByteBuffer> tempByteBuffer = ThreadLocal.withInitial(() -> ByteBuffer.allocateDirect(TEMP_BYTE_BUFFER_SIZE));
-	private static ThreadLocal<ByteBuf> tempByteBuf = ThreadLocal.withInitial(() -> Unpooled.directBuffer());
+	private static final FastThreadLocal<ByteBuf> fastTempByteBuf = new FastThreadLocal<ByteBuf>() {
+		@Override
+		protected ByteBuf initialValue() throws Exception {
+			return EncodingUtils.allocNewBuf();
+		}
+		@Override
+		protected void onRemoval(ByteBuf value) throws Exception {
+			value.release();
+		}
+	};
+	
+	private static final ThreadLocal<ByteBuffer> tempByteBuffer = ThreadLocal.withInitial(EncodingUtils::newTempByteBuffer);
+	private static final ThreadLocal<ByteBuf> tempByteBuf = ThreadLocal.withInitial(lazyAllocDirect(TEMP_BYTE_BUFFER_SIZE));
 	
 	public static final int TEMP_BYTE_ARRAY_SIZE = 4 * 1024;
-	public static ThreadLocal<byte[]> bufferByteArray = ThreadLocal.withInitial(() -> new byte[TEMP_BYTE_ARRAY_SIZE]);
+	public static final ThreadLocal<byte[]> bufferByteArray = ThreadLocal.withInitial(EncodingUtils::newTempByteArray);
+	
+	private static final ByteBuffer newTempByteBuffer() {
+		return ByteBuffer.allocateDirect(TEMP_BYTE_BUFFER_SIZE);
+	}
+	
+	private static final ByteBuf allocNewBuf() {
+		return Unpooled.directBuffer(TEMP_BYTE_BUFFER_SIZE);
+	}
+	
+	private static final Supplier<ByteBuf> lazyAllocDirect(int initCapacity) {
+		return Utils.bindArg(Unpooled::directBuffer, initCapacity);
+	}
+	
+	private static final byte[] newTempByteArray() {
+		return new byte[TEMP_BYTE_ARRAY_SIZE];
+	}
 	
 	protected static ByteBuffer tempBuffer() {
 		ByteBuffer buffer = tempByteBuffer.get();
@@ -64,7 +95,11 @@ public class EncodingUtils {
 		return buffer;
 	}
 	
-	protected static ByteBuf tempBuf() {
+	public static ByteBuf fastTempBuf() {
+		return fastTempByteBuf.get().clear();
+	}
+	
+	public static ByteBuf tempBuf() {
 		return tempByteBuf.get().clear();
 	}
 	
@@ -79,7 +114,7 @@ public class EncodingUtils {
 	}
 	
 	public static InetSocketAddress parseSocketAddress(String text) {
-		Matcher m = REGEX_SOCKET_ADDRESS.matcher(text);
+		Matcher m = PATTERN_SOCKET_ADDRESS.matcher(text);
 		if(!m.matches()) return null;
 		return new InetSocketAddress(m.group("host"), Integer.parseInt(m.group("port")));
 	}

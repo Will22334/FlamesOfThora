@@ -139,8 +139,7 @@ public class NettyThoraServer extends ThoraServer {
 					.addListener((ChannelFuture f) -> {
 						if(f.isSuccess()) {
 							listenChannel = (ServerSocketChannel) f.channel();
-							netLogger().info("Bound to {}", address);
-							netLogger().trace("listenChannel = {}", listenChannel);
+							netLogger().info("Bound to {}", listenChannel.localAddress());
 							status = Status.ON;
 						} else {
 							status = Status.STOPPING;

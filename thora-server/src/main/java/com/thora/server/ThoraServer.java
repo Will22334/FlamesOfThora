@@ -2,6 +2,7 @@ package com.thora.server;
 
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.PublicKey;
 
@@ -13,6 +14,9 @@ import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.world.World;
 
 public abstract class ThoraServer implements HasLogger {
+	
+	public static final Path PATH_ASSETS_DIR = Paths.get("./assets");
+	public static final Path PATH_KEYS_DIR = PATH_ASSETS_DIR.resolve("keys");
 	
 	public static enum Status {
 		OFF(),
@@ -32,7 +36,7 @@ public abstract class ThoraServer implements HasLogger {
 	}
 	
 	public static final KeyPair readKeyPair(Path dir) throws Exception {
-		KeyPair keyIdentity = EncodingUtils.readKeyPair(dir.resolve("publicKey"), dir.resolve("privateKey"));
+		KeyPair keyIdentity = EncodingUtils.readKeyPair(dir.resolve("public.key"), dir.resolve("private.key"));
 		return keyIdentity;
 	}
 	

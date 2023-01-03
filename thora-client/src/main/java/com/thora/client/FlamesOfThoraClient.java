@@ -46,7 +46,10 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	protected final static int PLAYINGSTATEID = 3;
 	
 	public static final Logger logger = LogManager.getLogger(Utils.getRenamedPackageClass(FlamesOfThoraClient.class, "Client"));
-
+	
+	public static final Path PATH_ASSETS_DIR = Paths.get("./assets");
+	public static final Path PATH_KEYS_DIR = PATH_ASSETS_DIR.resolve("keys");
+	public static final Path PATH_PUBLIC_KEY_FILE = PATH_KEYS_DIR.resolve("public.key");
 	
 	private PublicKey serverIdentity = null;
 	private Cipher publicEncCipher = null;
@@ -94,10 +97,9 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	@Override
 	public void create() {
 		
-		Path dir = Paths.get("./keys/");
 		PublicKey pub = null;
 		try {
-			pub = readPublicKey(dir.resolve("publicKey"));
+			pub = readPublicKey(PATH_PUBLIC_KEY_FILE);
 			this.publicEncCipher = EncodingUtils.generateCipher(pub);
 			this.serverIdentity = pub;
 		} catch (Exception e) {

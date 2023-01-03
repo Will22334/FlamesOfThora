@@ -29,6 +29,7 @@ import com.thora.core.world.Pole;
 
 public class FlamesOfThora implements ApplicationListener, HasLogger {
 	
+	public static final String publicKeyFilePath = "./assets/keys/publicKey";
 	public static final String defaultAddress = "localhost:8080";
 	
 	public static final int IO_WORKER_THREADS = 1;
@@ -96,7 +97,17 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 	@Override
 	public void create() {
 		
-		Path dir = Paths.get("./keys/");
+//		Path dir = Paths.get("./keys/");
+//		PublicKey pub = null;
+//		try {
+//			pub = readPublicKey(dir.resolve("publicKey"));
+//			serverPublicIdentity = pub;
+//			this.publicEncCipher = EncodingUtils.generateCipher(pub);
+//		} catch (Exception e) {
+//			throw new RuntimeException(e);
+//		}
+		
+		Path dir = Paths.get("./assets/keys/");
 		PublicKey pub = null;
 		try {
 			pub = readPublicKey(dir.resolve("publicKey"));
