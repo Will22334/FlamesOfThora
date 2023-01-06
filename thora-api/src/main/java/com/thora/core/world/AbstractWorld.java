@@ -19,20 +19,6 @@ import com.thora.core.math.IntVector;
  */
 public abstract class AbstractWorld implements World {
 
-	public static IntStream reverseRange(int from, int to) {
-		return IntStream.range(from, to)
-				.map(i -> to - i + from - 1);
-	}
-
-	public static <T> Stream<T> reverseRange(T[] arr, int from, int to) {
-		return reverseRange(from, to)
-				.mapToObj(i -> arr[i]);
-	}
-
-	public static <T> Stream<T> reverseStream(T[] arr) {
-		return reverseRange(arr, 0, arr.length);
-	}
-
 	protected int nextID = 0;
 
 	protected synchronized int nextEntityID() {
@@ -50,9 +36,9 @@ public abstract class AbstractWorld implements World {
 
 	@Override
 	public boolean register(WorldEntity e) {
-		Objects.requireNonNull(e, "Cannot register null Entity in " + this);
+		Objects.requireNonNull(e, "Cannot register null Entity to World");
 		if(e.isRegistered()) {
-			throw new IllegalArgumentException("Entity already registered " + e + " in " + e.getWorld());
+			throw new IllegalArgumentException("Entity already registered: " + e + " in " + e.getWorld());
 		}
 		return doRegister(e);
 	}
@@ -61,7 +47,7 @@ public abstract class AbstractWorld implements World {
 
 	@Override
 	public boolean deRegister(WorldEntity e) {
-		Objects.requireNonNull(e, "Cannot deRegister null Entity in " + this);
+		Objects.requireNonNull(e, "Cannot deRegister null Entity in World");
 		if(!e.isRegistered()) {
 			throw new IllegalArgumentException("Cannot deRegister unregisterd Entitiy " + e);
 		}
@@ -69,8 +55,6 @@ public abstract class AbstractWorld implements World {
 	}
 
 	protected abstract boolean doDeRegister(WorldEntity e);
-
-
 
 	public Location getLocation(IntVector v) {
 		return getLocation(v.getIX(), v.getIY());

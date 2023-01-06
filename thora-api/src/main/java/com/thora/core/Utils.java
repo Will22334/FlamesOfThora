@@ -18,6 +18,7 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public final class Utils {
@@ -323,5 +324,19 @@ public final class Utils {
 	}
 
 	private Utils() {}
+
+	public static IntStream reverseIntRange(int from, int to) {
+		return IntStream.range(from, to)
+				.map(i -> to - i + from - 1);
+	}
+
+	public static <T> Stream<T> reverseIntRange(T[] arr, int from, int to) {
+		return reverseIntRange(from, to)
+				.mapToObj(i -> arr[i]);
+	}
+
+	public static <T> Stream<T> reverseStream(T[] arr) {
+		return reverseIntRange(arr, 0, arr.length);
+	}
 
 }

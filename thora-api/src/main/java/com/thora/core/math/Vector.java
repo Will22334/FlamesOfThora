@@ -3,21 +3,22 @@ package com.thora.core.math;
 public interface Vector<V extends Vector<V>> extends Cloneable {
 
 	public static final double PI = Math.PI;
-	public static final double PI_4 = Math.PI/4d;
-	public static final double PI_2 = Math.PI/2d;
-
-	public static final double PI2 = 2 * PI;
-
-	public static final double LEFT_90 = Math.toRadians(-90);
-	public static final double RIGHT_90 = Math.toRadians(90);
+	public static final double PI_2 = Math.PI / 2d;
+	public static final double PI2 = 2 * Math.PI;
 	
-	public static final double DIRECTION_RIGHT = 0d,
-			DIRECTION_UP = PI_2,
-			DIRECTION_LEFT = -PI,
-			DIRECTION_DOWN = -PI_2;
+	public static final double LEFT_90 = Math.toRadians(-90d);
+	public static final double RIGHT_90 = Math.toRadians(90d);
+	
+	public static final double DIRECTION_UP = Math.PI/2,
+			DIRECTION_LEFT = PI,
+			DIRECTION_DOWN = -Math.PI/2,
+			DIRECTION_RIGHT = 0d;
 	
 	public static double polishAngle(double a) {
-		return a - PI2 * Math.floor((a + Math.PI) / PI2);
+		a %= PI2;
+		if(a < 0)
+			a += PI2;
+		return a;
 	}
 	
 	/**
@@ -136,6 +137,7 @@ public interface Vector<V extends Vector<V>> extends Cloneable {
 	 * @return
 	 */
 	public default V setAsP(double r, double a) {
+		a = Vector.polishAngle(a);
 		return setAs(r * Math.cos(a), r * Math.sin(a));
 	}
 

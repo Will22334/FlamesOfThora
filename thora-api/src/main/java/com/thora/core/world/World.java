@@ -7,7 +7,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.thora.core.HasLogger;
-import com.thora.core.Utils;
 
 public interface World extends HasLogger {
 	
