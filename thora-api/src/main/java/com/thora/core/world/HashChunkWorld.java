@@ -16,7 +16,7 @@ import com.thora.core.math.IntVector;
 
 public abstract class HashChunkWorld extends GeneralWorld {
 	
-	public class HashChunk extends Chunk {
+	protected class HashChunk extends Chunk {
 		
 		public class CTile extends BasicTile {
 			protected CTile(Material material, Location point) {

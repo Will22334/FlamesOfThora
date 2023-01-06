@@ -54,11 +54,6 @@ public abstract class GeneralWorld extends AbstractWorld {
 		return origin;
 	}
 	
-	@Override
-	public Rectangle getEstimatedArea() {
-		return AbstractWorld.noEstimatedSize();
-	}
-	
 	protected Rectangle getSpawnRegion() {
 		return getSpawnRegion(30,30);
 	}

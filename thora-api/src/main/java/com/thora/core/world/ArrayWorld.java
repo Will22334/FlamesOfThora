@@ -201,12 +201,6 @@ public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 	}
 	
 	@Override
-	public Rectangle getEstimatedArea() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
 	public Stream<? extends Tile> tiles() {
 		// TODO Auto-generated method stub
 		return null;

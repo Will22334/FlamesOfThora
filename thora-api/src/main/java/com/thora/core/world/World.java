@@ -7,6 +7,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.thora.core.HasLogger;
+import com.thora.core.Utils;
 
 public interface World extends HasLogger {
 	
@@ -72,6 +73,13 @@ public interface World extends HasLogger {
 				.mapToObj(y -> getTile(x,y));
 	}
 	
+	/**
+	 * Returns a 2d Tile array that contains all tiles inside the rectangular region from bottomLeft to (maxX,maxY)
+	 * @param bottomLeft The bottom left point of the region
+	 * @param maxX the farthest x coordinate of the tile array
+	 * @param maxY the farthest y coordinate of the tile array
+	 * @return A newly constructed 2d Tile array containing all tile references in specified range.
+	 */
 	public default Tile[][] tiles2DArray(Locatable bottomLeft, int maxX, int maxY) {
 		final Tile t = bottomLeft.getTile();
 		int xr = maxX - bottomLeft.getX();

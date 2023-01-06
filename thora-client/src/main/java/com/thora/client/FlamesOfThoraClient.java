@@ -130,7 +130,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 //			throw new RuntimeException(e);
 //		}
 		
-		logger().debug("World Backend: {} {}", world.getClass().getSimpleName(), world.getEstimatedArea());
+		logger().debug("World Backend: {}", world.getClass().getSimpleName());
 		
 		this.network = new NettyNetworkManager(IO_WORKER_THREADS, serverIdentity, this.publicEncCipher);
 		

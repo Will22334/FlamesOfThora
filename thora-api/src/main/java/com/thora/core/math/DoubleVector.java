@@ -28,16 +28,6 @@ public class DoubleVector implements Vector<DoubleVector> {
 	}
 
 	@Override
-	public int getIX() {
-		return (int)Math.ceil(x);
-	}
-
-	@Override
-	public int getIY() {
-		return (int)Math.ceil(y);
-	}
-
-	@Override
 	public DoubleVector setX(double x) {
 		this.x = x;
 		return this;

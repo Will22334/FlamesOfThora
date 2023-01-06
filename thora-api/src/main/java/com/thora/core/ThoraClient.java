@@ -42,7 +42,7 @@ public class ThoraClient extends GameClient {
 		//world = new ArrayWorld("Earth", size, origin, 30, gen);
 		world = new ClientHashChunkWorld("Earth", origin, 15, 15, new PooledEngine(), gen);
 		
-		logger().debug("World Backend: {} {}", world.getClass().getSimpleName(), world.getEstimatedArea());
+		logger().debug("World Backend: {}", world.getClass().getSimpleName());
 	}
 	
 }

@@ -15,7 +15,6 @@ import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.ThoraCodec;
 import com.thora.core.world.AbstractWorld;
 import com.thora.core.world.World;
-import com.thora.server.ThoraGameEngine;
 import com.thora.server.ThoraServer;
 
 import io.netty.bootstrap.ServerBootstrap;

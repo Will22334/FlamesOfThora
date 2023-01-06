@@ -250,11 +250,6 @@ public class QuadTreeWorld extends AbstractWorld {
 	}
 
 	@Override
-	public Rectangle getEstimatedArea() {
-		return null;
-	}
-
-	@Override
 	public QuadTreeTileD getTile(int x, int y) {
 		return getTile(new double[] {x, y});
 	}
