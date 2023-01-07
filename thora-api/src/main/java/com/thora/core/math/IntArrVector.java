@@ -2,7 +2,7 @@ package com.thora.core.math;
 
 import java.util.Arrays;
 
-public class IntArrVector implements Vector<IntArrVector> {
+public class IntArrVector implements IntVector {
 	
 	protected final int[] comps;
 	
@@ -13,16 +13,6 @@ public class IntArrVector implements Vector<IntArrVector> {
 	public IntArrVector(int x, int y) {
 		this.comps = new int[] {x, y};
 	}
-	
-	@Override
-	public double getX() {
-		return getIX();
-	}
-
-	@Override
-	public double getY() {
-		return getIY();
-	}
 
 	@Override
 	public int getIX() {
@@ -32,16 +22,6 @@ public class IntArrVector implements Vector<IntArrVector> {
 	@Override
 	public int getIY() {
 		return comps[1];
-	}
-
-	@Override
-	public IntArrVector setX(double x) {
-		return setX((int) Math.round(x));
-	}
-
-	@Override
-	public IntArrVector setY(double y) {
-		return setY((int) Math.round(y));
 	}
 
 	@Override
@@ -60,13 +40,6 @@ public class IntArrVector implements Vector<IntArrVector> {
 	public IntArrVector setAs(int x, int y) {
 		this.comps[0] = x;
 		this.comps[1] = y;
-		return this;
-	}
-	
-	@Override
-	public IntArrVector setAs(double x, double y) {
-		this.comps[0] = (int) Math.round(x);
-		this.comps[1] = (int) Math.round(y);
 		return this;
 	}
 	

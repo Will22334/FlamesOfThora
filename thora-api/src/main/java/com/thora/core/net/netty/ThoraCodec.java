@@ -2,7 +2,7 @@ package com.thora.core.net.netty;
 
 import org.apache.logging.log4j.Logger;
 
-import com.thora.core.math.IntVector;
+import com.thora.core.math.BasicIntVector;
 import com.thora.core.net.message.ThoraMessage;
 import com.thora.core.world.Location;
 
@@ -28,7 +28,7 @@ public abstract class ThoraCodec extends PodCodec<ThoraMessage> {
 	@Override
 	protected abstract void populate();
 	
-	public ByteBuf writeIntVector(IntVector v, ByteBuf buf) {
+	public ByteBuf writeIntVector(BasicIntVector v, ByteBuf buf) {
 		EncodingUtils.writeSignedVarInt(v.getIX(), buf);
 		EncodingUtils.writeSignedVarInt(v.getIY(), buf);
 		return buf;

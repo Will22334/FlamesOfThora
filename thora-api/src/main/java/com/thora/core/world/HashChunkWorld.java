@@ -12,7 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.ashley.core.PooledEngine;
-import com.thora.core.math.IntVector;
+import com.thora.core.math.BasicIntVector;
 
 public abstract class HashChunkWorld extends GeneralWorld {
 	
@@ -147,7 +147,7 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		
 	}
 	
-	protected static class ChunkCoordinate extends IntVector {
+	protected static class ChunkCoordinate extends BasicIntVector {
 		public ChunkCoordinate(int x, int y) {
 			super(x, y);
 		}

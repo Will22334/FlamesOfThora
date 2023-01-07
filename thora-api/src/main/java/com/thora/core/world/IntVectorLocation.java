@@ -3,7 +3,7 @@ package com.thora.core.world;
 import java.lang.ref.WeakReference;
 
 import com.thora.core.math.IntArrVector;
-import com.thora.core.math.IntVector;
+import com.thora.core.math.BasicIntVector;
 
 public abstract class IntVectorLocation extends Location {
 	
@@ -25,7 +25,7 @@ public abstract class IntVectorLocation extends Location {
 			this.worldRef = new WeakReference<>(world);
 		}
 		
-		public IntVectorRefLocation(W world, IntVector v) {
+		public IntVectorRefLocation(W world, BasicIntVector v) {
 			super(new IntArrVector(v.getIX(), v.getIY()));
 			this.worldRef = new WeakReference<>(world);
 		}
@@ -52,7 +52,7 @@ public abstract class IntVectorLocation extends Location {
 		this.v = v;
 	}
 	
-	public IntVectorLocation(IntVector v) {
+	public IntVectorLocation(BasicIntVector v) {
 		this.v = new IntArrVector(v.getIX(), v.getIY());
 	}
 	
@@ -60,16 +60,6 @@ public abstract class IntVectorLocation extends Location {
 	
 	public IntArrVector vector() {
 		return v;
-	}
-	
-	@Override
-	public final int getX() {
-		return vector().getIX();
-	}
-	
-	@Override
-	public final int getY() {
-		return vector().getIY();
 	}
 	
 	@Override
@@ -93,7 +83,7 @@ public abstract class IntVectorLocation extends Location {
 	 * @param v
 	 * @return This Location for chaining.
 	 */
-	public IntVectorLocation shift(IntVector v) {
+	public IntVectorLocation shift(BasicIntVector v) {
 		return shift(v.getIX(), v.getIY());
 	}
 	

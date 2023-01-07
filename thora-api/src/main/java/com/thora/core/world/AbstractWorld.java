@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import com.thora.core.math.IntVector;
+import com.thora.core.math.BasicIntVector;
 
 /**
  * A general plane of {@link Tile Tiles} in which physical entities exist and operate.
@@ -56,7 +56,7 @@ public abstract class AbstractWorld implements World {
 
 	protected abstract boolean doDeRegister(WorldEntity e);
 
-	public Location getLocation(IntVector v) {
+	public Location getLocation(BasicIntVector v) {
 		return getLocation(v.getIX(), v.getIY());
 	}
 

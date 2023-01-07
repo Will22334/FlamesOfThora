@@ -24,7 +24,7 @@ public abstract class Chunk implements RectangularRegion {
 	}
 	
 	@Override
-	public Rectangle getRectRegion() {
+	public WorldRectangle getRectRegion() {
 		return RectangularRegion.computeRect(getOrigin(), getWidth(), getHeight());
 	}
 	

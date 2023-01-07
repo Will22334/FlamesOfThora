@@ -7,7 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.ashley.core.PooledEngine;
-import com.thora.core.math.IntVector;
+import com.thora.core.math.BasicIntVector;
 import com.thora.core.world.TileGenerator.EmptyTileGenerator;
 
 public abstract class GeneralWorld extends AbstractWorld {
@@ -86,7 +86,7 @@ public abstract class GeneralWorld extends AbstractWorld {
 	}
 
 	@Override
-	public WeakVectorLocation<? extends GeneralWorld> getLocation(IntVector v) {
+	public WeakVectorLocation<? extends GeneralWorld> getLocation(BasicIntVector v) {
 		return new WeakVectorLocation<>(this, v);
 	}
 

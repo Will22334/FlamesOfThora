@@ -1,6 +1,8 @@
 package com.thora.core.math;
 
-public interface Vector<V extends Vector<V>> extends Cloneable {
+import java.util.Objects;
+
+public interface Vector extends Cloneable {
 
 	public static final double PI = Math.PI;
 	public static final double PI_2 = Math.PI / 2d;
@@ -19,6 +21,25 @@ public interface Vector<V extends Vector<V>> extends Cloneable {
 		if(a < 0)
 			a += PI2;
 		return a;
+	}
+	
+	public static Vector unmodifiable(Vector v, boolean failFast) {
+		Objects.requireNonNull(v, "Cannot make a null Vector immutable");
+		if(failFast) {
+			if(v instanceof FailFinalVector) {
+				return (FailFinalVector) v;
+			}
+			return new FailFinalVector(v);
+		} else {
+			if(v instanceof CloneFinalVector) {
+				return (CloneFinalVector)v;
+			}
+			return new CloneFinalVector(v);
+		}
+	}
+	
+	public static Vector unmodifiable(Vector v) {
+		return unmodifiable(v, false);
 	}
 	
 	/**
@@ -54,21 +75,21 @@ public interface Vector<V extends Vector<V>> extends Cloneable {
 	 * @param x the new X value
 	 * @return This Vector for chaining
 	 */
-	public V setX(double x);
+	public Vector setX(double x);
 
 	/**
 	 * Sets the Y value of this Vector.
 	 * @param x the new Y value
 	 * @return This Vector for chaining
 	 */
-	public V setY(double y);
+	public Vector setY(double y);
 
 	/**
 	 * Sets the X value of this Vector.
 	 * @param x the new X value
 	 * @return This Vector for chaining
 	 */
-	public default V setX(int x) {
+	public default Vector setX(int x) {
 		return setX((double)x);
 	}
 
@@ -77,10 +98,18 @@ public interface Vector<V extends Vector<V>> extends Cloneable {
 	 * @param x the new Y value
 	 * @return This Vector for chaining
 	 */
-	public default V setY(int y) {
+	public default Vector setY(int y) {
 		return setY((double)y);
 	}
-
+	
+	/**
+	 * Returns the length of this vector.
+	 * @return The vectors length
+	 */
+	public default double getLength() {
+		return Math.hypot(getX(), getY());
+	}
+	
 	/**
 	 * Returns the angle this Vector is facing relative to the origin.
 	 * The returned angle is in range of <i>(-Pi,Pi)<i>
@@ -91,32 +120,24 @@ public interface Vector<V extends Vector<V>> extends Cloneable {
 	}
 
 	/**
-	 * Returns the length of this vector.
-	 * @return The vectors length
-	 */
-	public default double getLength() {
-		return Math.hypot(getX(), getY());
-	}
-
-	/**
 	 * Scales this Vector by the passed ratio.
 	 * If this vector is == 0 then the resulting length and angle will be preserved.
 	 * @param s The ratio to scale this vector by
 	 * @return This Vector for chaining
 	 */
-	public default V scale(double s) {
+	public default Vector scale(double s) {
 		return setAs(s * getX(), s * getY());
 	}
 
-	public default V setLength(double r) {
+	public default Vector setLength(double r) {
 		return scale(r / getLength());
 	}
 
-	public default V setAngle(double a) {
+	public default Vector setAngle(double a) {
 		return setAsP(getLength(), a);
 	}
 
-	public default V rotate(double da) {
+	public default Vector rotate(double da) {
 		return setAngle(getAngle() + da);
 	}
 
@@ -126,7 +147,7 @@ public interface Vector<V extends Vector<V>> extends Cloneable {
 	 * @param y
 	 * @return
 	 */
-	public default V setAs(double x, double y) {
+	public default Vector setAs(double x, double y) {
 		return setX(x).setY(y);
 	}
 
@@ -136,7 +157,7 @@ public interface Vector<V extends Vector<V>> extends Cloneable {
 	 * @param a
 	 * @return
 	 */
-	public default V setAsP(double r, double a) {
+	public default Vector setAsP(double r, double a) {
 		a = Vector.polishAngle(a);
 		return setAs(r * Math.cos(a), r * Math.sin(a));
 	}
@@ -147,7 +168,7 @@ public interface Vector<V extends Vector<V>> extends Cloneable {
 	 * @param y
 	 * @return
 	 */
-	public default V setAs(int x, int y) {
+	public default Vector setAs(int x, int y) {
 		return setAs((double)x, (double)y);
 	}
 
@@ -158,7 +179,7 @@ public interface Vector<V extends Vector<V>> extends Cloneable {
 	 * @param v The Vector values to use
 	 * @return This Vecvtor after being altered for chaining.
 	 */
-	public default V setAs(Vector<?> v) {
+	public default Vector setAs(Vector v) {
 		return setAs(v.getX(), v.getY());
 	}
 
@@ -166,20 +187,42 @@ public interface Vector<V extends Vector<V>> extends Cloneable {
 	 * Sets this Vector's length to 0.
 	 * @return This now empty Vector for chaining
 	 */
-	public default V clear() {
-		return setAs(0d, 0d);
+	public default Vector clear() {
+		return setAs(0, 0);
 	}
-
+	
+	public default Vector add(double dx, double dy) {
+		return setAs(getX() + dx, getY() + dy);
+	}
+	
+	/**
+	 * Adds the given values(dx,dy) to this Vector.
+	 * @param dx the change in x
+	 * @param dy the change in y
+	 * @return This Vector for chaining
+	 */
+	public default Vector add(int dx, int dy) {
+		return setAs(getIX() + dx, getIY() + dy);
+	}
+	
 	/**
 	 * Adds the passed Vector to this one without altering the operand.
 	 * 
 	 * @param v Vector that will add onto this
 	 * @return The calling Vector after addition for chaining.
 	 */
-	public default V add(Vector<?> v) {
+	public default Vector add(Vector v) {
 		return setAs(getX() + v.getX(), getY() + v.getY());
 	}
-
+	
+	public default Vector subtract(double dx, double dy) {
+		return add(-dx, -dy);
+	}
+	
+	public default Vector subtract(int dx, int dy) {
+		return add(-dx, -dy);
+	}
+	
 	/**
 	 * Subtracts the passed Vector to this one without altering the operand.
 	 * This is mathematically equivalent to adding the negation of the argument.
@@ -187,57 +230,63 @@ public interface Vector<V extends Vector<V>> extends Cloneable {
 	 * @param v Vector that will add onto this
 	 * @return The calling Vector after subtraction for chaining.
 	 */
-	public default V subtract(Vector<?> v) {
+	public default Vector subtract(Vector v) {
 		return setAs(getX() - v.getX(), getY() - v.getY());
 	}
-
+	
 	/**
 	 * Turn this vector into it's opposite.
-	 * This can be viewed as either fliping it through the Z-axis in 2d
+	 * This can be viewed as either fliping it through the Z-axis in 3d
 	 * or simply rotating the Vector 180 degrees.
 	 * 
 	 * @return This Vector after being flipped.
 	 * 
 	 * @note If this Vector's length is == 0 then the behavior of the resulting angle is undetermined.
 	 */
-	public default V negate() {
+	public default Vector negate() {
 		return scale(-1d);
 	}
 
-	public default Vector<V> putComps(double[] arr, int index) {
+	public default Vector putComps(double[] arr, int index) {
 		arr[index] = getX();
 		arr[index + 1] = getY();
 		return this;
 	}
 
-	public default Vector<V> putComps(double[] arr) {
+	public default Vector putComps(double[] arr) {
 		return putComps(arr, 0);
 	}
 
-	public default Vector<V> putComps(int[] arr, int index) {
+	public default Vector putComps(int[] arr, int index) {
 		arr[index] = getIX();
 		arr[index + 1] = getIY();
 		return this;
 	}
 
-	public default Vector<V> putComps(int[] arr) {
+	public default Vector putComps(int[] arr) {
 		return putComps(arr, 0);
 	}
 
-	public default Vector<V> putCompsP(double[] arr, int index) {
+	public default Vector putCompsP(double[] arr, int index) {
 		arr[index] = getLength();
 		arr[index + 1] = getAngle();
 		return this;
 	}
 
-	public default Vector<V> putCompsP(double[] arr) {
+	public default Vector putCompsP(double[] arr) {
 		return putCompsP(arr, 0);
 	}
 
 	public default boolean isZero() {
 		return getLength() == 0;
 	}
-
-	public V clone() throws CloneNotSupportedException;
+	
+	public default boolean isMutable() {
+		return true;
+	}
+	
+	public boolean isInteger();
+	
+	public Vector clone();
 
 }

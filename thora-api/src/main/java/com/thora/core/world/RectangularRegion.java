@@ -1,6 +1,5 @@
 package com.thora.core.world;
 
-import java.awt.Rectangle;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -14,14 +13,14 @@ import java.util.stream.Stream;
  */
 public interface RectangularRegion extends KnownRegion {
 	
-	public static Rectangle computeRect(Locatable origin, int width, int height) {
-		return new Rectangle(origin.getX(), origin.getY(), width, height);
+	public static WorldRectangle computeRect(Locatable origin, int width, int height) {
+		return new WorldRectangle(origin.getLocation(), width, height);
 	}
 	
-	public Rectangle getRectRegion();
+	public WorldRectangle getRectRegion();
 	
 	public default long getSurfaceArea() {
-		Rectangle r = getRectRegion();
+		WorldRectangle r = getRectRegion();
 		return (long)(r.getWidth() * r.getHeight());
 	}
 	
@@ -33,13 +32,14 @@ public interface RectangularRegion extends KnownRegion {
 
 	@Override
 	default Stream<Location> points() {
-		final Rectangle rect = getRectRegion();
-		return IntStream.rangeClosed(rect.y, rect.y + rect.height)
+		final WorldRectangle r = getRectRegion();
+		return IntStream.rangeClosed(r.getMinY(), r.getMaxY())
 				.mapToObj(y -> {
-					return IntStream.rangeClosed(rect.x, rect.x + rect.width)
+					return IntStream.rangeClosed(r.getMinX(), r.getMaxX())
 							.mapToObj(x -> new WeakVectorLocation<>(x, y));
 				})
 				.flatMap(Function.identity());
+		
 	}
 	
 }

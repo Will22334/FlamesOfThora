@@ -1,6 +1,6 @@
 package com.thora.core.math;
 
-public class PolarVector implements Vector<PolarVector> {
+public class PolarVector implements Vector {
 
 	private double r, a;
 
@@ -9,7 +9,7 @@ public class PolarVector implements Vector<PolarVector> {
 		this.a = a;
 	}
 
-	public PolarVector(Vector<?> v) {
+	public PolarVector(Vector v) {
 		this(v.getLength(), v.getAngle());
 	}
 
@@ -100,6 +100,11 @@ public class PolarVector implements Vector<PolarVector> {
 	@Override
 	public PolarVector clone() {
 		return new PolarVector(getLength(), getAngle());
+	}
+
+	@Override
+	public boolean isInteger() {
+		return false;
 	}
 
 }

@@ -30,16 +30,6 @@ public abstract class DoubleArrLocation extends Location {
 		}
 
 		@Override
-		public int getX() {
-			return v.getIX();
-		}
-
-		@Override
-		public int getY() {
-			return v.getIY();
-		}
-
-		@Override
 		public DoubleArrRefLocation<W> setAs(int x, int y) {
 			this.v.setAs(x, y);
 			return this;
@@ -72,18 +62,8 @@ public abstract class DoubleArrLocation extends Location {
 		this(new double[] {x, y});
 	}
 
-	@Override
-	public int getX() {
-		return (int) Math.round(getRX());
-	}
-
 	public double getRX() {
 		return comps[0];
-	}
-
-	@Override
-	public int getY() {
-		return (int) Math.round(getRY());
 	}
 
 	public double getRY() {

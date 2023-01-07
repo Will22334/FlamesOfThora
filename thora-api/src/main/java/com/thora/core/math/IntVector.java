@@ -1,124 +1,90 @@
 package com.thora.core.math;
 
-public class IntVector implements Vector<IntVector> {
-	
-	protected int x, y;
-	
-	IntVector(int[] comps) {
-		this(comps[0], comps[1]);
-	}
-	
-	public IntVector(int x, int y) {
-		this.x = x;
-		this.y = y;
-	}
-	
-	public IntVector() {
-		this(0, 0);
-	}
-	
-	public int getIX() {
-		return x;
-	}
-	
-	public int getIY() {
-		return y;
-	}
-	
-	public IntVector setX(int x) {
-		this.x = x;
-		return this;
-	}
-	
-	public IntVector setY(int x) {
-		this.x = x;
-		return this;
-	}
-	
+public interface IntVector extends Vector {
+
 	@Override
-	public IntVector setX(double x) {
-		this.x = (int) Math.round(x);
-		return this;
+	int getIX();
+
+	@Override
+	int getIY();
+
+	@Override
+	IntVector setX(int x);
+
+	@Override
+	IntVector setY(int y);
+
+	@Override
+	default double getX() {
+		return getIX();
 	}
 
 	@Override
-	public IntVector setY(double y) {
-		this.y = (int) Math.round(y);
-		return this;
+	default double getY() {
+		return getIY();
+	}
+
+	@Override
+	default IntVector setX(double x) {
+		return setX((int)x);
+	}
+
+	@Override
+	default IntVector setY(double y) {
+		return setY((int)y);
+	}
+
+	@Override
+	default IntVector setAs(int x, int y) {
+		return setX(x).setY(y);
+	}
+
+	@Override
+	default IntVector setAs(double x, double y) {
+		return setAs((int)x, (int)y);
 	}
 	
-	public IntVector setAs(int x, int y) {
-		this.x = x;
-		this.y = y;
-		return this;
-	}
-	
-	public IntVector setAs(IntVector v) {
+	@Override
+	default IntVector setAs(Vector v) {
 		return setAs(v.getIX(), v.getIY());
 	}
 	
-	public IntVector shift(int dx, int dy) {
+	@Override
+	default IntVector add(double dx, double dy) {
+		return add((int)dx, (int)dy);
+	}
+
+	@Override
+	default IntVector add(int dx, int dy) {
 		return setAs(getIX() + dx, getIY() + dy);
 	}
-	
-	public final int maxRectLength() {
-		return Math.max(Math.abs(x), Math.abs(y));
-	}
-	
-	public final boolean isZero() {
-		return equals(0,0);
-	}
-	
-	public IntVector clear() {
-		x = y = 0;
-		return this;
-	}
-	
+
 	@Override
-	public int hashCode() {
-		return 31 * (31 + x) + y;
-	}
-	
-	@Override
-	public boolean equals(Object o) {
-		if(o == null) return false;
-		if(this == o) return true;
-		if(o instanceof IntVector) {
-			IntVector v = (IntVector) o;
-			return x == v.x && y == v.y;
-		}
-		return false;
-	}
-	
-	public boolean equals(int x, int y) {
-		return this.x == x && this.y == y;
-	}
-	
-	@Override
-	public IntVector clone() {
-		return new IntVector(x, y);
-	}
-	
-	@Override
-	public String toString() {
-		return "[" + x + ", " + y + "]";
+	default IntVector add(Vector v) {
+		return add(v.getIX(), v.getIY());
 	}
 
 	@Override
-	public double getX() {
-		return x;
+	default IntVector subtract(double dx, double dy) {
+		return add((int)-dx, (int)-dy);
 	}
 
 	@Override
-	public double getY() {
-		return y;
+	default IntVector subtract(int dx, int dy) {
+		return add(-dx, -dy);
 	}
 
 	@Override
-	public IntVector setAs(double x, double y) {
-		this.x = (int) Math.round(x);
-		this.y = (int) Math.round(y);
-		return this;
+	default IntVector subtract(Vector v) {
+		return subtract(v.getIX(), v.getIY());
 	}
 	
+	@Override
+	default boolean isInteger() {
+		return true;
+	}
+
+	@Override
+	IntVector clone();
+
 }

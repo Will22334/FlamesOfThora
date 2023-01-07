@@ -132,8 +132,8 @@ public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 	}
 	
 	@Override
-	public Rectangle getRectRegion() {
-		return new Rectangle(getOrigin().getX(), getOrigin().getY(), width(), height());
+	public WorldRectangle getRectRegion() {
+		return new WorldRectangle(getOrigin().getLocation(), width(), height());
 	}
 	
 	private Stream<Tile> tilesInternal(int minX, int minY, int maxX, int maxY) {

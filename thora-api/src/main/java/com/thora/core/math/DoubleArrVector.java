@@ -2,7 +2,7 @@ package com.thora.core.math;
 
 import java.util.Arrays;
 
-public class DoubleArrVector implements Vector<DoubleArrVector> {
+public class DoubleArrVector implements DoubleVector {
 	
 	protected final double[] comps;
 	

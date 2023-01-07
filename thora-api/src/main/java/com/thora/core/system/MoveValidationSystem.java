@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.thora.core.FlamesOfThora;
-import com.thora.core.math.IntVector;
+import com.thora.core.math.BasicIntVector;
 import com.thora.core.world.MovableComponent;
 import com.thora.core.world.MoveRequestComponent;
 
@@ -32,7 +32,7 @@ public class MoveValidationSystem extends IteratingSystem {
 		return movableM.has(entity);
 	}
 	
-	protected boolean isValid(IntVector v) {
+	protected boolean isValid(BasicIntVector v) {
 		return v.maxRectLength() == 1;
 	}
 	
