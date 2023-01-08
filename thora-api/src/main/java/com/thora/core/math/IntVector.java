@@ -79,6 +79,10 @@ public interface IntVector extends Vector {
 		return subtract(v.getIX(), v.getIY());
 	}
 	
+	public default int[] comps() {
+		return new int[] {getIX(), getIY()};
+	}
+	
 	@Override
 	default boolean isInteger() {
 		return true;

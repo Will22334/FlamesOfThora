@@ -20,7 +20,7 @@ public interface Tile extends Locatable {
 	
 	@Override
 	public default boolean isInWalkingRange(Locatable l, double walkRange) {
-		return getWalkingDistance(l) <= walkRange;
+		return getOrthogonallDistance(l) <= walkRange;
 	}
 	
 	public default Predicate<Tile> inWalkingRangePred(double walkRange) {

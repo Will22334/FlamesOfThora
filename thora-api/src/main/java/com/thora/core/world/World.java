@@ -16,8 +16,8 @@ public interface World extends HasLogger {
 		return getTile(loc.getLocation());
 	}
 	
-	public default Tile getTile(Location l) {
-		return getTile(l.getX(), l.getY());
+	public default Tile getTile(Location point) {
+		return getTile(point.getX(), point.getY());
 	}
 	
 	/**

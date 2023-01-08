@@ -1,10 +1,15 @@
 package com.thora.core.world;
 
-public class WorldRectangle {
+import java.util.Objects;
+
+public class WorldRectangle implements RectangularRegion {
 	
 	private Location bottomLeft, topRight;
 	
 	WorldRectangle(Location bottomLeft, Location topRight) {
+		if(!bottomLeft.sameWorld(topRight)) {
+			throw new IllegalArgumentException("Cannot create " + getClass().getSimpleName() + " with Locations in different Worlds");
+		}
 		this.bottomLeft = bottomLeft;
 		this.topRight = topRight;
 	}
@@ -20,6 +25,16 @@ public class WorldRectangle {
 	
 	public Location getTopRight() {
 		return topRight;
+	}
+	
+	@Override
+	public WorldRectangle getRectRegion() {
+		return this;
+	}
+
+	@Override
+	public World getWorld() {
+		return bottomLeft.getWorld();
 	}
 	
 	public int getX() {
@@ -54,7 +69,16 @@ public class WorldRectangle {
 		return topRight.getY();
 	}
 	
-	boolean contains(int x, int y) {
+	@Override
+	public boolean contains(Locatable loc) {
+		Objects.requireNonNull(loc, "WorldRectangle cannot check contains on Location with null World");
+		if(!getWorld().equals(loc.getWorld())) {
+			return false;
+		}
+		return contains(loc.getX(), loc.getY());
+	}
+	
+	public boolean contains(int x, int y) {
 		return x >= getMinX() && x <= getMaxX()
 				&& y >= getMinY() && y <= getMaxY();
 	}

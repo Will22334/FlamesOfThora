@@ -263,7 +263,7 @@ public abstract class HashChunkWorld extends GeneralWorld {
 	public Stream<HashChunk.CTile> surroundingTiles(Locatable center, int range) {
 		return surroundingChunks(center, 1)
 				.flatMap(HashChunk::tiles)
-				.filter(t -> center.getWalkingDistance(t) <= range);
+				.filter(t -> center.getOrthogonallDistance(t) <= range);
 	}
 	
 	public Stream<HashChunk.CTile> surroundingTiles(Locatable center) {

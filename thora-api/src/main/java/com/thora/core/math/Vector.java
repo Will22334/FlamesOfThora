@@ -246,7 +246,7 @@ public interface Vector extends Cloneable {
 	public default Vector negate() {
 		return scale(-1d);
 	}
-
+	
 	public default Vector putComps(double[] arr, int index) {
 		arr[index] = getX();
 		arr[index + 1] = getY();

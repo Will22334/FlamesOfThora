@@ -1,6 +1,6 @@
 package com.thora.core.world;
 
-import com.thora.core.math.BasicIntVector;
+import com.thora.core.math.IntVector;
 import com.thora.core.math.Vector;
 
 public abstract class Location implements Locatable, Cloneable {
@@ -9,8 +9,14 @@ public abstract class Location implements Locatable, Cloneable {
 		
 	}
 	
-	public abstract AbstractWorld getWorld();
+	@Override
+	public abstract World getWorld();
 	
+	/**
+	 * Returns a {@link Vector} that represents the position of this {@link Location}
+	 * in a particular {@link World} relative the worlds origin.
+	 * @return Vector representation of this Location
+	 */
 	public abstract Vector asVector();
 	
 	@Override
@@ -25,7 +31,9 @@ public abstract class Location implements Locatable, Cloneable {
 	
 	public abstract Location setAs(int x, int y);
 	
-	public abstract double[] comps();
+	public double[] comps() {
+		return new double[] {asVector().getX(), asVector().getY()};
+	}
 	
 	public Location comps(double[] arr, int index) {
 		arr[index] = getX();
@@ -42,8 +50,8 @@ public abstract class Location implements Locatable, Cloneable {
 		return this;
 	}
 	
-	public final int getTileDistance(Location p) {
-		return Math.max(Math.abs((p.getX() - getX())), Math.abs((p.getY() - getY())));
+	public final int getOrthogonallDistance(Location p) {
+		return Math.abs((p.getX() - getX())) + Math.abs((p.getY() - getY()));
 	}
 	
 	public final double getDistance(Location p) {
@@ -78,7 +86,7 @@ public abstract class Location implements Locatable, Cloneable {
 	 * @param v
 	 * @return This Location for chaining.
 	 */
-	public Location shift(BasicIntVector v) {
+	public Location shift(IntVector v) {
 		return shift(v.getIX(), v.getIY());
 	}
 	

@@ -27,9 +27,12 @@ public interface RectangularRegion extends KnownRegion {
 	@Override
 	public default boolean contains(Locatable loc) {
 		if(loc == null) return false;
+		if(!getRectRegion().getWorld().equals(loc.getWorld())) {
+			return false;
+		}
 		return getRectRegion().contains(loc.getX(), loc.getY());
 	}
-
+	
 	@Override
 	default Stream<Location> points() {
 		final WorldRectangle r = getRectRegion();

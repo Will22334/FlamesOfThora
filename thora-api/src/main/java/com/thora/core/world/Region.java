@@ -5,7 +5,7 @@ package com.thora.core.world;
  * @author Dave
  *
  */
-public interface Region {
+public interface Region extends HasWorld {
 	
 	/**
 	 * Returns {@code true} if the given {@link Locatable} is inside this Region.

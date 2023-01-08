@@ -1,11 +1,11 @@
 package com.thora.core.world;
 
-import java.awt.Rectangle;
 import java.util.stream.Stream;
 
 public abstract class Chunk implements RectangularRegion {
 	
-	public abstract AbstractWorld getWorld();
+	@Override
+	public abstract World getWorld();
 	
 	public abstract Location getOrigin();
 	

@@ -3,11 +3,12 @@ package com.thora.core.world;
 import java.lang.ref.WeakReference;
 
 import com.thora.core.math.IntArrVector;
+import com.thora.core.math.IntVector;
 import com.thora.core.math.BasicIntVector;
 
 public abstract class IntVectorLocation extends Location {
 	
-	public static class IntVectorRefLocation<W extends AbstractWorld> extends IntVectorLocation {
+	public static class IntVectorRefLocation<W extends World> extends IntVectorLocation {
 		
 		private WeakReference<W> worldRef;
 		
@@ -20,7 +21,7 @@ public abstract class IntVectorLocation extends Location {
 			this(null, x, y);
 		}
 
-		public IntVectorRefLocation(W world, IntArrVector v) {
+		public IntVectorRefLocation(W world, IntVector v) {
 			super(v);
 			this.worldRef = new WeakReference<>(world);
 		}
@@ -42,23 +43,20 @@ public abstract class IntVectorLocation extends Location {
 		
 	}
 	
-	protected IntArrVector v;
+	protected IntVector v;
 	
 	public IntVectorLocation(int x, int y) {
 		this(new IntArrVector(x, y));
 	}
 	
-	public IntVectorLocation(IntArrVector v) {
+	public IntVectorLocation(IntVector v) {
 		this.v = v;
 	}
 	
-	public IntVectorLocation(BasicIntVector v) {
-		this.v = new IntArrVector(v.getIX(), v.getIY());
-	}
+	@Override
+	public abstract World getWorld();
 	
-	public abstract AbstractWorld getWorld();
-	
-	public IntArrVector vector() {
+	public IntVector vector() {
 		return v;
 	}
 	
@@ -92,10 +90,8 @@ public abstract class IntVectorLocation extends Location {
 		return this.setAs(getX() + dx, getY() + dy);
 	}
 	
-	
-	
 	@Override
-	public IntArrVector asVector() {
+	public IntVector asVector() {
 		return vector();
 	}
 

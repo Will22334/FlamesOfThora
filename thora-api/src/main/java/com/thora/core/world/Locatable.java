@@ -1,5 +1,7 @@
 package com.thora.core.world;
 
+import java.util.Objects;
+
 import com.badlogic.ashley.core.Entity;
 
 /**
@@ -8,7 +10,7 @@ import com.badlogic.ashley.core.Entity;
  * @author Dave
  *
  */
-public interface Locatable {
+public interface Locatable extends HasWorld {
 	
 	public static Locatable getComp(Entity e) {
 		return LocationComponent.MAPPER.get(e);
@@ -16,6 +18,7 @@ public interface Locatable {
 	
 	public Location getLocation();
 	
+	@Override
 	public default World getWorld() {
 		return getLocation().getWorld();
 	}
@@ -32,8 +35,8 @@ public interface Locatable {
 		return getLocation().getY();
 	}
 	
-	public default int getWalkingDistance(Locatable loc) {
-		return getLocation().getTileDistance(loc.getLocation());
+	public default int getOrthogonallDistance(Locatable loc) {
+		return getLocation().getOrthogonallDistance(loc.getLocation());
 	}
 	
 	public default double getDistance(Locatable loc) {

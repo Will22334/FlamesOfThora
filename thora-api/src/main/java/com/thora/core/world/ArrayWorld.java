@@ -228,5 +228,10 @@ public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public ArrayWorld getWorld() {
+		return this;
+	}
 	
 }
