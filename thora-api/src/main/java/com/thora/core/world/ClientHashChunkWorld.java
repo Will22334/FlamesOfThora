@@ -29,6 +29,11 @@ public class ClientHashChunkWorld extends HashChunkWorld {
 		super(name, origin, chunkWidth, chunkHeight, engine, generator);
 	}
 	
+	public ClientHashChunkWorld(String name, int chunkWidth, int chunkHeight,
+			PooledEngine engine, TileGenerator generator) {
+		super(name, chunkWidth, chunkHeight, engine, generator);
+	}
+	
 	@Override
 	protected Material generate(Locatable loc) {
 		return Material.VOID;
@@ -71,7 +76,5 @@ public class ClientHashChunkWorld extends HashChunkWorld {
 		}
 		return false;
 	}
-	
-	
 	
 }

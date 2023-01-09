@@ -173,6 +173,13 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		this.chunkHeight = chunkHeight;
 	}
 	
+	public HashChunkWorld(String name, int chunkWidth, int chunkHeight, PooledEngine engine, TileGenerator generator) {
+		super(name, engine, generator);
+		
+		this.chunkWidth = chunkWidth;
+		this.chunkHeight = chunkHeight;
+	}
+	
 	@Override
 	public Logger logger() {
 		return logger;
@@ -307,5 +314,10 @@ public abstract class HashChunkWorld extends GeneralWorld {
 	protected abstract boolean doRegister(WorldEntity e);
 	
 	protected abstract boolean doDeRegister(WorldEntity e);
+	
+	@Override
+	public Tile setTile(Location point, TileData data) {
+		return setTile(data.material(), point);
+	}
 	
 }

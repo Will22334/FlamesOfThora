@@ -23,7 +23,9 @@ public abstract class ThoraCodec extends PodCodec<ThoraMessage> {
 	public static final int OPCODE_SERVER_CHAT_MESSAGE = 2;
 	public static final int OPCODE_CLIENT_CHAT_MESSAGE = 2;
 	
-	public static final int OPCODE_CLIENT_TILE_INFORM = 3;
+	public static final int OPCODE_CLIENT_WORLD_INFORM = 3;
+	
+	public static final int OPCODE_CLIENT_TILE_INFORM = 4;
 	
 	public ThoraCodec(Logger logger) {
 		super(logger);

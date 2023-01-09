@@ -201,6 +201,19 @@ public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 	}
 	
 	@Override
+	public ATile setTile(Location point, TileData data) {
+		int ix = ix(point.getX()), iy = iy(point.getY());
+		ATile tile = getTileInternal(ix, iy);
+		if(tile == null) {
+			tile = new ATile(data.material(), point);
+			tiles[iy][ix] = tile;
+		} else {
+			tile.setMaterial(data.material());
+		}
+		return tile;
+	}
+	
+	@Override
 	public Stream<? extends Tile> tiles() {
 		// TODO Auto-generated method stub
 		return null;

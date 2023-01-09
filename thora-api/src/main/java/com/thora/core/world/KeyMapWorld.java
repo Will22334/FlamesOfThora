@@ -111,5 +111,10 @@ public class KeyMapWorld extends GeneralWorld {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public Tile setTile(Location point, TileData data) {
+		return setTile(data.material(), point);
+	}
 	
 }

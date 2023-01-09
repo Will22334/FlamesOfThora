@@ -8,6 +8,7 @@ import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
 import com.thora.core.net.message.ThoraMessage;
+import com.thora.core.net.message.WorldDefinitionMessage;
 import com.thora.core.net.netty.PodHandler;
 import com.thora.core.world.Location;
 import com.thora.core.world.WeakVectorLocation;
@@ -39,17 +40,21 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 	private final class LoginRequestHandler extends MessageConsumer<LoginRequestMessage> {
 		@Override
 		public void consume(ChannelHandlerContext ctx, LoginRequestMessage message) {
-			ClientSession session = ClientSession.get(ctx);
+			final ClientSession session = ClientSession.get(ctx);
 			logger().atLevel(Level.TRACE).log("Received login request = {}", message);
 			session.generateSymmetricCipher(server.publicKey(), message.sessionKey, message.timeStamp);
 			
 			LoginResponseMessage response = new LoginResponseMessage(true, "Successfully logged in!");
 			ChannelFuture cf = session.rawChannel().writeAndFlush(response);
 			if(response.isAccepted()) {
-				World w = server().getWorld();
-				Location l = new WeakVectorLocation<>(w,0,0);
-				PlayerEntity p = new PlayerEntity(message.username, l);
+				final World w = server().getWorld();
+				final Location l = new WeakVectorLocation<>(w,0,0);
+				final PlayerEntity p = new PlayerEntity(message.username, l);
 				w.register(p);
+				
+				
+				
+				session.write(new WorldDefinitionMessage(w));
 				
 				w.surroundingTiles(p)
 				.forEach(t -> session.write(BasicTileMessage.createSingle(t)));

@@ -309,4 +309,9 @@ public class QuadTreeWorld extends AbstractWorld {
 		return null;
 	}
 
+	@Override
+	public Tile setTile(Location point, TileData data) {
+		return setTile(data.material(), point);
+	}
+
 }

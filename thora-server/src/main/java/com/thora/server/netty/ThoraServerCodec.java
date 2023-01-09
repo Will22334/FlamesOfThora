@@ -11,9 +11,11 @@ import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
+import com.thora.core.net.message.WorldDefinitionMessage;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.ThoraCodec;
 import com.thora.core.world.TileData;
+import com.thora.core.world.World;
 import com.thora.server.ThoraServer;
 
 import io.netty.buffer.ByteBuf;
@@ -39,13 +41,15 @@ public class ThoraServerCodec extends ThoraCodec {
 	
 	@Override
 	protected void populate() {
+		
 		addDecoder(new LoginRequestDecoder());
 		addDecoder(new ChatMessageDecoder());
 		
+		
 		addEncoder(new LoginResponseEncoder());
 		addEncoder(new ChatMessageEncoder());
+		addEncoder(new WorldDefMessageEncoder());
 		addEncoder(new TileMessageEncoder());
-		
 		
 	}
 	
@@ -66,8 +70,8 @@ public class ThoraServerCodec extends ThoraCodec {
 				EncodingUtils.decryptOther(buf, encBuf, session.getCryptoCreds().getAssymetric().getDecryptCipher());
 				long sessionKey = buf.readLong();
 				long timeStamp = buf.readLong();
-				String username = EncodingUtils.readVarString(buf);
-				String password = EncodingUtils.readVarString(buf);
+				String username = EncodingUtils.readByteString(buf);
+				String password = EncodingUtils.readByteString(buf);
 				return new LoginRequestMessage(username, password, sessionKey, timeStamp);
 			} catch (IllegalBlockSizeException | BadPaddingException e) {
 				throw new IOException(e);
@@ -85,7 +89,7 @@ public class ThoraServerCodec extends ThoraCodec {
 		@Override
 		public void encodePlain(ChannelHandlerContext ctx, LoginResponseMessage packet, ByteBuf buf) {
 			buf.writeBoolean(packet.isAccepted());
-			EncodingUtils.writeVarString(packet.getReason(), buf);
+			EncodingUtils.writeString(packet.getReason(), buf);
 		}
 	}
 	
@@ -96,7 +100,7 @@ public class ThoraServerCodec extends ThoraCodec {
 
 		@Override
 		public void encodePlain(ChannelHandlerContext ctx, ChatMessage packet, ByteBuf buf) {
-			EncodingUtils.writeVarString(packet.message, buf);
+			EncodingUtils.writeString(packet.message, buf);
 		}
 	}
 	
@@ -108,8 +112,21 @@ public class ThoraServerCodec extends ThoraCodec {
 
 		@Override
 		protected ChatMessage decodePlain(ChannelHandlerContext ctx, ByteBuf buf) {
-			String text = EncodingUtils.readVarString(buf);
+			String text = EncodingUtils.readString(buf);
 			return new ChatMessage(text);
+		}
+		
+	}
+	
+	public class WorldDefMessageEncoder extends MessageEncoder<WorldDefinitionMessage> {
+		protected WorldDefMessageEncoder() {
+			super(OPCODE_CLIENT_WORLD_INFORM);
+		}
+
+		@Override
+		public void encode(ChannelHandlerContext ctx, WorldDefinitionMessage msg, ByteBuf buf) {
+			final World world = msg.world();
+			EncodingUtils.writeString(world.getName(), buf);
 		}
 		
 	}

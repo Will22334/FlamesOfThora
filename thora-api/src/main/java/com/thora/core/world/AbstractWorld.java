@@ -18,15 +18,15 @@ import com.thora.core.math.BasicIntVector;
  *
  */
 public abstract class AbstractWorld implements World {
-
-	protected int nextID = 0;
+	
+	protected int nextEntityID = 0;
 
 	protected synchronized int nextEntityID() {
-		return nextID++;
+		return nextEntityID++;
 	}
 
 	public AbstractWorld() {
-
+		
 	}
 
 	@Override

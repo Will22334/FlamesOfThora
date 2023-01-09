@@ -12,5 +12,10 @@ public class FinalTileData implements TileData {
 	public final Material material() {
 		return material;
 	}
-
+	
+	@Override
+	public String toString() {
+		return material().toString();
+	}
+	
 }

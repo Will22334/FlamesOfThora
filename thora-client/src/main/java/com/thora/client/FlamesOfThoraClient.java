@@ -26,7 +26,6 @@ import com.thora.client.state.StateManager;
 import com.thora.core.HasLogger;
 import com.thora.core.Utils;
 import com.thora.core.net.netty.EncodingUtils;
-import com.thora.core.world.AbstractWorld;
 import com.thora.core.world.ClientHashChunkWorld;
 import com.thora.core.world.Pole;
 import com.thora.core.world.World;
@@ -82,6 +81,13 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 		return world;
 	}
 	
+	public void setWorld(World world) {
+		if(this.world != null) {
+			this.world.dispose();
+		}
+		this.world = world;
+	}
+	
 	//Initiate the States
 	public void initializeStates() {
 		States.addStateToList(new MenuState(this, "Menu State", MENUSTATEID));
@@ -133,7 +139,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 		
 		logger().debug("World Backend: {}", world.getClass().getSimpleName());
 		
-		this.network = new NettyNetworkManager(IO_WORKER_THREADS, serverIdentity, this.publicEncCipher);
+		this.network = new NettyNetworkManager(this, IO_WORKER_THREADS, serverIdentity, this.publicEncCipher);
 		
 		States.setActiveState(MENUSTATEID);
 		

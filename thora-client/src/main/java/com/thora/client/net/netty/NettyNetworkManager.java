@@ -11,6 +11,7 @@ import javax.crypto.Cipher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.thora.client.FlamesOfThoraClient;
 import com.thora.core.net.LoginTransaction;
 import com.thora.core.net.NetworkSession;
 import com.thora.core.net.message.LoginRequestMessage;
@@ -61,6 +62,7 @@ public class NettyNetworkManager {
 	private final Cipher publicEncCipher;
 	
 	
+	private FlamesOfThoraClient client;
 	private Bootstrap bootstrap = null;
 	protected EventLoopGroup workerGroup = null;
 	protected final int workerIOThreads;
@@ -72,19 +74,24 @@ public class NettyNetworkManager {
 	protected Promise<LoginTransaction> loginPromise;
 	protected LoginTransaction loginTransaction;
 	
-	public NettyNetworkManager(int workerIOThreads, PublicKey serverIdentity, Cipher publicEncCipher) {
+	public NettyNetworkManager(FlamesOfThoraClient client, int workerIOThreads, PublicKey serverIdentity, Cipher publicEncCipher) {
 		super();
+		this.client = client;
 		this.serverIdentity = serverIdentity;
 		this.publicEncCipher = publicEncCipher;
 		this.workerIOThreads = workerIOThreads;
 	}
 	
-	public NettyNetworkManager(int workerIOThreads, PublicKey serverIdentity) {
-		this(workerIOThreads, serverIdentity, EncodingUtils.generateCipher(serverIdentity));
+	public NettyNetworkManager(FlamesOfThoraClient client, int workerIOThreads, PublicKey serverIdentity) {
+		this(client, workerIOThreads, serverIdentity, EncodingUtils.generateCipher(serverIdentity));
 	}
 	
 	public Logger logger() {
 		return logger;
+	}
+	
+	public FlamesOfThoraClient client() {
+		return client;
 	}
 	
 	protected final PublicKey getServerIdentity() {

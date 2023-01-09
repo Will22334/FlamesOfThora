@@ -6,9 +6,10 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.badlogic.gdx.utils.Disposable;
 import com.thora.core.HasLogger;
 
-public interface World extends HasWorld, HasLogger {
+public interface World extends HasWorld, Disposable, HasLogger {
 	
 	public String getName();
 	
@@ -34,6 +35,10 @@ public interface World extends HasWorld, HasLogger {
 	public Tile getTile(int x, int y);
 	
 	public Stream<? extends Tile> tiles();
+	
+	
+	public Tile setTile(Location point, TileData data);
+	
 	
 	public Stream<? extends WorldEntity> entities();
 	
@@ -112,6 +117,11 @@ public interface World extends HasWorld, HasLogger {
 				tiles[y][x] = getTile(x, y);
 			}
 		}
+	}
+	
+	@Override
+	public default void dispose() {
+		
 	}
 	
 }
