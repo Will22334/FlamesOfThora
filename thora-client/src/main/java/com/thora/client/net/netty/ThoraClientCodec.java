@@ -1,4 +1,4 @@
-package com.thora.core.net.netty;
+package com.thora.client.net.netty;
 
 import java.io.IOException;
 
@@ -11,7 +11,10 @@ import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
+import com.thora.core.net.netty.EncodingUtils;
+import com.thora.core.net.netty.ThoraCodec;
 import com.thora.core.world.BasicTileData;
+import com.thora.core.world.Location;
 import com.thora.core.world.Material;
 import com.thora.core.world.TileData;
 
@@ -44,6 +47,7 @@ public class ThoraClientCodec extends ThoraCodec {
 		
 		this.addDecoder(new LoginResponseDecoder());
 		this.addDecoder(new ChatMessageDecoder());
+		this.addDecoder(new TileMessageDecoder());
 	}
 	
 	public class LoginRequestEncoder extends MessageEncoder<LoginRequestMessage> {
@@ -111,13 +115,20 @@ public class ThoraClientCodec extends ThoraCodec {
 	public class TileMessageDecoder extends MessageDecoder<BasicTileMessage> {
 
 		protected TileMessageDecoder() {
-			super(OPCODE_SERVER_LOGIN_REQUEST);
+			super(OPCODE_CLIENT_TILE_INFORM);
 		}
 
 		@Override
 		public BasicTileMessage decode(ChannelHandlerContext ctx, ByteBuf buf) throws IOException {
-			ThoraCodec.read2DLocation(null, buf);
-			return null;
+			Location point = ThoraCodec.read2DLocation(null, buf);
+			final boolean isGroup = buf.readBoolean();
+			if(isGroup) {
+				TileData[][] data = EncodingUtils.decode2DObjectArrayNoIndex(buf, TileData.class, ThoraClientCodec::decodeTileData);
+				return BasicTileMessage.createRegion(point, data);
+			} else {
+				TileData data = decodeTileData(buf);
+				return BasicTileMessage.createSingle(point, data);
+			}
 		}
 		
 	}

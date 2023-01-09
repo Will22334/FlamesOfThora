@@ -33,11 +33,6 @@ public class WeakVectorLocation<W extends World> extends IntVectorLocation {
 		this(null, x, y);
 	}
 	
-	WeakVectorLocation<W> setWorld(W world) {
-		this.worldRef = new WeakReference<>(world);
-		return this;
-	}
-	
 	@Override
 	public W getWorld() {
 		return worldRef.get();

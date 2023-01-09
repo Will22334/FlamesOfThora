@@ -1,10 +1,14 @@
 package com.thora.core.net.netty;
 
+import java.util.function.Function;
+
 import org.apache.logging.log4j.Logger;
 
-import com.thora.core.math.BasicIntVector;
+import com.thora.core.math.IntVector;
 import com.thora.core.net.message.ThoraMessage;
 import com.thora.core.world.Location;
+import com.thora.core.world.WeakVectorLocation;
+import com.thora.core.world.World;
 
 import io.netty.buffer.ByteBuf;
 
@@ -28,16 +32,26 @@ public abstract class ThoraCodec extends PodCodec<ThoraMessage> {
 	@Override
 	protected abstract void populate();
 	
-	public ByteBuf writeIntVector(BasicIntVector v, ByteBuf buf) {
+	public static ByteBuf writeIntVector(IntVector v, ByteBuf buf) {
 		EncodingUtils.writeSignedVarInt(v.getIX(), buf);
 		EncodingUtils.writeSignedVarInt(v.getIY(), buf);
 		return buf;
 	}
 	
-	public ByteBuf write2DLocation(Location point, ByteBuf buf) {
+	public static ByteBuf write2DLocation(Location point, ByteBuf buf) {
 		EncodingUtils.writeSignedVarInt(point.getX(), buf);
 		EncodingUtils.writeSignedVarInt(point.getY(), buf);
 		return buf;
+	}
+	
+	public static Function<ByteBuf,Location> read2DLocationDecoder(World world) {
+		return (buf) -> read2DLocation(world, buf);
+	}
+	
+	public static Location read2DLocation(World world, ByteBuf buf) {
+		final int x = EncodingUtils.readSignedVarInt(buf);
+		final int y = EncodingUtils.readSignedVarInt(buf);
+		return new WeakVectorLocation<>(world, x, y);
 	}
 	
 }

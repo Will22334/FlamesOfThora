@@ -40,6 +40,9 @@ public abstract class AbstractWorld implements World {
 		if(e.isRegistered()) {
 			throw new IllegalArgumentException("Entity already registered: " + e + " in " + e.getWorld());
 		}
+		if(!e.contains(this)) {
+			throw new IllegalArgumentException("Cannot register ");
+		}
 		return doRegister(e);
 	}
 

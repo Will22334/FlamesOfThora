@@ -1,6 +1,7 @@
 package com.thora.core.net.message;
 
 import com.thora.core.world.Location;
+import com.thora.core.world.Tile;
 import com.thora.core.world.TileData;
 
 /**
@@ -18,6 +19,10 @@ public class BasicTileMessage extends AbstractThoraMessage {
 		return new  BasicTileMessage(bottomLeft, data);
 	}
 	
+	public static BasicTileMessage createSingle(Tile tile) {
+		return new  BasicTileMessage(tile.getLocation(), tile.getTileData());
+	}
+	
 	//Rect of Tiles
 	public TileData[][] tiles;
 	public Location bottomLeft;
@@ -30,6 +35,14 @@ public class BasicTileMessage extends AbstractThoraMessage {
 	
 	public boolean isSingle() {
 		return data != null;
+	}
+	
+	public int size() {
+		if(isGroup()) {
+			return tiles.length * tiles[0].length;
+		} else {
+			return 1;
+		}
 	}
 	
 	protected BasicTileMessage(Location bottomLeft, TileData[][] tiles) {

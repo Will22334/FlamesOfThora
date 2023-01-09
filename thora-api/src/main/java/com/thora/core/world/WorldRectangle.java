@@ -7,7 +7,7 @@ public class WorldRectangle implements RectangularRegion {
 	private Location bottomLeft, topRight;
 	
 	WorldRectangle(Location bottomLeft, Location topRight) {
-		if(!bottomLeft.sameWorld(topRight)) {
+		if(!bottomLeft.contains(topRight)) {
 			throw new IllegalArgumentException("Cannot create " + getClass().getSimpleName() + " with Locations in different Worlds");
 		}
 		this.bottomLeft = bottomLeft;

@@ -44,6 +44,7 @@ public class ThoraServerCodec extends ThoraCodec {
 		
 		addEncoder(new LoginResponseEncoder());
 		addEncoder(new ChatMessageEncoder());
+		addEncoder(new TileMessageEncoder());
 		
 		
 	}
@@ -126,17 +127,17 @@ public class ThoraServerCodec extends ThoraCodec {
 			
 			if(msg.isGroup()) {
 				buf.writeBoolean(true);
-				EncodingUtils.encode2DObjectArrayNoIndex(buf, msg.tiles, ThoraServerCodec::encodeTileMaterial);
+				EncodingUtils.encode2DObjectArrayNoIndex(buf, msg.tiles, ThoraServerCodec::encodeTileData);
 			} else {
 				buf.writeBoolean(false);
-				encodeTileMaterial(msg.data, buf);
+				encodeTileData(msg.data, buf);
 			}
 			
 		}
 		
 	}
 	
-	private static final void encodeTileMaterial(TileData data, ByteBuf buf) {
+	private static final void encodeTileData(TileData data, ByteBuf buf) {
 		buf.writeByte(data.material().ordinal());
 	}
 	

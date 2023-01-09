@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.ApplicationListener;
+import com.thora.client.net.netty.NettyNetworkManager;
 import com.thora.client.state.GameState;
 import com.thora.client.state.LoadingState;
 import com.thora.client.state.LoginState;
@@ -25,10 +26,10 @@ import com.thora.client.state.StateManager;
 import com.thora.core.HasLogger;
 import com.thora.core.Utils;
 import com.thora.core.net.netty.EncodingUtils;
-import com.thora.core.net.netty.NettyNetworkManager;
 import com.thora.core.world.AbstractWorld;
 import com.thora.core.world.ClientHashChunkWorld;
 import com.thora.core.world.Pole;
+import com.thora.core.world.World;
 
 public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	
@@ -62,7 +63,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	public InetSocketAddress serverAddress;
 	
 	private NettyNetworkManager network;
-	private AbstractWorld world;
+	private World world;
 	
 	@Override
 	public final Logger logger() {
@@ -77,7 +78,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 		return network;
 	}
 	
-	public AbstractWorld world() {
+	public World world() {
 		return world;
 	}
 	
@@ -254,7 +255,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 		return network;
 	}
 
-	protected AbstractWorld getWorld() {
+	protected World getWorld() {
 		return world;
 	}
 	

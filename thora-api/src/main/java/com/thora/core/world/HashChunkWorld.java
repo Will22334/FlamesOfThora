@@ -222,10 +222,6 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		return getChunkOrigin(c.getIX(), c.getIY());
 	}
 	
-	protected HashChunk createGeneratedChunk(ChunkCoordinate coord) {
-		return createChunk(coord).ensureGenerated();
-	}
-	
 	protected HashChunk createChunk(ChunkCoordinate coord) {
 		return new HashChunk(coord);
 	}
@@ -253,6 +249,11 @@ public abstract class HashChunkWorld extends GeneralWorld {
 				.flatMap(Function.identity());
 	}
 	
+	protected int rangeToChunkDepth(int range) {
+		double r = range / (double)(Math.min(chunkWidth, chunkHeight));
+		return (int) Math.ceil(r);
+	}
+	
 	@Override
 	public Stream<HashChunk.CTile> tiles() {
 		return chunks()
@@ -261,11 +262,12 @@ public abstract class HashChunkWorld extends GeneralWorld {
 
 	@Override
 	public Stream<HashChunk.CTile> surroundingTiles(Locatable center, int range) {
-		return surroundingChunks(center, 1)
+		return surroundingChunks(center, rangeToChunkDepth(range))
 				.flatMap(HashChunk::tiles)
 				.filter(t -> center.getOrthogonallDistance(t) <= range);
 	}
 	
+	@Override
 	public Stream<HashChunk.CTile> surroundingTiles(Locatable center) {
 		return surroundingChunks(center, 1)
 				.flatMap(HashChunk::tiles);

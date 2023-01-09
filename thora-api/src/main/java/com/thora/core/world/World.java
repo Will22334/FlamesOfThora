@@ -8,9 +8,14 @@ import java.util.stream.Stream;
 
 import com.thora.core.HasLogger;
 
-public interface World extends HasLogger {
+public interface World extends HasWorld, HasLogger {
 	
 	public String getName();
+	
+	@Override
+	public default World getWorld() {
+		return this;
+	}
 	
 	public default Tile getTile(Locatable loc) {
 		return getTile(loc.getLocation());
@@ -45,6 +50,8 @@ public interface World extends HasLogger {
 				.filter(inRange);
 	}
 	
+	public Stream<? extends Tile> surroundingTiles(Locatable center);
+	
 	public default Stream<? extends Tile> surroundingTiles(Locatable center, int range) {
 		Location point = center.getLocation();
 		return tiles(point.getX() - range, point.getY() - range,
@@ -72,6 +79,13 @@ public interface World extends HasLogger {
 				.mapToObj(y -> getTile(x,y));
 	}
 	
+	public default Tile[][] tiles2DCentered(Locatable center, int xRange, int yRange) {
+		final Location bottomLeft = center.getLocation().clone().shift(-xRange, -yRange);
+		final Tile[][] tiles = new Tile[2*yRange + 1][2*xRange + 1];
+		putTiles2D(tiles, bottomLeft);
+		return tiles;
+	}
+	
 	/**
 	 * Returns a 2d Tile array that contains all tiles inside the rectangular region from bottomLeft to (maxX,maxY)
 	 * @param bottomLeft The bottom left point of the region
@@ -84,13 +98,20 @@ public interface World extends HasLogger {
 		int xr = maxX - bottomLeft.getX();
 		int yr = maxY - bottomLeft.getY();
 		Tile[][] tiles = new Tile[yr][xr];
+		putTiles2D(tiles, t);
+		return tiles;
+	}
+	
+	public default void putTiles2D(Tile[][] tiles, Locatable bottomLeft) {
+		final int height = tiles.length;
+		final int width = tiles[0].length;
+		final int maxX = bottomLeft.getX() + width;
+		final int maxY = bottomLeft.getY() + height;
 		for(int y = bottomLeft.getY(); y<maxY; ++y) {
 			for(int x = bottomLeft.getX(); x<maxX; ++x) {
 				tiles[y][x] = getTile(x, y);
 			}
 		}
-		
-		return tiles;
 	}
 	
 }

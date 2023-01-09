@@ -303,4 +303,10 @@ public class QuadTreeWorld extends AbstractWorld {
 		return false;
 	}
 
+	@Override
+	public Stream<? extends Tile> surroundingTiles(Locatable center) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

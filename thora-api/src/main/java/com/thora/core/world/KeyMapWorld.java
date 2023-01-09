@@ -105,5 +105,11 @@ public class KeyMapWorld extends GeneralWorld {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public Stream<? extends Tile> surroundingTiles(Locatable center) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

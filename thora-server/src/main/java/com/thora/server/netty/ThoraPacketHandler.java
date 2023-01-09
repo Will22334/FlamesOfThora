@@ -3,11 +3,16 @@ package com.thora.server.netty;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
+import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
 import com.thora.core.net.message.ThoraMessage;
 import com.thora.core.net.netty.PodHandler;
+import com.thora.core.world.Location;
+import com.thora.core.world.WeakVectorLocation;
+import com.thora.core.world.World;
+import com.thora.server.world.PlayerEntity;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -20,7 +25,11 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 		super(logger);
 		this.server = server;
 	}
-
+	
+	protected final NettyThoraServer server() {
+		return server;
+	}
+	
 	@Override
 	protected void populate() {
 		this.addHandler(new LoginRequestHandler());
@@ -37,6 +46,14 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 			LoginResponseMessage response = new LoginResponseMessage(true, "Successfully logged in!");
 			ChannelFuture cf = session.rawChannel().writeAndFlush(response);
 			if(response.isAccepted()) {
+				World w = server().getWorld();
+				Location l = new WeakVectorLocation<>(w,0,0);
+				PlayerEntity p = new PlayerEntity(message.username, l);
+				w.register(p);
+				
+				w.surroundingTiles(p)
+				.forEach(t -> session.write(BasicTileMessage.createSingle(t)));
+				session.rawChannel().flush();
 				
 			}
 		}

@@ -10,8 +10,13 @@ public interface HasWorld {
 	
 	public World getWorld();
 	
-	public default boolean sameWorld(HasWorld a) {
-		return sameWorld(this, a);
+	/**
+	 * Returns true if this Ojbect is located in the passed world
+	 * @param w The world to compare
+	 * @return {@code true} if this is in the world
+	 */
+	public default boolean contains(HasWorld w) {
+		return sameWorld(this, w);
 	}
 	
 }

@@ -233,5 +233,11 @@ public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 	public ArrayWorld getWorld() {
 		return this;
 	}
+
+	@Override
+	public Stream<? extends Tile> surroundingTiles(Locatable center) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }
