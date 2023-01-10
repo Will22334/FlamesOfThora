@@ -42,7 +42,7 @@ dependencies {
     
     api group: 'io.netty', name: 'netty-all', version: '4.1.79.Final'
     
-    implementation project(':thora-api')
+    api project(':thora-api')
     
 }
 

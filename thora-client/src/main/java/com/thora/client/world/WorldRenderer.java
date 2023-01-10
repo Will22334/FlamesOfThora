@@ -96,7 +96,7 @@ public class WorldRenderer extends RenderingSystem {
 		shapeRend.setProjectionMatrix(getCam().combined);
 		shapeRend.begin(ShapeRenderer.ShapeType.Line);
 		
-		world.surroundingTiles(getFocus(), (double)viewRange )
+		world.surroundingTiles(getFocus(), (double)viewRange)
 		.forEach(this::drawTileBorder);
 		
 		shapeRend.end();

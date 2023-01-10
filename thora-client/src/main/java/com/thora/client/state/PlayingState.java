@@ -92,17 +92,39 @@ public class PlayingState extends GameState implements HasLogger {
 	
 	private Signal<Dimension> resizeSignal = new Signal<>();
 	
+	float viewportScale = 20f;
+	float scrollScaleChange = .035f;
+	
 	private final InputHandler in = new InputHandler();
 	private final InputListener inputListener = new InputListener(in) {
 
 		@Override
-		public boolean scrolled(int amount) {
+		public boolean scrolled(final int amount) {
 			logger().trace(() -> "Mouse scroll: " + amount);
-			engine().getSystem(WorldRenderer.class);
+			if(amount != 0) {
+				if(amount > 0) {
+					for(int i=amount; i>0; --i) {
+						scaleCamera(1f - scrollScaleChange);
+					}
+				} else {
+					for(int i=amount; i<0; ++i) {
+						scaleCamera(1f + scrollScaleChange);
+					}
+				}
+				return true;
+			}
+			
 			return false;
 		}
 		
 	};
+	
+	public void scaleCamera(float scale) {
+		viewportScale *= scale;
+		this.worldCamera.setToOrtho(false, g().getWidth()/viewportScale, g().getHeight()/viewportScale);
+		LocationComponent lc = LocationComponent.MAPPER.get(player);
+		this.worldCamera.position.set(lc.getX() + .5f, lc.getY() + .5f, 0);
+	}
 	
 	public PlayingState(FlamesOfThoraClient client, String name, int id) {
 		super(client, name, id);
@@ -215,8 +237,6 @@ public class PlayingState extends GameState implements HasLogger {
 		//		worldBatch = new SpriteBatch();
 		//		font = new BitmapFont();
 	}
-	
-	float viewportScale = 20f;
 	
 	@Override
 	public void enter() {

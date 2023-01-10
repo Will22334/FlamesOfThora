@@ -118,43 +118,43 @@ public class PlayingState extends GameState implements HasLogger {
 	//Various tasks that should be completed on the render portion of the game loop.
 	@Override
 	public void render(float dt) {
-		Gdx.gl.glClearColor( 0, 0, 0, 1 );
-		Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
-		
-		//Updates the entity system. 
-		//engine().update(delta);
-		
-		float width = g().getWidth();
-		float height = g().getHeight();
-		
-		//worldCamera.update();
-		uiMatrix.set(worldCamera.combined);
-		uiMatrix.setToOrtho2D(0, 0, width, height);
-		
-		//batch.setTransformMatrix(hudCamera.combined);
-		hudBatch.setProjectionMatrix(uiMatrix);
-		hudBatch.begin();
-		
-		Location loc = player.getComponent(LocationComponent.class).getLocation();
-		
-		/*
-		 * FPS COUNTER
-		 */
-		font.setColor(Color.RED);
-		String msg = String.format("FPS: %s\t(%s,%s)\n%s", g().getFramesPerSecond(), Gdx.input.getX(), Gdx.input.getY(), loc);
-		font.draw(hudBatch, msg, 0, height);
-		
-		
-		hudBatch.end();
-		
-		shapeRend.setProjectionMatrix(uiMatrix);
-		shapeRend.begin(ShapeRenderer.ShapeType.Line);
-		Gdx.gl.glEnable(GL11.GL_BLEND);
-		shapeRend.setColor(COLOR_OFF_WHITE);
-		shapeRend.line(width/2, 0, width/2, height);
-		shapeRend.line(0, height/2, width, height/2);
-		Gdx.gl.glLineWidth(1f);
-		shapeRend.end();
+//		Gdx.gl.glClearColor( 0, 0, 0, 1 );
+//		Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
+//		
+//		//Updates the entity system. 
+//		//engine().update(delta);
+//		
+//		float width = g().getWidth();
+//		float height = g().getHeight();
+//		
+//		//worldCamera.update();
+//		uiMatrix.set(worldCamera.combined);
+//		uiMatrix.setToOrtho2D(0, 0, width, height);
+//		
+//		//batch.setTransformMatrix(hudCamera.combined);
+//		hudBatch.setProjectionMatrix(uiMatrix);
+//		hudBatch.begin();
+//		
+//		Location loc = player.getComponent(LocationComponent.class).getLocation();
+//		
+//		/*
+//		 * FPS COUNTER
+//		 */
+//		font.setColor(Color.RED);
+//		String msg = String.format("FPS: %s\t(%s,%s)\n%s", g().getFramesPerSecond(), Gdx.input.getX(), Gdx.input.getY(), loc);
+//		font.draw(hudBatch, msg, 0, height);
+//		
+//		
+//		hudBatch.end();
+//		
+//		shapeRend.setProjectionMatrix(uiMatrix);
+//		shapeRend.begin(ShapeRenderer.ShapeType.Line);
+//		Gdx.gl.glEnable(GL11.GL_BLEND);
+//		shapeRend.setColor(COLOR_OFF_WHITE);
+//		shapeRend.line(width/2, 0, width/2, height);
+//		shapeRend.line(0, height/2, width, height/2);
+//		Gdx.gl.glLineWidth(1f);
+//		shapeRend.end();
 		
 		//update(dt);
 	}
@@ -197,7 +197,7 @@ public class PlayingState extends GameState implements HasLogger {
 		appSize.setSize(width, height);
 		
 		resizeSignal.dispatch(appSize);
-		//worldCamera.setToOrtho(false, g().getWidth()/viewportScale, g().getHeight()/viewportScale);
+		worldCamera.setToOrtho(false, g().getWidth()/viewportScale, g().getHeight()/viewportScale);
 		worldCamera.update();
 		//		hudBatch.dispose();
 		//		worldBatch.dispose();
@@ -207,7 +207,7 @@ public class PlayingState extends GameState implements HasLogger {
 		//		font = new BitmapFont();
 	}
 	
-	float viewportScale = 30f;
+	public float viewportScale = 30f;
 	
 	@Override
 	public void enter() {
