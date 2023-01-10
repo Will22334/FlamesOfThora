@@ -143,14 +143,4 @@ public abstract class AbstractWorld implements World {
 				.filter(Objects::nonNull);
 	}
 
-	public Stream<Tile> tilesRow(int y, int minX, int maxX) {
-		return IntStream.rangeClosed(minX, maxX)
-				.mapToObj(x -> getTile(x,y));
-	}
-
-	public Stream<Tile> tilesColumn(int x, int minY, int maxY) {
-		return IntStream.rangeClosed(minY, maxY)
-				.mapToObj(y -> getTile(x,y));
-	}
-
 }

@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.thora.client.FlamesOfThoraClient;
 import com.thora.client.graphics.MultiTextureComponent;
 import com.thora.client.graphics.TextureComponent;
 import com.thora.client.graphics.TransformComponent;
@@ -65,6 +66,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 	private final Listener<Dimension> resizeListener = new Listener<Dimension>() {
 		@Override
 		public void receive(Signal<Dimension> signal, Dimension newSize) {
+			
 			FRUSTUM_WIDTH = newSize.getWidth()/PPM;
 			FRUSTUM_HEIGHT = newSize.getHeight()/PPM;
 		}
@@ -89,13 +91,15 @@ public class RenderingSystem extends SortedIteratingSystem {
 	
 	protected Locatable focus;
 	
+	private final FlamesOfThoraClient client;
 	private Signal<Dimension> resizeSignal;
 	
-	public RenderingSystem(SpriteBatch batch, Camera camera, Locatable focus,
+	public RenderingSystem(FlamesOfThoraClient client, SpriteBatch batch, Camera camera, Locatable focus,
 			Signal<Dimension> resizeSignal, int priority) {
 		// gets all entities with a TransofmComponent and TextureComponent
 		super(FAMILY, new ZComparator(), priority);
 		
+		this.client = Objects.requireNonNull(client, "RenderSystem's client cannot be null!");
 		this.focus = Objects.requireNonNull(focus, "RenderSystem's focus object cannot be null!");
 		this.comparator = new ZComparator();
 		
@@ -115,6 +119,10 @@ public class RenderingSystem extends SortedIteratingSystem {
 	
 	protected Locatable getFocus() {
 		return focus;
+	}
+	
+	protected FlamesOfThoraClient client() {
+		return client;
 	}
 	
 	@Override

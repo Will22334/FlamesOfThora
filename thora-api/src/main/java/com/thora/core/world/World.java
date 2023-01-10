@@ -69,7 +69,7 @@ public interface World extends HasWorld, Disposable, HasLogger {
 		int range = (int) Math.ceil(drange);
 		return tiles(point.getX() - range, point.getY() - range,
 				point.getX() + range, point.getY() + range)
-				.filter(t -> t.isInRange(center, drange));
+				.filter(t -> t.isInRange(point, drange/2d));
 	}
 	
 	public default Stream<Tile> surroundingTiles(int x, int y, int range) {
@@ -79,8 +79,7 @@ public interface World extends HasWorld, Disposable, HasLogger {
 	public default Stream<Tile> tiles(int minX, int minY, int maxX, int maxY) {
 		return IntStream.rangeClosed(minY, maxY)
 				.mapToObj(y -> tilesRow(y, minX, maxX))
-				.flatMap(Function.identity())
-				.filter(Objects::nonNull);
+				.flatMap(Function.identity());
 	}
 	
 	public default Stream<Tile> tilesRow(int y, int minX, int maxX) {

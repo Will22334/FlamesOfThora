@@ -207,7 +207,7 @@ public class PlayingState extends GameState implements HasLogger {
 		//		font = new BitmapFont();
 	}
 	
-	float viewportScale = 30f;
+	float viewportScale = 20f;
 	
 	@Override
 	public void enter() {
@@ -244,7 +244,7 @@ public class PlayingState extends GameState implements HasLogger {
 		worldCamera.position.set(spawn.getX(), spawn.getY(), 0);
 		
 		
-		worldRenderer = new WorldRenderer(worldBatch, client().world(), worldCamera, player.getComponent(LocationComponent.class),
+		worldRenderer = new WorldRenderer(client(), worldBatch, client().world(), worldCamera, player.getComponent(LocationComponent.class),
 				resizeSignal, 100);
 		
 		engine().addSystem(worldRenderer);

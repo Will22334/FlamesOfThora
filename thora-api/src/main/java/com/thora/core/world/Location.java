@@ -59,7 +59,7 @@ public abstract class Location implements Locatable, Cloneable {
 	}
 	
 	public final double getDistance(Location p) {
-		return Math.hypot(p.getX() - getX(), p.getY() - getY());
+		return Math.hypot((double)(p.getX() - getX()), (double)(p.getY() - getY()));
 	}
 	
 	@Override

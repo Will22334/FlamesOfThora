@@ -277,6 +277,14 @@ public abstract class HashChunkWorld extends GeneralWorld {
 	}
 	
 	@Override
+	public Stream<HashChunk.CTile> surroundingTiles(final Locatable center, final double range) {
+		final int iRange = (int) Math.ceil(range);
+		return surroundingChunks(center, rangeToChunkDepth(iRange))
+				.flatMap(HashChunk::tiles)
+				.filter(t -> center.isInRange(center, range));
+	}
+	
+	@Override
 	public Stream<HashChunk.CTile> surroundingTiles(Locatable center) {
 		return surroundingChunks(center, 1)
 				.flatMap(HashChunk::tiles);

@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.thora.client.FlamesOfThoraClient;
 import com.thora.client.system.RenderingSystem;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
@@ -27,7 +28,7 @@ public class WorldRenderer extends RenderingSystem {
 	SpriteBatch batch;
 	protected ShapeRenderer shapeRend;
 	private boolean tileBorders = true;
-	private int viewRange = 14;
+	private int viewRange = 16;
 	
 	public static final Color TILE_BORDER_COLOR = new Color(0f, 0f, 0f, .2f);
 	
@@ -50,16 +51,12 @@ public class WorldRenderer extends RenderingSystem {
 	}
 	
 	
-	public WorldRenderer(SpriteBatch batch, World world, Camera camera, Locatable focus, Signal<Dimension> resizeSignal,
+	public WorldRenderer(FlamesOfThoraClient client, SpriteBatch batch, World world, Camera camera, Locatable focus, Signal<Dimension> resizeSignal,
 			int priority) {
-		super(batch, camera, focus, resizeSignal, priority);
+		super(client, batch, camera, focus, resizeSignal, priority);
 		this.batch = batch;
 		this.world = world;
 		shapeRend = new ShapeRenderer();
-	}
-	
-	public void render() {
-		
 	}
 	
 	@Override
@@ -85,7 +82,8 @@ public class WorldRenderer extends RenderingSystem {
 	}
 	
 	private void drawTileTextures(World world) {
-		world.surroundingTiles(getFocus(), viewRange)
+		world.surroundingTiles(getFocus(), (double)viewRange)
+		.filter(t -> t.isInRange(getFocus(), (double)viewRange))
 		.forEach(this::drawTileTexture);
 	}
 	
@@ -98,7 +96,7 @@ public class WorldRenderer extends RenderingSystem {
 		shapeRend.setProjectionMatrix(getCam().combined);
 		shapeRend.begin(ShapeRenderer.ShapeType.Line);
 		
-		world.surroundingTiles(getFocus(), viewRange )
+		world.surroundingTiles(getFocus(), (double)viewRange )
 		.forEach(this::drawTileBorder);
 		
 		shapeRend.end();
@@ -152,11 +150,11 @@ public class WorldRenderer extends RenderingSystem {
 			batch.draw(t,
 					loc.getX(), loc.getY(),
 					width / PPM, height / PPM,
-					1, 1,
-					1, 1,
+					1f, 1f,
+					1f, 1f,
 					0f,
-					priority, priority,
-					(int)width, (int)height,
+					0, 0,
+					width, height,
 					false, false);
 		
 	}
