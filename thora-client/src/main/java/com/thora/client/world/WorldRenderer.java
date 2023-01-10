@@ -17,14 +17,13 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.thora.client.system.RenderingSystem;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
+import com.thora.core.world.Material;
 import com.thora.core.world.Tile;
 import com.thora.core.world.World;
-import com.thora.core.world.Material;
-import com.thora.core.world.AbstractWorld;
 
 public class WorldRenderer extends RenderingSystem {
 	
-	private final World world;
+	public World world;
 	SpriteBatch batch;
 	protected ShapeRenderer shapeRend;
 	private boolean tileBorders = true;
@@ -136,29 +135,29 @@ public class WorldRenderer extends RenderingSystem {
 		//float originX = width/2f;
 		//float originY = height/2f;
 		
-		batch.draw(t,
-				loc.getX(), loc.getY(),
-				TILE_TEXTURE_DRAW_RATIO, TILE_TEXTURE_DRAW_RATIO);
+//		batch.draw(t,
+//			loc.getX(), loc.getY(),
+//			TILE_TEXTURE_DRAW_RATIO, TILE_TEXTURE_DRAW_RATIO);
+//		
+//		batch.draw(t,
+//				loc.getX() , loc.getY(),
+//				0f, 0f,
+//				width, height,
+//				1f,
+//				width, height,
+//				0, 0,
+//				width, height,
+//				false, false);
 		
-		//		batch.draw(t,
-		//				loc.getX() , loc.getY(),
-		//				0f, 0f,
-		//				width, height,
-		//				1f,
-		//				width, height,
-		//				0, 0,
-		//				width, height,
-		//				false, false);
-		
-		//		batch.draw(t,
-		//				loc.getX(), loc.getY(),
-		//				width / PPM, height / PPM,
-		//				1, 1,
-		//				1, 1,
-		//				0f,
-		//				priority, priority,
-		//				(int)width, (int)height,
-		//				false, false);
+			batch.draw(t,
+					loc.getX(), loc.getY(),
+					width / PPM, height / PPM,
+					1, 1,
+					1, 1,
+					0f,
+					priority, priority,
+					(int)width, (int)height,
+					false, false);
 		
 	}
 	

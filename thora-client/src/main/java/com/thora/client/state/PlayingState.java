@@ -122,7 +122,7 @@ public class PlayingState extends GameState implements HasLogger {
 		Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
 		
 		//Updates the entity system. 
-		//engine().update(delta);
+		engine().update(delta);
 		
 		float width = g().getWidth();
 		float height = g().getHeight();
@@ -235,7 +235,7 @@ public class PlayingState extends GameState implements HasLogger {
 		in.RegisterKey(KEY_G);
 		
 		
-		Location spawn = new WeakVectorLocation<>(client().world(), 50, 50);
+		Location spawn = new WeakVectorLocation<>(client().world(), 0, 0);
 		player = createPlayerEntity(engine(), spawn);
 		engine().addEntity(player);
 		
@@ -267,7 +267,7 @@ public class PlayingState extends GameState implements HasLogger {
 		PlayerComponent player = engine.createComponent(PlayerComponent.class);
 		
 		TypeComponent type = engine.createComponent(TypeComponent.class).set(EntityType.PLAYER);
-		LocationComponent location = engine.createComponent(LocationComponent.class).setLocation(x, y);
+		LocationComponent location = engine.createComponent(LocationComponent.class).setLocation(new WeakVectorLocation<>(client().world(), x, y));
 		MovableComponent movable = engine.createComponent(MovableComponent.class);
 		
 		movable.signal.add(new Listener<MoveEvent>() {

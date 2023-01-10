@@ -11,16 +11,28 @@ import com.thora.core.world.TileData;
  */
 public class BasicTileMessage extends AbstractThoraMessage {
 	
+	public static BasicTileMessage createRegion(Location bottomLeft, Tile[][] tiles) {
+		final int height = tiles.length;
+		final int width = tiles[0].length;
+		final TileData[][] data = new TileData[height][width];
+		for(int y=0; y<height; ++y) {
+			for(int x=0; x<width; ++x) {
+				data[y][x] = tiles[y][x].getTileData();
+			}
+		}
+		return BasicTileMessage.createRegion(bottomLeft, data);
+	}
+	
 	public static BasicTileMessage createRegion(Location bottomLeft, TileData[][] tiles) {
-		return new  BasicTileMessage(bottomLeft, tiles);
+		return new BasicTileMessage(bottomLeft, tiles);
 	}
 	
 	public static BasicTileMessage createSingle(Location bottomLeft, TileData data) {
-		return new  BasicTileMessage(bottomLeft, data);
+		return new BasicTileMessage(bottomLeft, data);
 	}
 	
 	public static BasicTileMessage createSingle(Tile tile) {
-		return new  BasicTileMessage(tile.getLocation(), tile.getTileData());
+		return new BasicTileMessage(tile.getLocation(), tile.getTileData());
 	}
 	
 	//Rect of Tiles

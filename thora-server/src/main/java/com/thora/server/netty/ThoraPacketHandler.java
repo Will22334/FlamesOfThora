@@ -7,6 +7,7 @@ import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
+import com.thora.core.net.message.StateChangeMessage;
 import com.thora.core.net.message.ThoraMessage;
 import com.thora.core.net.message.WorldDefinitionMessage;
 import com.thora.core.net.netty.PodHandler;
@@ -14,6 +15,7 @@ import com.thora.core.world.Location;
 import com.thora.core.world.WeakVectorLocation;
 import com.thora.core.world.World;
 import com.thora.server.world.PlayerEntity;
+import com.thora.server.world.ServerHashChunkWorld;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -45,9 +47,9 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 			session.generateSymmetricCipher(server.publicKey(), message.sessionKey, message.timeStamp);
 			
 			LoginResponseMessage response = new LoginResponseMessage(true, "Successfully logged in!");
-			ChannelFuture cf = session.rawChannel().writeAndFlush(response);
+			ChannelFuture cf = session.rawChannel().write(response);
 			if(response.isAccepted()) {
-				final World w = server().getWorld();
+				final ServerHashChunkWorld w = server().getWorld();
 				final Location l = new WeakVectorLocation<>(w,0,0);
 				final PlayerEntity p = new PlayerEntity(message.username, l);
 				w.register(p);
@@ -56,11 +58,12 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 				
 				session.write(new WorldDefinitionMessage(w));
 				
-				w.surroundingTiles(p)
-				.forEach(t -> session.write(BasicTileMessage.createSingle(t)));
-				session.rawChannel().flush();
+				w.informSurroundingTiles(p, session);
+				
+				session.write(new StateChangeMessage(3));
 				
 			}
+			session.rawChannel().flush();
 		}
 	}
 	

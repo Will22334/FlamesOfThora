@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import com.badlogic.gdx.utils.Disposable;
 import com.thora.core.HasLogger;
+import com.thora.core.net.NetworkSession;
 
 public interface World extends HasWorld, Disposable, HasLogger {
 	

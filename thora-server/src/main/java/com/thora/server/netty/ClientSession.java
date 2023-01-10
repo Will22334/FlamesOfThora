@@ -9,6 +9,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.thora.core.net.AESKeyCipher;
 import com.thora.core.net.AbstractNettySession;
 import com.thora.core.net.AsymmetricKeyCipher;
+import com.thora.core.net.NetworkSession;
 import com.thora.core.net.SimpleCryptographicCredentials;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.NettyNetworkChannel;
@@ -30,7 +31,7 @@ public class ClientSession extends AbstractNettySession {
 	}
 	
 	public static ClientSession get(Channel channel) {
-		return (ClientSession) channel.attr(ClientSession.ATTRIBUTE_SESSION).get();
+		return NetworkSession.findSession(channel);
 	}
 	
 	private final ThoraServer server;
@@ -51,8 +52,9 @@ public class ClientSession extends AbstractNettySession {
 		return server;
 	}
 	
+	@Override
 	protected ByteBufAllocator alloc() {
-		return rawChannel().alloc();
+		return super.alloc();
 	}
 	
 	@Override

@@ -8,6 +8,9 @@ import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.crypto.Cipher;
 
@@ -23,6 +26,7 @@ import com.thora.client.state.LoginState;
 import com.thora.client.state.MenuState;
 import com.thora.client.state.PlayingState;
 import com.thora.client.state.StateManager;
+import com.thora.client.world.WorldRenderer;
 import com.thora.core.HasLogger;
 import com.thora.core.Utils;
 import com.thora.core.net.netty.EncodingUtils;
@@ -61,6 +65,8 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	
 	public InetSocketAddress serverAddress;
 	
+	private final Queue<Runnable> tasks = new LinkedBlockingQueue<>();
+	
 	private NettyNetworkManager network;
 	private World world;
 	
@@ -86,6 +92,18 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 			this.world.dispose();
 		}
 		this.world = world;
+		engine().getSystem(WorldRenderer.class).world = world;
+	}
+	
+	public void addTask(Runnable r) {
+		tasks.add(r);
+	}
+	
+	public void runTasks() {
+		Runnable r;
+		while((r = tasks.poll()) != null) {
+			r.run();
+		}
 	}
 	
 	//Initiate the States

@@ -249,8 +249,7 @@ public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 
 	@Override
 	public Stream<? extends Tile> surroundingTiles(Locatable center) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("Not implemented");
 	}
 	
 }

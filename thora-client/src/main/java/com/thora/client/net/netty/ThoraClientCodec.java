@@ -12,6 +12,7 @@ import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
+import com.thora.core.net.message.StateChangeMessage;
 import com.thora.core.net.message.WorldDefinitionMessage;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.ThoraCodec;
@@ -53,6 +54,7 @@ public class ThoraClientCodec extends ThoraCodec {
 		this.addDecoder(new ChatMessageDecoder());
 		this.addDecoder(new WorldDefinitionDecoder());
 		this.addDecoder(new TileMessageDecoder());
+		this.addDecoder(new StateChangeMessageDecoder());
 	}
 	
 	public class LoginRequestEncoder extends MessageEncoder<LoginRequestMessage> {
@@ -148,6 +150,16 @@ public class ThoraClientCodec extends ThoraCodec {
 			}
 		}
 		
+	}
+	
+	public class StateChangeMessageDecoder extends MessageDecoder<StateChangeMessage> {
+		public StateChangeMessageDecoder() {
+			super(OPCODE_CLIENT_STATE_CHANGE);
+		}
+		@Override
+		public StateChangeMessage decode(ChannelHandlerContext ctx, ByteBuf buf) throws IOException {
+			return new StateChangeMessage(buf.readInt());
+		}
 	}
 	
 	private static final TileData decodeTileData(ByteBuf buf) {

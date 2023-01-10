@@ -13,9 +13,9 @@ import com.badlogic.ashley.core.PooledEngine;
 import com.thora.core.net.NetworkSession;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.ThoraCodec;
-import com.thora.core.world.AbstractWorld;
 import com.thora.core.world.World;
 import com.thora.server.ThoraServer;
+import com.thora.server.world.ServerHashChunkWorld;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -47,7 +47,7 @@ public class NettyThoraServer extends ThoraServer {
 	private static final Logger networkLogger = LogManager.getLogger(NettyThoraServer.class.getPackage().getName() + ".Network");
 	
 	private final PooledEngine engine;
-	private final AbstractWorld world;
+	private final ServerHashChunkWorld world;
 	
 	protected ServerBootstrap bootstrap;
 	protected EventLoopGroup bossGroup, childGroup;
@@ -58,7 +58,7 @@ public class NettyThoraServer extends ThoraServer {
 	private final Map<InetSocketAddress,ClientSession> sessions = new ConcurrentHashMap<>();
 	
 	public NettyThoraServer(KeyPair identity, int sideThreads, int bossIOThreads, int workerIOThreads,
-			AbstractWorld world) {
+			ServerHashChunkWorld world) {
 		super(identity);
 		this.bossIOThreads = bossIOThreads;
 		this.workerIOThreads = workerIOThreads;
@@ -79,7 +79,7 @@ public class NettyThoraServer extends ThoraServer {
 	}
 	
 	@Override
-	public World getWorld() {
+	public ServerHashChunkWorld getWorld() {
 		return world;
 	}
 	

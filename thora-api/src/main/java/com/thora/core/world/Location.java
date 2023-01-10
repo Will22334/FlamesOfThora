@@ -5,8 +5,12 @@ import com.thora.core.math.Vector;
 
 public abstract class Location implements Locatable, Cloneable {
 	
+	public static <W extends World> WeakVectorLocation<W> create(W world, int x, int y) {
+		return new WeakVectorLocation<>(world, x, y);
+	}
+	
 	public Location() {
-		
+		super();
 	}
 	
 	@Override

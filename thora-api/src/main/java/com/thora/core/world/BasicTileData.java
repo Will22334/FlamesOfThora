@@ -1,6 +1,6 @@
 package com.thora.core.world;
 
-public class BasicTileData implements TileData {
+public class BasicTileData extends AbstractTileData {
 	
 	protected Material material;
 	
@@ -15,11 +15,6 @@ public class BasicTileData implements TileData {
 	
 	public void setMaterial(Material material) {
 		this.material = material;
-	}
-
-	@Override
-	public String toString() {
-		return material().toString();
 	}
 	
 }

@@ -1,6 +1,6 @@
 package com.thora.core.math;
 
-public final class FinalIntVector implements IntVector {
+public class FinalIntVector implements IntVector {
 
 	protected final int x, y;
 	
@@ -22,36 +22,37 @@ public final class FinalIntVector implements IntVector {
 	}
 	
 	@Override
-	public int getIX() {
+	public final int getIX() {
 		return x;
 	}
 	
 	@Override
-	public int getIY() {
+	public final int getIY() {
 		return y;
 	}
 	
 	@Override
-	public FinalIntVector setX(int x) {
+	public final FinalIntVector setX(int x) {
 		return fail();
 	}
 	
 	@Override
-	public FinalIntVector setY(int y) {
+	public final FinalIntVector setY(int y) {
 		return fail();
 	}
 	
 	@Override
-	public FinalIntVector setAs(int x, int y) {
+	public final FinalIntVector setAs(int x, int y) {
 		return fail();
 	}
 	
 	@Override
-	public FinalIntVector setAs(double x, double y) {
+	public final FinalIntVector setAs(double x, double y) {
 		return setAs((int)x, (int)y);
 	}
 	
-	public FinalIntVector setAs(Vector v) {
+	@Override
+	public final FinalIntVector setAs(Vector v) {
 		return setAs(v.getIX(), v.getIY());
 	}
 	
@@ -61,11 +62,11 @@ public final class FinalIntVector implements IntVector {
 	
 	@Override
 	public final boolean isZero() {
-		return equals(0,0);
+		return equals(0, 0);
 	}
 	
 	@Override
-	public FinalIntVector clear() {
+	public final FinalIntVector clear() {
 		return fail();
 	}
 	
@@ -95,7 +96,7 @@ public final class FinalIntVector implements IntVector {
 	}
 	
 	@Override
-	public BasicIntVector clone() {
+	public IntVector clone() {
 		return new BasicIntVector(x, y);
 	}
 	

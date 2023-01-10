@@ -11,6 +11,7 @@ import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
+import com.thora.core.net.message.StateChangeMessage;
 import com.thora.core.net.message.WorldDefinitionMessage;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.ThoraCodec;
@@ -50,6 +51,7 @@ public class ThoraServerCodec extends ThoraCodec {
 		addEncoder(new ChatMessageEncoder());
 		addEncoder(new WorldDefMessageEncoder());
 		addEncoder(new TileMessageEncoder());
+		addEncoder(new StateChangeMessageEncoder());
 		
 	}
 	
@@ -142,14 +144,26 @@ public class ThoraServerCodec extends ThoraCodec {
 			
 			write2DLocation(msg.bottomLeft, buf);
 			
+			buf.writeBoolean(msg.isGroup());
+			
 			if(msg.isGroup()) {
-				buf.writeBoolean(true);
 				EncodingUtils.encode2DObjectArrayNoIndex(buf, msg.tiles, ThoraServerCodec::encodeTileData);
 			} else {
-				buf.writeBoolean(false);
 				encodeTileData(msg.data, buf);
 			}
 			
+		}
+		
+	}
+	
+	public class StateChangeMessageEncoder extends MessageEncoder<StateChangeMessage> {
+		protected StateChangeMessageEncoder() {
+			super(OPCODE_CLIENT_STATE_CHANGE);
+		}
+
+		@Override
+		public void encode(ChannelHandlerContext ctx, StateChangeMessage msg, ByteBuf buf) {
+			buf.writeInt(msg.stateID);
 		}
 		
 	}

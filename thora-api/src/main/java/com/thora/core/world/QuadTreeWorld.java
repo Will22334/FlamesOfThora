@@ -305,8 +305,7 @@ public class QuadTreeWorld extends AbstractWorld {
 
 	@Override
 	public Stream<? extends Tile> surroundingTiles(Locatable center) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("Not implemented");
 	}
 
 	@Override

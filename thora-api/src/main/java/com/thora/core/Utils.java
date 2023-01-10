@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
@@ -285,8 +286,16 @@ public final class Utils {
 		return () -> f.apply(arg);
 	}
 	
+	public static final <A,B> Consumer<B> bindArg1(final BiConsumer<A,B> f, final A arg) {
+		return (b) -> f.accept(arg, b);
+	}
+	
 	public static final <A,B,R> Function<B,R> bindArg1(final BiFunction<A,B,R> f, final A arg) {
 		return (b) -> f.apply(arg, b);
+	}
+	
+	public static final <A,B> Consumer<A> bindArg2(final BiConsumer<A,B> f, final B arg) {
+		return (a) -> f.accept(a, arg);
 	}
 	
 	public static final <A,B,R> Function<A,R> bindArg2(final BiFunction<A,B,R> f, final B arg) {

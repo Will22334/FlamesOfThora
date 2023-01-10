@@ -1,6 +1,6 @@
 package com.thora.core.world;
 
-public class FinalTileData implements TileData {
+public class FinalTileData extends AbstractTileData {
 	
 	private final Material material;
 	
@@ -11,11 +11,6 @@ public class FinalTileData implements TileData {
 	@Override
 	public final Material material() {
 		return material;
-	}
-	
-	@Override
-	public String toString() {
-		return material().toString();
 	}
 	
 }
