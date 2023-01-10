@@ -27,7 +27,7 @@ public class WorldRenderer extends RenderingSystem {
 	SpriteBatch batch;
 	protected ShapeRenderer shapeRend;
 	private boolean tileBorders = true;
-	private int viewRange = 15;
+	private int viewRange = 14;
 	
 	public static final Color TILE_BORDER_COLOR = new Color(0f, 0f, 0f, .2f);
 	

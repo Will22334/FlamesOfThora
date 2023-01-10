@@ -123,6 +123,14 @@ public abstract class AbstractWorld implements World {
 		return tiles(point.getX() - range, point.getY() - range,
 				point.getX() + range, point.getY() + range);
 	}
+	
+	@Override
+	public Stream<? extends Tile> surroundingTiles(Locatable center, double drange) {
+		Location point = center.getLocation();
+		int range = (int) Math.ceil(drange);
+		return tiles(point.getX() - range, point.getY() - range,
+				point.getX() + range, point.getY() + range);
+	}
 
 	public Stream<Tile> surroundingTiles(int x, int y, int range) {
 		return tiles(x-range, y-range, x+range, y+range);
