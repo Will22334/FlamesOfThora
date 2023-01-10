@@ -25,7 +25,7 @@ import com.thora.core.world.World;
 public class WorldRenderer extends RenderingSystem {
 	
 	public World world;
-	SpriteBatch batch;
+	final SpriteBatch batch;
 	protected ShapeRenderer shapeRend;
 	private boolean tileBorders = true;
 	private int viewRange = 16;

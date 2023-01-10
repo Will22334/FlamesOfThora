@@ -93,7 +93,16 @@ public class PlayingState extends GameState implements HasLogger {
 	private Signal<Dimension> resizeSignal = new Signal<>();
 	
 	private final InputHandler in = new InputHandler();
-	private final InputListener inputListener = new InputListener(in);
+	private final InputListener inputListener = new InputListener(in) {
+
+		@Override
+		public boolean scrolled(int amount) {
+			logger().trace(() -> "Mouse scroll: " + amount);
+			engine().getSystem(WorldRenderer.class);
+			return false;
+		}
+		
+	};
 	
 	public PlayingState(FlamesOfThoraClient client, String name, int id) {
 		super(client, name, id);
