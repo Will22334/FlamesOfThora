@@ -43,7 +43,7 @@ public class SpriteSheet {
 		int index = 0;
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < columns; j++) {
-				indexedSpriteSheet[index++] = splitImage[i][j];
+				indexedSpriteSheet[index++] = splitImage[j][i];
 			}
 		}
 		
@@ -52,17 +52,18 @@ public class SpriteSheet {
 	}
 	
 	public TextureRegion[] getIndexedImages() {
-		
 		return indexedSpriteSheet;
 	}
 	
+	public TextureRegion getSprite(int index) {
+		return indexedSpriteSheet[index];
+	}
+	
 	public Texture getTexture() {
-		
 		return spriteSheet;
 	}
 	
 	public void dispose() {
-		
 		spriteSheet.dispose();
 		
 	}

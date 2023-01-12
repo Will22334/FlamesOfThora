@@ -13,8 +13,10 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.thora.client.FlamesOfThoraClient;
+import com.thora.client.sprite.SpriteSheet;
 import com.thora.client.system.RenderingSystem;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
@@ -27,19 +29,25 @@ public class WorldRenderer extends RenderingSystem {
 	public World world;
 	final SpriteBatch batch;
 	protected ShapeRenderer shapeRend;
+	
 	private boolean tileBorders = true;
 	private int viewRange = 16;
 	
+	private static final SpriteSheet tileSprites;
 	public static final Color TILE_BORDER_COLOR = new Color(0f, 0f, 0f, .2f);
 	
 	private static final Map<Material,Texture> tileTextures;
 	
-	protected static final Texture getTileTexture(Tile tile) {
+	protected static final TextureRegion getTileTexture(Tile tile) {
 		return getTileTexture(tile.getMaterial());
 	}
 	
-	private static final Texture getTileTexture(Material type) {
-		return tileTextures.get(type);
+//	private static final Texture getTileTexture(Material type) {
+//		return tileTextures.get(type);
+//	}
+	
+	private static final TextureRegion getTileTexture(Material type) {
+		return tileSprites.getSprite(type.ordinal());
 	}
 	
 	static {
@@ -48,6 +56,7 @@ public class WorldRenderer extends RenderingSystem {
 			Texture texture = new Texture("assets/tiles/" + type.getName().toLowerCase() + ".png");
 			tileTextures.put(type, texture);
 		}
+		tileSprites = new SpriteSheet(new Texture("assets/tile_sheet.png"), 8, 1);
 	}
 	
 	
@@ -125,10 +134,10 @@ public class WorldRenderer extends RenderingSystem {
 	}
 	
 	protected void drawTileTexture(Tile tile) {
-		Texture t = getTileTexture(tile);
+		TextureRegion t = getTileTexture(tile);
 		Location loc = tile.getLocation();
-		int width = t.getWidth();
-		int height = t.getHeight();
+		int width = t.getRegionWidth();
+		int height = t.getRegionHeight();
 		
 		//float originX = width/2f;
 		//float originY = height/2f;
@@ -149,13 +158,7 @@ public class WorldRenderer extends RenderingSystem {
 		
 			batch.draw(t,
 					loc.getX(), loc.getY(),
-					width / PPM, height / PPM,
-					1f, 1f,
-					1f, 1f,
-					0f,
-					0, 0,
-					width, height,
-					false, false);
+					width / PPM, height / PPM);
 		
 	}
 	
