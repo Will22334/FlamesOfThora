@@ -1,7 +1,5 @@
 package com.thora.core.world;
 
-import java.util.Objects;
-
 import com.badlogic.ashley.core.Entity;
 
 /**

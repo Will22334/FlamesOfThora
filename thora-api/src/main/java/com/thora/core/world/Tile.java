@@ -4,6 +4,11 @@ import java.util.function.Predicate;
 
 public interface Tile extends Locatable {
 	
+	@Override
+	public default Tile getTile() {
+		return this;
+	}
+	
 	public TileData getTileData();
 	
 	public TileData setTileData(TileData tileData);

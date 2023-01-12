@@ -10,6 +10,14 @@ public interface WorldEntity extends Locatable {
 	
 	public WorldEntity setID(int id);
 	
+	public String getName();
+	
+	public void setLocation(Location p);
+	
+	public default void setLocation(Locatable l) {
+		setLocation(l.getLocation());
+	}
+	
 	public default boolean isRegistered(World world) {
 		return isRegistered() && Objects.equals(getWorld(), world);
 	}
@@ -17,5 +25,7 @@ public interface WorldEntity extends Locatable {
 	public default boolean isRegistered() {
 		return getID() == EMPTY_ID;
 	}
+	
+	
 	
 }

@@ -22,7 +22,12 @@ public class PlayerEntity implements WorldEntity {
 	public Location getLocation() {
 		return loc;
 	}
-
+	
+	@Override
+	public void setLocation(Location p) {
+		this.loc = p;
+	}
+	
 	@Override
 	public int getID() {
 		return id;

@@ -7,8 +7,10 @@ import javax.crypto.IllegalBlockSizeException;
 
 import org.apache.logging.log4j.Logger;
 
+import com.thora.core.Utils;
 import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.ChatMessage;
+import com.thora.core.net.message.EntityMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
 import com.thora.core.net.message.StateChangeMessage;
@@ -17,6 +19,7 @@ import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.ThoraCodec;
 import com.thora.core.world.TileData;
 import com.thora.core.world.World;
+import com.thora.core.world.WorldEntity;
 import com.thora.server.ThoraServer;
 
 import io.netty.buffer.ByteBuf;
@@ -164,6 +167,58 @@ public class ThoraServerCodec extends ThoraCodec {
 		@Override
 		public void encode(ChannelHandlerContext ctx, StateChangeMessage msg, ByteBuf buf) {
 			buf.writeInt(msg.stateID);
+		}
+		
+	}
+	
+	public class EntityMessageEncoder extends MessageEncoder<EntityMessage> {
+		protected EntityMessageEncoder() {
+			super(OPCODE_CLIENT_ENTITY_INFORM);
+		}
+		
+		public static final int HEADER_BIT_CREATE = 0x01;
+		public static final int HEADER_BIT_UPDATE = 0x02;
+		public static final int HEADER_BIT_DESTROY = 0x04;
+		
+		@Override
+		public void encode(ChannelHandlerContext ctx, EntityMessage msg, ByteBuf buf) {
+			
+			final int headerIndex = buf.writerIndex();
+			byte header = 0;
+			buf.writeByte(0);
+			
+			if(!msg.getCreate().isEmpty()) {
+				header |= HEADER_BIT_CREATE;
+				EncodingUtils.encodeMap(msg.getCreate(), this::encodeEntityCreate, buf);
+			}
+			
+			if(!msg.getUpdate().isEmpty()) {
+				header |= HEADER_BIT_UPDATE;
+				EncodingUtils.encodeMap(msg.getUpdate(), this::encodeEntityUpdate, buf);
+			}
+			
+			if(!msg.getDestroy().isEmpty()) {
+				header |= HEADER_BIT_DESTROY;
+				EncodingUtils.encodeCollection(msg.getDestroy(), EncodingUtils::writePosVarInt, buf);
+			}
+			
+			buf.setByte(headerIndex, header);
+			
+		}
+		
+		private void encodeEntityCreate(final int id, final WorldEntity e, final ByteBuf buf) {
+			encodeEntityLocHeader(e, buf);
+			//Encode entity type
+			EncodingUtils.writenNullableVarString(e.getName(), buf);
+		}
+		
+		private void encodeEntityUpdate(final int id, final WorldEntity e, final ByteBuf buf) {
+			encodeEntityLocHeader(e, buf);
+		}
+		
+		private void encodeEntityLocHeader(final WorldEntity e, final ByteBuf buf) {
+			EncodingUtils.writePosVarInt(e.getID(), buf);
+			ThoraCodec.write2DLocation(e, buf);
 		}
 		
 	}

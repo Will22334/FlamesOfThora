@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -92,7 +91,11 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 			this.world.dispose();
 		}
 		this.world = world;
-		engine().getSystem(WorldRenderer.class).world = world;
+		final WorldRenderer r = engine().getSystem(WorldRenderer.class);
+		if(r != null) {
+			r.world = world;
+		}
+		
 	}
 	
 	public void addTask(Runnable r) {

@@ -278,6 +278,10 @@ public final class Utils {
 		trigger(all, l -> mapping.apply(l).test(from, to));
 	}
 	
+	public static final <A,R> Consumer<A> consume(final Function<A,R> f, final A arg) {
+		return (a) -> f.apply(a);
+	}
+	
 	public static final <A,R> Supplier<R> bindArg(final Function<A,R> f, final A arg) {
 		return () -> f.apply(arg);
 	}
@@ -300,6 +304,26 @@ public final class Utils {
 	
 	public static final <A,B,R> Function<A,R> bindArg2(final BiFunction<A,B,R> f, final B arg) {
 		return (a) -> f.apply(a, arg);
+	}
+	
+	@FunctionalInterface
+	public static interface IntObjFunction<A,R> {
+		public R apply(int i, A a);
+	}
+	
+	@FunctionalInterface
+	public static interface IntObjObjFunction<A,B,R> {
+		public R apply(int i, A a, B b);
+	}
+	
+	@FunctionalInterface
+	public static interface IntObjConsumer<A> {
+		public void apply(int i, A a);
+	}
+	
+	@FunctionalInterface
+	public static interface IntObjObjConsumer<A,B> {
+		public void apply(int i, A a, B b);
 	}
 	
 	public static final String newThreadDumpMessage() {

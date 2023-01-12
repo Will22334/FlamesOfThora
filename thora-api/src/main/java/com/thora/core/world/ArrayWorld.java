@@ -251,5 +251,10 @@ public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 	public Stream<? extends Tile> surroundingTiles(Locatable center) {
 		throw new RuntimeException("Not implemented");
 	}
+
+	@Override
+	public void moveEntity(WorldEntity e, Tile p) {
+		throw new RuntimeException("Not implemented");
+	}
 	
 }

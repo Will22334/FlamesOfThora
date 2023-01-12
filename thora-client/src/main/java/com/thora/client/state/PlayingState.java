@@ -303,6 +303,7 @@ public class PlayingState extends GameState implements HasLogger {
 			@Override
 			public void receive(Signal<MoveEvent> signal, MoveEvent event) {
 				location.getLocation().shift(event.dx(), event.dy());
+				
 				worldCamera.position.add(event.dx(), event.dy(), 0);
 				worldCamera.update();
 			}
@@ -374,29 +375,6 @@ public class PlayingState extends GameState implements HasLogger {
 		
 		
 		Location loc = player.getComponent(LocationComponent.class).getLocation();
-		
-		//		if(KEY_ESCAPE.ifPressed()) {
-		//			
-		//			Gdx.app.exit();
-		//			
-		//		}
-		
-		//Toggles the Grid. Modify Time offset for better responsiveness.
-		//		if(KEY_G.ifPressed()) {
-		//			
-		//			if((lastGridToggleTime + GRID_TOGGLE_LIMIT_DURATION) < delta) {
-		//				
-		//				this.log("Last Resized at: " + lastGridToggleTime);
-		//				
-		//				this.log("Toggling Grid");
-		//				
-		//				worldRenderer.toggleBorders();
-		//				
-		//				lastGridToggleTime = delta;
-		//				
-		//			}
-		//			
-		//		}
 		
 		long time = System.currentTimeMillis();
 		if(time > lastWalkTime + WALK_TILE_DURATION) {

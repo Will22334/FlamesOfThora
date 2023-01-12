@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.badlogic.ashley.core.PooledEngine;
 import com.thora.core.math.FinalIntVector;
+import com.thora.core.world.HashChunkWorld.HashChunk.CTile;
 
 public abstract class HashChunkWorld extends GeneralWorld {
 	
@@ -135,13 +136,11 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		}
 		
 		public void addEntity(WorldEntity e) {
-			getWorld().entities.put(e.getID(), e);
 			this.entities.put(e.getID(), e);
 		}
 		
 		public void removeEntity(WorldEntity e) {
 			this.entities.remove(e.getID());
-			getWorld().entities.remove(e.getID());
 		}
 		
 	}
@@ -328,6 +327,29 @@ public abstract class HashChunkWorld extends GeneralWorld {
 	@Override
 	public Tile setTile(Location point, TileData data) {
 		return setTile(data.material(), point);
+	}
+	
+	@Override
+	public void moveEntity(WorldEntity e, Tile p) {
+		this.moveEntity(e, (HashChunk.CTile) p);
+	}
+	
+	public void moveEntity(final WorldEntity e, final HashChunk.CTile newTile) {
+		final HashChunk.CTile oldTile = (CTile) e.getTile();
+		final HashChunk oldChunk = oldTile.getChunk();
+		final HashChunk newChunk = newTile.getChunk();
+		if(!oldChunk.equals(newChunk)) {
+			oldChunk.removeEntity(e);
+			e.setLocation(newTile.getLocation());
+			newChunk.addEntity(e);
+		} else {
+			e.setLocation(newTile.getLocation());
+		}
+		onMoveEntity(e, oldTile);
+	}
+	
+	protected void onMoveEntity(final WorldEntity e, final HashChunk.CTile oldTile) {
+		
 	}
 	
 }

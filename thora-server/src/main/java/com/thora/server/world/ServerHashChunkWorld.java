@@ -6,6 +6,7 @@ import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.TileGenerator;
 import com.thora.core.world.WorldEntity;
+import com.thora.core.world.HashChunkWorld.HashChunk;
 import com.thora.server.netty.ClientSession;
 
 public class ServerHashChunkWorld extends HashChunkWorld {
@@ -42,6 +43,11 @@ public class ServerHashChunkWorld extends HashChunkWorld {
 	public BasicTileMessage getInformChunkMessage(final HashChunk chunk) {
 		chunk.ensureGenerated();
 		return BasicTileMessage.createRegion(chunk.bottomLeft.clone(), chunk.tiles);
+	}
+	
+	@Override
+	protected void onMoveEntity(final WorldEntity e, final HashChunk.CTile oldTile) {
+		//TODO Inform nearby players/observers
 	}
 	
 }

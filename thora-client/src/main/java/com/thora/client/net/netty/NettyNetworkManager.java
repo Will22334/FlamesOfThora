@@ -102,7 +102,7 @@ public class NettyNetworkManager {
 		return publicEncCipher;
 	}
 	
-	protected PlayerSession session() {
+	public PlayerSession session() {
 		return session;
 	}
 	
@@ -114,7 +114,7 @@ public class NettyNetworkManager {
 		return PlayerSession.get(channel);
 	}
 	
-	protected SocketChannel rawChannel() {
+	public SocketChannel rawChannel() {
 		return channel;
 	}
 	

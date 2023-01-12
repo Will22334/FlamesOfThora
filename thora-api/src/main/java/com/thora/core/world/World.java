@@ -1,6 +1,5 @@
 package com.thora.core.world;
 
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -8,7 +7,7 @@ import java.util.stream.Stream;
 
 import com.badlogic.gdx.utils.Disposable;
 import com.thora.core.HasLogger;
-import com.thora.core.net.NetworkSession;
+import com.thora.core.math.Vector;
 
 public interface World extends HasWorld, Disposable, HasLogger {
 	
@@ -47,6 +46,19 @@ public interface World extends HasWorld, Disposable, HasLogger {
 	
 	public boolean deRegister(WorldEntity e);
 	
+	public void moveEntity(WorldEntity e, Tile p);
+	
+	public default void moveEntity(WorldEntity e, Locatable l) {
+		moveEntity(e, this.getTile(l));
+	}
+	
+	public default void moveEntity(WorldEntity e, Vector v) {
+		moveEntity(e, v.getIX(), v.getIY());
+	}
+	
+	public default void moveEntity(WorldEntity e, int dx, int dy) {
+		moveEntity(e, getTile(e.getLocation().getX() + dx, e.getLocation().getY() + dy));
+	}
 	
 	public default Stream<? extends Tile> surroundingWalkableTiles(Locatable l, double viewRange) {
 		final Tile center = l.getTile();

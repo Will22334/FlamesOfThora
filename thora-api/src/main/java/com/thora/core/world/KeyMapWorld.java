@@ -116,5 +116,10 @@ public class KeyMapWorld extends GeneralWorld {
 	public Tile setTile(Location point, TileData data) {
 		return setTile(data.material(), point);
 	}
+
+	@Override
+	public void moveEntity(WorldEntity e, Tile p) {
+		throw new RuntimeException("Not implemented");
+	}
 	
 }

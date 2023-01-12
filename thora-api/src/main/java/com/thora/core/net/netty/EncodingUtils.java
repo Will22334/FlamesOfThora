@@ -19,10 +19,14 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -40,6 +44,10 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.thora.core.Utils;
+import com.thora.core.Utils.IntObjConsumer;
+import com.thora.core.Utils.IntObjFunction;
+import com.thora.core.Utils.IntObjObjConsumer;
+import com.thora.core.Utils.IntObjObjFunction;
 import com.thora.core.net.HasCryptographicCredentials;
 
 import io.netty.buffer.ByteBuf;
@@ -47,6 +55,7 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.util.ByteProcessor;
+import io.netty.util.collection.IntObjectMap;
 import io.netty.util.concurrent.FastThreadLocal;
 
 public class EncodingUtils {
@@ -530,7 +539,7 @@ public class EncodingUtils {
 	private static final int SEGMENT_BITS = 0x7f;
 	private static final int CONTINUE_BIT = 0x80;
 	
-	public static final ByteBuf writeVarShort(short value, ByteBuf buf) {
+	public static final ByteBuf writeVarShort(short value, final ByteBuf buf) {
 		while((value & ~SEGMENT_BITS) != 0) {
 			buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
 			value >>>= 7;
@@ -538,11 +547,11 @@ public class EncodingUtils {
 		return buf.writeByte(value);
 	}
 	
-	public static final ByteBuf writeVarShort(int value, ByteBuf buf) {
+	public static final ByteBuf writeVarShort(final int value, final ByteBuf buf) {
 		return writeVarShort((short) value, buf);
 	}
 	
-	public static final short readVarShort(ByteBuf buf) {
+	public static final short readVarShort(final ByteBuf buf) {
 		short value = 0;
 		short size = 0;
 		byte b;
@@ -555,15 +564,31 @@ public class EncodingUtils {
 		return (short) (value | ((b & SEGMENT_BITS) << (size * 7)));
 	}
 	
-	public static final ByteBuf writeVarInt(int i, ByteBuf buf) {
+	public static final ByteBuf writeVarInt(final int i, final ByteBuf buf) {
 		return writeSignedVarInt(i, buf);
 	}
 	
 	
-	public static final ByteBuf writeSignedVarInt(int value, ByteBuf buf) {
+	public static final ByteBuf writeSignedVarInt(int value, final ByteBuf buf) {
 		int remaining = value >> 7;
 		boolean hasMore = true;
-		int end = ((value & Integer.MIN_VALUE) == 0) ? 0 : -1;
+		final int end = ((value & Integer.MIN_VALUE) == 0) ? 0 : -1;
+		while (hasMore) {
+			hasMore = (remaining != end)
+					|| ((remaining & 1) != ((value >> 6) & 1));
+			
+			buf.writeByte((byte) ((value & SEGMENT_BITS) | (hasMore ? CONTINUE_BIT : 0)));
+			value = remaining;
+			remaining >>= 7;
+		}
+		
+		return buf;
+	}
+	
+	public static final int writeSignedVarIntCount(int value, final ByteBuf buf) {
+		int remaining = value >> 7;
+		boolean hasMore = true;
+		final int end = ((value & Integer.MIN_VALUE) == 0) ? 0 : -1;
 		int bytesWritten = 0;
 		while (hasMore) {
 			hasMore = (remaining != end)
@@ -575,10 +600,10 @@ public class EncodingUtils {
 			remaining >>= 7;
 		}
 		
-		return buf;
+		return bytesWritten;
 	}
 	
-	public static final int writePosVarIntCount(int i, ByteBuf buf) {
+	public static final int writePosVarIntCount(int i, final ByteBuf buf) {
 		int totalBytes = 0;
 		while((i & ~SEGMENT_BITS) != 0) {
 			buf.writeByte((i & SEGMENT_BITS) | CONTINUE_BIT);
@@ -589,7 +614,7 @@ public class EncodingUtils {
 		return ++totalBytes;
 	}
 	
-	public static final ByteBuf writePosVarInt(int i, ByteBuf buf) {
+	public static final ByteBuf writePosVarInt(int i, final ByteBuf buf) {
 		while((i & ~SEGMENT_BITS) != 0) {
 			buf.writeByte((i & SEGMENT_BITS) | CONTINUE_BIT);
 			i >>>= 7;
@@ -597,15 +622,15 @@ public class EncodingUtils {
 		return buf.writeByte(i);
 	}
 	
-	public static final int readVarInt(ByteBuf buf) {
+	public static final int readVarInt(final ByteBuf buf) {
 		return readSignedVarInt(buf);
 	}
 	
-	public static final int readPosVarInt(ByteBuf buf) {
+	public static final int readPosVarInt(final ByteBuf buf) {
 		return readPosVarIntUnwrapped(buf);
 	}
 	
-	public static final int readPosVarIntLoop(ByteBuf buf) {
+	public static final int readPosVarIntLoop(final ByteBuf buf) {
 		int value = 0;
 		int size = 0;
 		int b;
@@ -618,7 +643,7 @@ public class EncodingUtils {
 		return value | ((b & SEGMENT_BITS) << (size * 7));
 	}
 	
-	public static final int readPosVarIntUnwrapped(ByteBuf buf) {
+	public static final int readPosVarIntUnwrapped(final ByteBuf buf) {
 		int tmp;
 	    if ((tmp = buf.readByte()) >= 0) {
 	      return tmp;
@@ -679,11 +704,11 @@ public class EncodingUtils {
 		return buf.writeByte((int) value);
 	}
 	
-	public static final long readVarLong(ByteBuf buf) {
+	public static final long readVarLong(final ByteBuf buf) {
 		return readVarLongUnwrapped(buf);
 	}
 	
-	public static final long readVarLongLoop(ByteBuf buf) {
+	public static final long readVarLongLoop(final ByteBuf buf) {
 		long value = 0;
 		int position = 0;
 		long currentByte;
@@ -697,7 +722,7 @@ public class EncodingUtils {
 		return value;
 	}
 	
-	public static final long readVarLongUnwrapped(ByteBuf buf) {
+	public static final long readVarLongUnwrapped(final ByteBuf buf) {
 		
 		long tmp;
 		if ((tmp = buf.readByte()) >= 0) {
@@ -767,7 +792,7 @@ public class EncodingUtils {
 			return position / 7;
 		}
 		@Override
-		public final boolean process(byte currentByte) throws Exception {
+		public final boolean process(final byte currentByte) throws Exception {
 			temp = currentByte;
 			result |= (temp & SEGMENT_BITS) << position;
 			position += 7;
@@ -783,33 +808,32 @@ public class EncodingUtils {
 	
 	private static final ThreadLocal<VarLongProcessor> vlp = ThreadLocal.withInitial(VarLongProcessor::new);
 	
-	public static final long readVarLongProcess(ByteBuf buf) {
+	public static final long readVarLongProcess(final ByteBuf buf) {
 		VarLongProcessor p = vlp.get().reset();
 		buf.readerIndex(buf.forEachByte(p) + 1);
 		return p.getValue();
 	}
 	
-	
-	public static final ByteBuf writeUByte(int value, ByteBuf buf) {
+	public static final ByteBuf writeUByte(final int value, final ByteBuf buf) {
 		return buf.writeByte(value);
 	}
 	
-	public static final int readUByte(ByteBuf buf) {
+	public static final int readUByte(final ByteBuf buf) {
 		return buf.readByte() & 0xFF;
 	}
 	
-	public static final ByteBuf writeVarArray(byte[] arr, ByteBuf buf) {
+	public static final ByteBuf writeVarArray(final byte[] arr, final ByteBuf buf) {
 		return writePosVarInt(arr.length, buf)
 				.writeBytes(arr);
 	}
 	
-	public static final byte[] readVarArray(ByteBuf buf) {
+	public static final byte[] readVarArray(final ByteBuf buf) {
 		byte[] arr = new byte[readPosVarInt(buf)];
 		buf.readBytes(arr);
 		return arr;
 	}
 	
-	public static final ByteBuf writeLongArray(long[] arr, ByteBuf buf) {
+	public static final ByteBuf writeLongArray(final long[] arr, final ByteBuf buf) {
 		writePosVarInt(arr.length, buf);
 		for(int i=0; i<arr.length; ++i) {
 			buf.writeLong(arr[i]);
@@ -817,7 +841,7 @@ public class EncodingUtils {
 		return buf;
 	}
 	
-	public static final long[] readLongArray(ByteBuf buf) {
+	public static final long[] readLongArray(final ByteBuf buf) {
 		int length = readPosVarInt(buf);
 		long[] arr = new long[length];
 		for(int i=0; i<length; ++i) {
@@ -836,8 +860,8 @@ public class EncodingUtils {
 	 * @param encoder The encoding function that consumes a element and writes it to a passed ByteBuf.
 	 * @return
 	 */
-	public static final <M> ByteBuf encodeObjectList(ByteBuf buf, List<M> list, BiConsumer<? super M,ByteBuf> encoder) {
-		EncodingUtils.writePosVarIntCount(list.size(), buf);
+	public static final <M> ByteBuf encodeObjectList(final ByteBuf buf, final List<M> list, final BiConsumer<? super M,ByteBuf> encoder) {
+		EncodingUtils.writePosVarInt(list.size(), buf);
 		if(list.isEmpty()) {
 			return buf;
 		}
@@ -853,7 +877,7 @@ public class EncodingUtils {
 		return buf;
 	}
 	
-	public static final <M> List<M> decodeObjectList(ByteBuf buf, Function<ByteBuf,M> decoder) {
+	public static final <M> List<M> decodeObjectList(final ByteBuf buf, final Function<ByteBuf,M> decoder) {
 		int count = EncodingUtils.readPosVarIntUnwrapped(buf);
 		if(count < 1) return Collections.emptyList();
 		
@@ -876,8 +900,8 @@ public class EncodingUtils {
 	 * @param encoder The encoding function that consumes a element and writes it to a passed ByteBuf.
 	 * @return
 	 */
-	public static final <M> ByteBuf encodeObjectArray(ByteBuf buf, M[] arr, BiConsumer<? super M,ByteBuf> encoder) {
-		EncodingUtils.writePosVarIntCount(arr.length, buf);
+	public static final <M> ByteBuf encodeObjectArray(final ByteBuf buf, M[] arr, final BiConsumer<? super M,ByteBuf> encoder) {
+		EncodingUtils.writePosVarInt(arr.length, buf);
 		if(arr.length < 1) {
 			return buf;
 		}
@@ -894,22 +918,22 @@ public class EncodingUtils {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static final <M> M[] decodeObjectArray(ByteBuf buf, Class<M> clazz, Function<ByteBuf,M> decoder) {
-		int length = EncodingUtils.readPosVarIntUnwrapped(buf);
+	public static final <M> M[] decodeObjectArray(final ByteBuf buf, final Class<M> clazz, final Function<ByteBuf,M> decoder) {
+		final int length = EncodingUtils.readPosVarIntUnwrapped(buf);
 		if(length < 1) {
 			return (M[]) Array.newInstance(clazz, length);
 		}
 		
-		int readStart = buf.readerIndex();
-		int totalBytes = buf.readInt();
+		final int readStart = buf.readerIndex();
+		final int totalBytes = buf.readInt();
 		
-		M[] arr = (M[]) Array.newInstance(clazz, length);
+		final M[] arr = (M[]) Array.newInstance(clazz, length);
 		
 		for(int i=0; i<length; ++i) {
 			arr[i] = decoder.apply(buf);
 		}
 		
-		int readBytes = buf.readerIndex() - readStart;
+		final int readBytes = buf.readerIndex() - readStart;
 		
 		if(readBytes != totalBytes) {
 			throw new ArrayIndexOutOfBoundsException("Decoded more bytes than should have for Object Array!");
@@ -919,9 +943,9 @@ public class EncodingUtils {
 		
 	}
 	
-	public static final <M> ByteBuf encode2DObjectArrayNoIndex(ByteBuf buf, M[][] arr, BiConsumer<? super M,ByteBuf> encoder) {
-		EncodingUtils.writePosVarIntCount(arr.length, buf);
-		EncodingUtils.writePosVarIntCount(arr[0].length, buf);
+	public static final <M> ByteBuf encode2DObjectArrayNoIndex(final ByteBuf buf, final M[][] arr, final BiConsumer<? super M,ByteBuf> encoder) {
+		EncodingUtils.writePosVarInt(arr.length, buf);
+		EncodingUtils.writePosVarInt(arr[0].length, buf);
 		
 		for(M[] a : arr) {
 			for(M e: a) {
@@ -932,15 +956,15 @@ public class EncodingUtils {
 		return buf;
 	}
 	
-	public static final <M> M[][] decode2DObjectArrayNoIndex(ByteBuf buf, Class<M> clazz, Function<ByteBuf,M> decoder) {
-		int height = EncodingUtils.readPosVarIntUnwrapped(buf);
-		int width = EncodingUtils.readPosVarIntUnwrapped(buf);
+	public static final <M> M[][] decode2DObjectArrayNoIndex(final ByteBuf buf, final Class<M> clazz, final Function<ByteBuf,M> decoder) {
+		final int height = EncodingUtils.readPosVarIntUnwrapped(buf);
+		final int width = EncodingUtils.readPosVarIntUnwrapped(buf);
 		
 		if(height < 1 || width < 1) {
 			return null;
 		}
 		
-		M[][] arr = (M[][]) Array.newInstance(clazz, height, width);
+		final M[][] arr = (M[][]) Array.newInstance(clazz, height, width);
 		for(int y=0; y<height; ++y) {
 			for(int x=0; x<width; ++x) {
 				arr[y][x] = decoder.apply(buf);
@@ -951,7 +975,43 @@ public class EncodingUtils {
 		
 	}
 	
-	public static ByteBuf decryptSameFast(ByteBuf buf, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException, ShortBufferException  {
+	public static final <V> ByteBuf encodeCollection(final Collection<V> c, final BiConsumer<V,ByteBuf> f, final ByteBuf buf) {
+		EncodingUtils.writePosVarInt(c.size(), buf);
+		c.forEach(Utils.bindArg2(f, buf));
+		return buf;
+	}
+	
+	public static final <V> ByteBuf encodeCollection(final Collection<V> c, final BiFunction<V,ByteBuf,ByteBuf> f, final ByteBuf buf) {
+		EncodingUtils.writePosVarInt(c.size(), buf);
+		c.forEach(v -> f.apply(v, buf));
+		return buf;
+	}
+	
+	public static final <V> ByteBuf encodeMap(final IntObjectMap<V> map, final IntObjObjFunction<V,ByteBuf,ByteBuf> f, final ByteBuf buf) {
+		EncodingUtils.writePosVarInt(map.size(), buf);
+		map.entries().forEach(e -> f.apply(e.key(), e.value(), buf));
+		return buf;
+	}
+	
+	public static final <V> ByteBuf encodeMap(final IntObjectMap<V> map, final IntObjObjConsumer<V,ByteBuf> f, final ByteBuf buf) {
+		EncodingUtils.writePosVarInt(map.size(), buf);
+		map.entries().forEach(e -> f.apply(e.key(), e.value(), buf));
+		return buf;
+	}
+	
+	public static final <K,V,R> ByteBuf encodeMap(final Map<K,V> map, final BiFunction<K,V,R> f, final ByteBuf buf) {
+		EncodingUtils.writePosVarInt(map.size(), buf);
+		map.forEach((k,v) -> f.apply(k, v));
+		return buf;
+	}
+	
+	public static final <K,V> ByteBuf encodeMap(final Map<K,V> map, final BiConsumer<? super Entry<K,V>,ByteBuf> f, final ByteBuf buf) {
+		EncodingUtils.writePosVarInt(map.size(), buf);
+		map.entrySet().forEach(Utils.bindArg2(f, buf));
+		return buf;
+	}
+	
+	public static ByteBuf decryptSameFast(final ByteBuf buf, final Cipher cipher) throws IllegalBlockSizeException, BadPaddingException, ShortBufferException  {
 		int initialRead = buf.readerIndex();
 		int enclength = buf.readableBytes();
 		byte[] arr = tempArray(enclength);
@@ -962,11 +1022,11 @@ public class EncodingUtils {
 		return buf.writeBytes(arr, 0, plainLength);
 	}
 	
-	public static ByteBuf decryptSameFast(ByteBuf buf, HasCryptographicCredentials c) throws IllegalBlockSizeException, BadPaddingException, ShortBufferException  {
+	public static ByteBuf decryptSameFast(final ByteBuf buf, final HasCryptographicCredentials c) throws IllegalBlockSizeException, BadPaddingException, ShortBufferException  {
 		return decryptSameFast(buf, decryptCipher(c));
 	}
 	
-	public static ByteBuf decryptSame(ByteBuf buf, HasCryptographicCredentials c) throws IllegalBlockSizeException, BadPaddingException  {
+	public static ByteBuf decryptSame(final ByteBuf buf, final HasCryptographicCredentials c) throws IllegalBlockSizeException, BadPaddingException  {
 		int initialRead = buf.readerIndex();
 		byte[] enc = new byte[buf.readableBytes()];
 		buf.readBytes(enc);
@@ -976,11 +1036,11 @@ public class EncodingUtils {
 		return buf.writeBytes(plain);
 	}
 	
-	public static ByteBuf decryptSame(ByteBuf buf, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException  {
+	public static ByteBuf decryptSame(final ByteBuf buf, final Cipher cipher) throws IllegalBlockSizeException, BadPaddingException  {
 		return decryptSame(buf, buf.readableBytes(), cipher);
 	}
 	
-	public static ByteBuf decryptSame(ByteBuf buf, int length, Cipher decCipher) throws IllegalBlockSizeException, BadPaddingException  {
+	public static ByteBuf decryptSame(final ByteBuf buf, final int length, final Cipher decCipher) throws IllegalBlockSizeException, BadPaddingException  {
 		int initialRead = buf.readerIndex();
 		byte[] encBytes = new byte[length];
 		buf.readBytes(encBytes);
@@ -1083,46 +1143,53 @@ public class EncodingUtils {
 		return readVarIntString(buf, DEFAULT_CHARSET);
 	}
 	
-	public static final ByteBuf writeString(String s, ByteBuf buf) {
+	public static final ByteBuf writeString(final String s, final ByteBuf buf) {
 		return writeVarString(s, buf);
 	}
 	
-	public static final ByteBuf writeVarString(String s, ByteBuf buf) {
+	public static final ByteBuf writeVarString(final String s, final ByteBuf buf) {
 		return writeVarIntString(s, DEFAULT_CHARSET, buf);
 	}
 	
-	public static final ByteBuf writeVarIntString(String s, Charset charset, ByteBuf buf) {
+	public static final ByteBuf writenNullableVarString(final String s, final ByteBuf buf) {
+		if(s == null) {
+			return writePosVarInt(0, buf);
+		}
+		return writeVarIntString(s, DEFAULT_CHARSET, buf);
+	}
+	
+	public static final ByteBuf writeVarIntString(final String s, final Charset charset, final ByteBuf buf) {
 		byte[] arr = s.getBytes(charset);
 		return writeVarArray(arr, buf);
 	}
 	
-	public static final ByteBuf writeByteString(String s, Charset charset, ByteBuf buf) {
+	public static final ByteBuf writeByteString(final String s, final Charset charset, final ByteBuf buf) {
 		byte[] arr = s.getBytes(charset);
 		writeUByte(arr.length, buf);
 		return buf.writeBytes(arr);
 	}
 	
-	public static final ByteBuf writeByteString(String s, ByteBuf buf) {
+	public static final ByteBuf writeByteString(final String s, final ByteBuf buf) {
 		return writeByteString(s, DEFAULT_CHARSET, buf);
 	}
 	
-	public static final void writeShortString(String s, ByteBuf buf) {
+	public static final void writeShortString(final String s, final ByteBuf buf) {
 		byte[] arr = s.getBytes();
 		buf.writeShort(arr.length);
 		buf.writeBytes(arr);
 	}
 	
-	public static final void writeIntString(String s, ByteBuf buf) {
+	public static final void writeIntString(final String s, final ByteBuf buf) {
 		byte[] arr = s.getBytes();
 		buf.writeInt(arr.length);
 		buf.writeBytes(arr);
 	}
 	
-	public static final void encode(PublicKey key, ByteBuf buf) {
+	public static final void encode(final PublicKey key, final ByteBuf buf) {
 		buf.writeBytes(key.getEncoded());
 	}
 	
-	public static final PublicKey decodeRSAPublicKey(ByteBuf buf) throws InvalidKeySpecException, NoSuchAlgorithmException {
+	public static final PublicKey decodeRSAPublicKey(final ByteBuf buf) throws InvalidKeySpecException, NoSuchAlgorithmException {
 		byte[] arr = new byte[buf.readableBytes()];
 		buf.readBytes(arr);
 		return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(arr));
@@ -1150,7 +1217,7 @@ public class EncodingUtils {
 //		return compress(new Deflater(Deflater.DEFAULT_COMPRESSION), in, out);
 //	}
 	
-	public static final byte[] compress(byte[] data) {
+	public static final byte[] compress(final byte[] data) {
 		Deflater dfl = new Deflater(Deflater.DEFAULT_COMPRESSION);
 		dfl.setInput(data);
 		dfl.finish();
@@ -1170,7 +1237,7 @@ public class EncodingUtils {
 		}
 	}
 	
-	public static final ByteBuf compressSameAsArray(ByteBuf buf) {
+	public static final ByteBuf compressSameAsArray(final ByteBuf buf) {
 		return EncodingUtils.encodeSame(EncodingUtils::compress, buf);
 	}
 	
@@ -1214,7 +1281,7 @@ public class EncodingUtils {
 //	return buf;
 //}
 	
-	public static final byte[] decompress(byte[] compressedBytes) {
+	public static final byte[] decompress(final byte[] compressedBytes) {
 		Inflater infl = new Inflater();
 		infl.setInput(compressedBytes, 0, compressedBytes.length);
 		
@@ -1233,40 +1300,40 @@ public class EncodingUtils {
 		}
 	}
 	
-	public static final ByteBuf decompressSame(ByteBuf buf) {
+	public static final ByteBuf decompressSame(final ByteBuf buf) {
 		return EncodingUtils.encodeSame(EncodingUtils::decompress, buf);
 	}
 	
-	public static final ByteBuf decompressNew(ByteBuf in, ByteBuf out) {
+	public static final ByteBuf decompressNew(final ByteBuf in, final ByteBuf out) {
 		return EncodingUtils.encodeTo(EncodingUtils::decompress, in, out);
 	}
 	
-	public static final ByteBuf decompressNew(Channel channel, ByteBuf in) {
+	public static final ByteBuf decompressNew(final Channel channel, final ByteBuf in) {
 		return EncodingUtils.encodeTo(EncodingUtils::decompress, in, channel.alloc().buffer(in.readableBytes()));
 	}
 	
-	public static String toBinaryString(byte b) {
+	public static String toBinaryString(final byte b) {
 		return String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0');
 	}
 	
-	public static String toBinaryString(int i) {
+	public static String toBinaryString(final int i) {
 		return String.format("%8s", Integer.toBinaryString(i & 0xFF)).replace(' ', '0');
 	}
 	
 	
 	
-	private static String getSingleHexChar(int i) {
+	private static String getSingleHexChar(final int i) {
 		return hexChars[i];
 	}
 	
-	public static void newPretty(StringBuilder builder, byte b) {
+	public static void newPretty(final StringBuilder builder, final byte b) {
 		for(int i=7; i>=0; --i) {
 			int bit = (b >> i) & 1;
 			builder.append(bit);
 		}
 	}
 	
-	public static void newPretty(StringBuilder b, byte[] bytes) {
+	public static void newPretty(final StringBuilder b, final byte[] bytes) {
 		b.append("[");
 		if(bytes.length > 0)
 			b.append("\n");
@@ -1275,7 +1342,7 @@ public class EncodingUtils {
 		b.append("\n]");
 	}
 	
-	public static void pretty(StringBuilder b, byte[] bytes) {
+	public static void pretty(final StringBuilder b, final byte[] bytes) {
 		b.append("[");
 		if(bytes.length > 0)
 			b.append("\n");
@@ -1284,13 +1351,13 @@ public class EncodingUtils {
 		b.append("]");
 	}
 	
-	public static String pretty(byte[] bytes) {
+	public static String pretty(final byte[] bytes) {
 		StringBuilder builder = new StringBuilder();
 		pretty(builder, bytes);
 		return builder.toString();
 	}
 	
-	public static String getPrettyHexTableIndex(int index) {
+	public static String getPrettyHexTableIndex(final int index) {
 		int row = index / 16;
 		int column = index % 16;
 		return toBinaryString(row) + ":" + getSingleHexChar(column);

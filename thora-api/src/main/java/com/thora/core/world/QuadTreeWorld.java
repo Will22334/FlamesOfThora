@@ -26,12 +26,12 @@ public class QuadTreeWorld extends AbstractWorld {
 	}
 	
 	protected static class QuadTreeTileD extends AbstractTile<DoubleArrRefLocation<QuadTreeWorld>> implements QuadTreeTile {
-
+		
 		public QuadTreeTileD(Material material, DoubleArrRefLocation<QuadTreeWorld> point) {
 			super(material, point);
 		}
-
-
+		
+		
 		public QuadTreeTileD(TileData data, DoubleArrRefLocation<QuadTreeWorld> point) {
 			super(data, point);
 		}
@@ -43,8 +43,8 @@ public class QuadTreeWorld extends AbstractWorld {
 		public QuadTreeTileD(QuadTreeWorld world, Material material, int x, int y) {
 			this(material, new DoubleArrRefLocation<>(world, x, y));
 		}
-
-
+		
+		
 		@Override
 		public String toString() {
 			return "" + getMaterial() + getLocation();
@@ -55,12 +55,12 @@ public class QuadTreeWorld extends AbstractWorld {
 	}
 	
 	protected static class QuadTreeTileI extends AbstractTile<IntVectorRefLocation<QuadTreeWorld>> implements QuadTreeTile {
-
+		
 		public QuadTreeTileI(Material material, IntVectorRefLocation<QuadTreeWorld> point) {
 			super(material, point);
 		}
-
-
+		
+		
 		public QuadTreeTileI(TileData data, IntVectorRefLocation<QuadTreeWorld> point) {
 			super(data, point);
 		}
@@ -72,8 +72,8 @@ public class QuadTreeWorld extends AbstractWorld {
 		public QuadTreeTileI(QuadTreeWorld world, Material material, int x, int y) {
 			this(material, new IntVectorRefLocation<>(world, x, y));
 		}
-
-
+		
+		
 		@Override
 		public String toString() {
 			return "" + getMaterial() + getLocation();
@@ -84,14 +84,14 @@ public class QuadTreeWorld extends AbstractWorld {
 	}
 	
 	private static class QuadTreeD {
-
+		
 		private final StreamQuadTree<QuadTreeTileD> tree = new StreamQuadTree<>();
 		private WeakReference<QuadTreeWorld> worldRef;
-
+		
 		public QuadTreeD(QuadTreeWorld world) {
 			this.worldRef = new WeakReference<QuadTreeWorld>(world);
 		}
-
+		
 		public QuadTreeWorld getWorld() {
 			return worldRef.get();
 		}
@@ -107,7 +107,7 @@ public class QuadTreeWorld extends AbstractWorld {
 		public void insert(QuadTreeTileD tile) {
 			insert(tile, tile.getLocation().comps());
 		}
-
+		
 		public void insert(QuadTreeTileD tile, double... position) {
 			tree.insert(tile, position);
 		}
@@ -127,26 +127,26 @@ public class QuadTreeWorld extends AbstractWorld {
 		public boolean move(QuadTreeTileD tile, double[] start, double[] end) {
 			return tree.move(tile, start, end);
 		}
-
+		
 		public List<QuadTreeTileD> query(double[]... parallelotope) {
 			return tree.query(parallelotope);
 		}
-
+		
 		public int getDimensions() {
 			return tree.getDimensions();
 		}
-
+		
 	}
 	
 	private static class QuadTreeI {
-
+		
 		private final StreamIntQuadTree<QuadTreeTileI> tree = new StreamIntQuadTree<>();
 		private WeakReference<QuadTreeWorld> worldRef;
-
+		
 		public QuadTreeI(QuadTreeWorld world) {
 			this.worldRef = new WeakReference<QuadTreeWorld>(world);
 		}
-
+		
 		public QuadTreeWorld getWorld() {
 			return worldRef.get();
 		}
@@ -162,7 +162,7 @@ public class QuadTreeWorld extends AbstractWorld {
 		public void insert(QuadTreeTileI tile) {
 			insert(tile, tile.getLocation().v.comps());
 		}
-
+		
 		public void insert(QuadTreeTileI tile, int... position) {
 			tree.insert(tile, position);
 		}
@@ -182,15 +182,15 @@ public class QuadTreeWorld extends AbstractWorld {
 		public boolean move(QuadTreeTileI tile, int[] start, int[] end) {
 			return tree.move(tile, start, end);
 		}
-
+		
 		public List<QuadTreeTileI> query(int[]... parallelotope) {
 			return tree.query(parallelotope);
 		}
-
+		
 		public int getDimensions() {
 			return tree.getDimensions();
 		}
-
+		
 	}
 	
 	private QuadTreeD tileTree;
@@ -213,17 +213,17 @@ public class QuadTreeWorld extends AbstractWorld {
 	public String getName() {
 		return name;
 	}
-
+	
 	@Override
 	public Locatable getOrigin() {
 		return origin;
 	}
-
+	
 	@Override
 	public IntVectorRefLocation<QuadTreeWorld> getLocation(int x, int y) {
 		return new IntVectorRefLocation<QuadTreeWorld>(this, x, y);
 	}
-
+	
 	@Override
 	public void initialize() throws Exception {
 		if(this.generator.isEmpty()) return;
@@ -248,7 +248,7 @@ public class QuadTreeWorld extends AbstractWorld {
 		logger().info("Took {}ms to generate {} tiles and stream through them in {}ms", genDur, size, streamDur, this);
 		
 	}
-
+	
 	@Override
 	public QuadTreeTileD getTile(int x, int y) {
 		return getTile(new double[] {x, y});
@@ -267,50 +267,55 @@ public class QuadTreeWorld extends AbstractWorld {
 		tileTree.insert(tile);
 		return tile;
 	}
-
+	
 	@Override
 	public Stream<QuadTreeTileD> tiles() {
 		return this.tileTree.tiles();
 	}
-
+	
 	@Override
 	public Stream<? extends WorldEntity> entities() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	@Override
 	public boolean register(WorldEntity e) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
+	
 	@Override
 	public boolean deRegister(WorldEntity e) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
+	
 	@Override
 	protected boolean doRegister(WorldEntity e) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
+	
 	@Override
 	protected boolean doDeRegister(WorldEntity e) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
+	
 	@Override
 	public Stream<? extends Tile> surroundingTiles(Locatable center) {
 		throw new RuntimeException("Not implemented");
 	}
-
+	
 	@Override
 	public Tile setTile(Location point, TileData data) {
 		return setTile(data.material(), point);
 	}
-
+	
+	@Override
+	public void moveEntity(WorldEntity e, Tile p) {
+		throw new RuntimeException("Not implemented");
+	}
+	
 }

@@ -61,6 +61,7 @@ public class ClientHashChunkWorld extends HashChunkWorld {
 		HashChunk chunk = this.getChunk(e);
 		if(chunk != null) {
 			chunk.addEntity(e);
+			this.entities.put(e.getID(), e);
 			return true;
 		}
 		return false;
@@ -70,6 +71,7 @@ public class ClientHashChunkWorld extends HashChunkWorld {
 	protected boolean doDeRegister(WorldEntity e) {
 		HashChunk chunk = this.getChunk(e);
 		if(chunk != null) {
+			this.entities.remove(e.getID());
 			chunk.removeEntity(e);
 			e.setID(WorldEntity.EMPTY_ID);
 			return true;

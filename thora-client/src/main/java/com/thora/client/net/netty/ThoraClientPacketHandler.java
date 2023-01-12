@@ -85,7 +85,7 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 				final Location bottomLeft = message.bottomLeft;
 				final TileData[][] tiles = message.tiles;
 				final int height = tiles.length, width = tiles[0].length;
-				logger().trace("Set Tiles[{}-{}] = {}", message.bottomLeft, message.bottomLeft.clone().shift(width, height));
+				logger().trace("Set Tiles[{}-{}] = {}", message.bottomLeft, message.bottomLeft.clone().shift(width, height), tiles);
 				for(int y=0; y<height; ++y) {
 					for(int x=0; x<width; ++x) {
 						world.setTile(bottomLeft.clone().shift(x, y), tiles[y][x]);
