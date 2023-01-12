@@ -13,8 +13,14 @@ public class GameLauncher {
 	
 	private static final Logger logger = LogManager.getLogger("Launcher");
 	
+	private static Application app;
+	
 	static final Logger logger() {
 		return logger;
+	}
+	
+	static Application app() {
+		return app;
 	}
 	
 	//Main Method
@@ -34,20 +40,20 @@ public class GameLauncher {
 		FlamesOfThoraClient game = new FlamesOfThoraClient();
 		
 		//A new Application.
-		Application app = new LwjglApplication(game, config);
+		app = new LwjglApplication(game, config);
 		
 		logger().trace("Main ended");
 		
 	}
 	
 	//Reconfigures the Configuration Class
-	private static LwjglApplicationConfiguration configureApplicationSettings(LwjglApplicationConfiguration config) {
+	private static LwjglApplicationConfiguration configureApplicationSettings(final LwjglApplicationConfiguration config) {
 		
 		config.title = "Flames of Thora";
 		config.width = 800;
 		config.height = 600;
 		config.foregroundFPS = 60;
-		config.backgroundFPS = 30;
+		config.backgroundFPS = 60;
 		config.resizable = true;
 		
 		return config;
