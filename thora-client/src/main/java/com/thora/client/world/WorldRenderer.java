@@ -7,6 +7,7 @@ import java.util.Map;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Dimension;
 
+import com.badlogic.ashley.signals.Listener;
 import com.badlogic.ashley.signals.Signal;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
@@ -19,7 +20,6 @@ import com.thora.client.FlamesOfThoraClient;
 import com.thora.client.sprite.SpriteSheet;
 import com.thora.client.system.RenderingSystem;
 import com.thora.core.world.Locatable;
-import com.thora.core.world.Location;
 import com.thora.core.world.Material;
 import com.thora.core.world.Tile;
 import com.thora.core.world.World;
@@ -27,26 +27,21 @@ import com.thora.core.world.World;
 public class WorldRenderer extends RenderingSystem {
 	
 	public World world;
-	final SpriteBatch batch;
 	protected ShapeRenderer shapeRend;
 	
 	private boolean tileBorders = true;
-	private int viewRange = 16;
+	private double viewRange = 16d;
 	
 	private static final SpriteSheet tileSprites;
 	public static final Color TILE_BORDER_COLOR = new Color(0f, 0f, 0f, .2f);
 	
 	private static final Map<Material,Texture> tileTextures;
 	
-	protected static final TextureRegion getTileTexture(Tile tile) {
-		return getTileTexture(tile.getMaterial());
+	protected static final TextureRegion getTileSprite(Tile tile) {
+		return getTileSprite(tile.getMaterial());
 	}
 	
-//	private static final Texture getTileTexture(Material type) {
-//		return tileTextures.get(type);
-//	}
-	
-	private static final TextureRegion getTileTexture(Material type) {
+	private static final TextureRegion getTileSprite(Material type) {
 		return tileSprites.getSprite(type.ordinal());
 	}
 	
@@ -63,18 +58,30 @@ public class WorldRenderer extends RenderingSystem {
 	public WorldRenderer(FlamesOfThoraClient client, SpriteBatch batch, World world, Camera camera, Locatable focus, Signal<Dimension> resizeSignal,
 			int priority) {
 		super(client, batch, camera, focus, resizeSignal, priority);
-		this.batch = batch;
 		this.world = world;
 		shapeRend = new ShapeRenderer();
 	}
 	
+	protected double getViewRange() {
+		return viewRange;
+	}
+	
+	protected void setViewRange(double r) {
+		this.viewRange = r;
+	}
+	
+	protected void scaleViewRange(double s) {
+		this.viewRange *= s;
+	}
+	
 	@Override
 	public void update(float deltaTime) {
-		//super.update(deltaTime);
 		
 		batch.begin();
 		
+		
 		drawTiles(world, tileBorders);
+		
 		
 		shapeRend.end();
 		batch.end();
@@ -91,21 +98,21 @@ public class WorldRenderer extends RenderingSystem {
 	}
 	
 	private void drawTileTextures(World world) {
-		world.surroundingTiles(getFocus(), (double)viewRange)
-		.filter(t -> t.isInRange(getFocus(), (double)viewRange))
-		.forEach(this::drawTileTexture);
+		batch.enableBlending();
+		world.surroundingTiles(getFocus(), getViewRange())
+		.filter(t -> t.isInRange(getFocus(), getViewRange()))
+		.forEach(this::drawTileSprite);
 	}
 	
 	private void drawTileBorders(World world) {
 		batch.end();
-		getCam().update();
 		Gdx.gl.glEnable(GL11.GL_BLEND);
-		Gdx.gl.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		shapeRend.setColor(0f, 0f, 0f, .2f);
 		Gdx.gl.glLineWidth(1f);
 		shapeRend.setProjectionMatrix(getCam().combined);
 		shapeRend.begin(ShapeRenderer.ShapeType.Line);
 		
-		world.surroundingTiles(getFocus(), (double)viewRange)
+		world.surroundingTiles(getFocus(), getViewRange())
 		.forEach(this::drawTileBorder);
 		
 		shapeRend.end();
@@ -125,40 +132,17 @@ public class WorldRenderer extends RenderingSystem {
 		
 	}
 	
-	protected void drawTileBorder(Tile tile) {
-		Location loc = tile.getLocation();
-		shapeRend.setColor(TILE_BORDER_COLOR);
-		
-		shapeRend.rect(loc.getX(), loc.getY(),
+	protected void drawTileBorder(final Tile tile) {
+		shapeRend.rect(tile.getX(), tile.getY(),
 				TILE_TEXTURE_DRAW_RATIO, TILE_TEXTURE_DRAW_RATIO);
 	}
 	
-	protected void drawTileTexture(Tile tile) {
-		TextureRegion t = getTileTexture(tile);
-		Location loc = tile.getLocation();
-		int width = t.getRegionWidth();
-		int height = t.getRegionHeight();
+	protected void drawTileSprite(Tile tile) {
+		final TextureRegion t = getTileSprite(tile);
 		
-		//float originX = width/2f;
-		//float originY = height/2f;
-		
-//		batch.draw(t,
-//			loc.getX(), loc.getY(),
-//			TILE_TEXTURE_DRAW_RATIO, TILE_TEXTURE_DRAW_RATIO);
-//		
-//		batch.draw(t,
-//				loc.getX() , loc.getY(),
-//				0f, 0f,
-//				width, height,
-//				1f,
-//				width, height,
-//				0, 0,
-//				width, height,
-//				false, false);
-		
-			batch.draw(t,
-					loc.getX(), loc.getY(),
-					width / PPM, height / PPM);
+		batch.draw(t,
+				tile.getX(), tile.getY(),
+				1f, 1f);
 		
 	}
 	

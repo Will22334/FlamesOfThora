@@ -36,9 +36,9 @@ public interface World extends HasWorld, Disposable, HasLogger {
 	
 	public Stream<? extends Tile> tiles();
 	
-	
 	public Tile setTile(Location point, TileData data);
 	
+	public WorldEntity getEntity(int id);
 	
 	public Stream<? extends WorldEntity> entities();
 	

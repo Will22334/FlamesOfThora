@@ -3,19 +3,14 @@ package com.thora.core.net.message;
 import com.thora.core.world.Location;
 import com.thora.core.world.WorldEntity;
 
-public class EntityMoveRequestMessage extends AbstractThoraMessage {
+public class EntityMoveRequestMessage extends AbstractEntityMessage {
 	
-	private final WorldEntity entity;
 	private final Location from, to;
 	
-	public EntityMoveRequestMessage(WorldEntity entity, Location from, Location to) {
-		this.entity = entity;
+	public EntityMoveRequestMessage(final WorldEntity entity, final Location from, final Location to) {
+		super(entity);
 		this.from = from;
 		this.to = to;
-	}
-
-	public WorldEntity getEntity() {
-		return entity;
 	}
 
 	public Location getFrom() {

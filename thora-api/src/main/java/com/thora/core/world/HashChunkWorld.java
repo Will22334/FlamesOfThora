@@ -11,8 +11,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.ashley.core.PooledEngine;
+import com.thora.core.Utils;
 import com.thora.core.math.FinalIntVector;
 import com.thora.core.world.HashChunkWorld.HashChunk.CTile;
+
+import io.netty.util.collection.IntObjectHashMap;
+import io.netty.util.collection.IntObjectMap;
 
 public abstract class HashChunkWorld extends GeneralWorld {
 	
@@ -39,7 +43,8 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		
 		
 		public final CTile[][] tiles;
-		protected final Map<Integer,WorldEntity> entities = new ConcurrentHashMap<>();
+		//protected final Map<Integer,WorldEntity> entities = new ConcurrentHashMap<>();
+		protected final IntObjectMap<WorldEntity> entities = new IntObjectHashMap<>();
 		public final ChunkCoordinate coord;
 		public final Location bottomLeft;
 		
@@ -93,6 +98,11 @@ public abstract class HashChunkWorld extends GeneralWorld {
 			return tiles[iy(wy)][ix(wx)];
 		}
 		
+		protected CTile setTile(final CTile tile, final TileData data) {
+			tile.data = data;
+			return tile;
+		}
+		
 		public CTile setTile(Material type, int wx, int wy) {
 			CTile tile = getTile(wx, wy);
 			tile.data = new BasicTileData(type);
@@ -104,7 +114,6 @@ public abstract class HashChunkWorld extends GeneralWorld {
 			return Arrays.stream(tiles)
 					.flatMap(Arrays::stream);
 		}
-		
 		
 		protected boolean isGenerated() {
 			return tiles[0][0] != null;
@@ -280,7 +289,7 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		final int iRange = (int) Math.ceil(range);
 		return surroundingChunks(center, rangeToChunkDepth(iRange))
 				.flatMap(HashChunk::tiles)
-				.filter(t -> center.isInRange(center, range));
+				.filter(t -> center.isInRange(t, range));
 	}
 	
 	@Override
@@ -308,7 +317,12 @@ public abstract class HashChunkWorld extends GeneralWorld {
 	public Tile setTile(Material type, Location p) {
 		return setTile(type, p.getX(), p.getY());
 	}
-
+	
+	@Override
+	public Tile setTile(Location point, TileData data) {
+		return setTile(data.material(), point);
+	}
+	
 	@Override
 	public WeakVectorLocation<HashChunkWorld> getLocation(int x, int y) {
 		return new WeakVectorLocation<HashChunkWorld>(this, x, y);
@@ -323,11 +337,6 @@ public abstract class HashChunkWorld extends GeneralWorld {
 	protected abstract boolean doRegister(WorldEntity e);
 	
 	protected abstract boolean doDeRegister(WorldEntity e);
-	
-	@Override
-	public Tile setTile(Location point, TileData data) {
-		return setTile(data.material(), point);
-	}
 	
 	@Override
 	public void moveEntity(WorldEntity e, Tile p) {
@@ -350,6 +359,11 @@ public abstract class HashChunkWorld extends GeneralWorld {
 	
 	protected void onMoveEntity(final WorldEntity e, final HashChunk.CTile oldTile) {
 		
+	}
+
+	@Override
+	public WorldEntity getEntity(int id) {
+		return entities.get(id);
 	}
 	
 }

@@ -44,8 +44,6 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.thora.core.Utils;
-import com.thora.core.Utils.IntObjConsumer;
-import com.thora.core.Utils.IntObjFunction;
 import com.thora.core.Utils.IntObjObjConsumer;
 import com.thora.core.Utils.IntObjObjFunction;
 import com.thora.core.net.HasCryptographicCredentials;
@@ -55,7 +53,9 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.util.ByteProcessor;
+import io.netty.util.collection.IntObjectHashMap;
 import io.netty.util.collection.IntObjectMap;
+import io.netty.util.collection.IntObjectMap.PrimitiveEntry;
 import io.netty.util.concurrent.FastThreadLocal;
 
 public class EncodingUtils {
@@ -570,6 +570,11 @@ public class EncodingUtils {
 	
 	
 	public static final ByteBuf writeSignedVarInt(int value, final ByteBuf buf) {
+		writeSignedVarIntProto(value, buf);
+		return buf;
+	}
+	
+	public static final ByteBuf writeSignedVarIntLoop(int value, final ByteBuf buf) {
 		int remaining = value >> 7;
 		boolean hasMore = true;
 		final int end = ((value & Integer.MIN_VALUE) == 0) ? 0 : -1;
@@ -585,41 +590,24 @@ public class EncodingUtils {
 		return buf;
 	}
 	
-	public static final int writeSignedVarIntCount(int value, final ByteBuf buf) {
-		int remaining = value >> 7;
-		boolean hasMore = true;
-		final int end = ((value & Integer.MIN_VALUE) == 0) ? 0 : -1;
-		int bytesWritten = 0;
-		while (hasMore) {
-			hasMore = (remaining != end)
-					|| ((remaining & 1) != ((value >> 6) & 1));
-			
-			buf.writeByte((byte) ((value & SEGMENT_BITS) | (hasMore ? CONTINUE_BIT : 0)));
-			++bytesWritten;
-			value = remaining;
-			remaining >>= 7;
-		}
-		
-		return bytesWritten;
+	public static final int writeSignedVarIntCount(final int value, final ByteBuf buf) {
+		final int startIndex = buf.writerIndex();
+		writeSignedVarInt(value, buf);
+		return buf.writerIndex() - startIndex;
 	}
 	
-	public static final int writePosVarIntCount(int i, final ByteBuf buf) {
-		int totalBytes = 0;
-		while((i & ~SEGMENT_BITS) != 0) {
-			buf.writeByte((i & SEGMENT_BITS) | CONTINUE_BIT);
-			++totalBytes;
-			i >>>= 7;
+	public static final ByteBuf writePosVarInt(int value, final ByteBuf buf) {
+		while((value & ~SEGMENT_BITS) != 0) {
+			buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
+			value >>>= 7;
 		}
-		buf.writeByte(i);
-		return ++totalBytes;
+		return buf.writeByte(value);
 	}
 	
-	public static final ByteBuf writePosVarInt(int i, final ByteBuf buf) {
-		while((i & ~SEGMENT_BITS) != 0) {
-			buf.writeByte((i & SEGMENT_BITS) | CONTINUE_BIT);
-			i >>>= 7;
-		}
-		return buf.writeByte(i);
+	public static final int writePosVarIntCount(final int value, final ByteBuf buf) {
+		final int startIndex = buf.writerIndex();
+		writePosVarInt(value, buf);
+		return buf.writerIndex() - startIndex;
 	}
 	
 	public static final int readVarInt(final ByteBuf buf) {
@@ -668,7 +656,46 @@ public class EncodingUtils {
 	    return result;
 	}
 	
-	public static int readSignedVarInt(ByteBuf buf) {
+	public static int readSignedVarIntUnwrapped(final ByteBuf buf) {
+		int tmp;
+	    if ( (tmp = (buf.readByte())) == CONTINUE_BIT) {
+	      return tmp;
+	    }
+	    int result = tmp & 0x7f;
+	    int signBits = -1 << 7;;
+	    if ((tmp = buf.readByte()) >= 0) {
+	      result |= tmp << 7;
+	      signBits <<= 7;
+	    } else {
+	      result |= (tmp & 0x7f) << 7;
+	      signBits <<= 7;
+	      if ((tmp = buf.readByte()) >= 0) {
+	        result |= tmp << 14;
+	        signBits <<= 7;
+	      } else {
+	        result |= (tmp & 0x7f) << 14;
+	        signBits <<= 7;
+	        if ((tmp = buf.readByte()) >= 0) {
+	          result |= tmp << 21;
+	          signBits <<= 7;
+	        } else {
+	          result |= (tmp & 0x7f) << 21;
+	          result |= (tmp = buf.readByte()) << 28;
+	          signBits <<= 14;
+	        }
+	      }
+	    }
+	    if (((signBits >> 1) & result) != 0) {
+			result |= signBits;
+		}
+	    return result;
+	}
+	
+	public static int readSignedVarInt(final ByteBuf buf) {
+		return readSignedVarIntProto(buf);
+	}
+	
+	public static int readSignedVarIntLoop(final ByteBuf buf) {
 		int result = 0;
 		int cur;
 		int count = 0;
@@ -691,6 +718,43 @@ public class EncodingUtils {
 		}
 		
 		return result;
+	}
+	
+	public static int readSignedVarIntProto(final ByteBuf buf) {
+        final int raw = readUnsignedVarIntProto(buf);
+        // This undoes the trick in writeSignedVarInt()
+        int temp = (((raw << 31) >> 31) ^ raw) >> 1;
+        // This extra step lets us deal with the largest signed values by treating
+        // negative results from read unsigned methods as like unsigned values.
+        // Must re-flip the top bit if the original read value had it set.
+        return temp ^ (raw & (1 << 31));
+    }
+	
+	public static int readUnsignedVarIntProto(final ByteBuf buf) {
+		int value = 0;
+		int i = 0;
+		int b;
+		while (((b = buf.readByte()) & CONTINUE_BIT) != 0) {
+			value |= (b & SEGMENT_BITS) << i;
+			i += 7;
+			if(i > 35) {
+				throw new RuntimeException("Variable length quantity is too long (must be <= 35)");
+			}
+		}
+		return value | (b << i);
+	}
+	
+	public static void writeSignedVarIntProto(int value, final ByteBuf out)  {
+        // Great trick from http://code.google.com/apis/protocolbuffers/docs/encoding.html#types
+        writeUnsignedVarIntProto((value << 1) ^ (value >> 31), out);
+    }
+	
+	public static void writeUnsignedVarIntProto(int value, final ByteBuf buf) {
+		while ((value & 0xFFFFFF80) != 0L) {
+			buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
+			value >>>= 7;
+		}
+		buf.writeByte(value & SEGMENT_BITS);
 	}
 	
 	private static final long SEGMENT_BITS_LONG = (long) SEGMENT_BITS;
@@ -993,6 +1057,19 @@ public class EncodingUtils {
 		return buf;
 	}
 	
+	public static final <V> IntObjectMap<V> decodIntObjeMap(final BiConsumer<IntObjectMap<V>,ByteBuf> f, final ByteBuf buf) {
+		final int size = EncodingUtils.readPosVarIntUnwrapped(buf);
+		if(size < 1) {
+			return new IntObjectHashMap<>();
+		} else {
+			final IntObjectMap<V> map = new IntObjectHashMap<>();
+			for(int i=0; i<size; ++i) {
+				f.accept(map, buf);
+			}
+			return map;
+		}
+	}
+	
 	public static final <V> ByteBuf encodeMap(final IntObjectMap<V> map, final IntObjObjConsumer<V,ByteBuf> f, final ByteBuf buf) {
 		EncodingUtils.writePosVarInt(map.size(), buf);
 		map.entries().forEach(e -> f.apply(e.key(), e.value(), buf));
@@ -1156,6 +1233,20 @@ public class EncodingUtils {
 			return writePosVarInt(0, buf);
 		}
 		return writeVarIntString(s, DEFAULT_CHARSET, buf);
+	}
+	
+	public static final String readNullablerVarString(final ByteBuf buf) {
+		return readNullablerVarString(buf, DEFAULT_CHARSET);
+	}
+	
+	public static final String readNullablerVarString(final ByteBuf buf, final Charset charset) {
+		final int length = readPosVarInt(buf);
+		if(length == 0) {
+			return null;
+		}
+		final int readIndex = buf.readerIndex();
+		buf.skipBytes(length);
+		return buf.toString(readIndex, length, charset);
 	}
 	
 	public static final ByteBuf writeVarIntString(final String s, final Charset charset, final ByteBuf buf) {

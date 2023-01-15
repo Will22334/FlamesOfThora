@@ -61,7 +61,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 	}
 	
 	
-	protected SpriteBatch batch; // a reference to our spritebatch
+	protected final SpriteBatch batch; // a reference to our spritebatch
 	
 	private final Listener<Dimension> resizeListener = new Listener<Dimension>() {
 		@Override
@@ -200,9 +200,9 @@ public class RenderingSystem extends SortedIteratingSystem {
 	}
 	
 	protected void drawEntities(World world) {
+		getCam().position.set(focus.getX() + .5f, focus.getY() +.5f, 0f);
 		getCam().update();
 		batch.setProjectionMatrix(getCam().combined);
-		getCam().position.set(focus.getX() + .5f, focus.getY() +.5f, 0f);
 		
 		batch.enableBlending();
 		//getCam().update();

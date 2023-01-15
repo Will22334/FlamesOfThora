@@ -9,6 +9,9 @@ import org.apache.logging.log4j.Logger;
 
 import com.thora.core.Utils;
 import com.thora.core.net.message.BasicTileMessage;
+import com.thora.core.net.message.CameraEntityMessage;
+import com.thora.core.net.message.CameraMessage;
+import com.thora.core.net.message.CameraPointMessage;
 import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.EntityMessage;
 import com.thora.core.net.message.LoginRequestMessage;
@@ -55,6 +58,8 @@ public class ThoraServerCodec extends ThoraCodec {
 		addEncoder(new WorldDefMessageEncoder());
 		addEncoder(new TileMessageEncoder());
 		addEncoder(new StateChangeMessageEncoder());
+		addEncoder(new CameraPointMessageEncoder());
+		addEncoder(new CameraEntityMessageEncoder());
 		
 	}
 	
@@ -208,7 +213,7 @@ public class ThoraServerCodec extends ThoraCodec {
 		
 		private void encodeEntityCreate(final int id, final WorldEntity e, final ByteBuf buf) {
 			encodeEntityLocHeader(e, buf);
-			//Encode entity type
+			buf.writeByte(e.getEntityType().ordinal());
 			EncodingUtils.writenNullableVarString(e.getName(), buf);
 		}
 		
@@ -216,11 +221,36 @@ public class ThoraServerCodec extends ThoraCodec {
 			encodeEntityLocHeader(e, buf);
 		}
 		
-		private void encodeEntityLocHeader(final WorldEntity e, final ByteBuf buf) {
-			EncodingUtils.writePosVarInt(e.getID(), buf);
-			ThoraCodec.write2DLocation(e, buf);
+	}
+	
+	private void encodeEntityLocHeader(final WorldEntity e, final ByteBuf buf) {
+		EncodingUtils.writePosVarInt(e.getID(), buf);
+		ThoraCodec.write2DLocation(e, buf);
+	}
+	
+	public class CameraPointMessageEncoder extends MessageEncoder<CameraPointMessage> {
+		protected CameraPointMessageEncoder() {
+			super(OPCODE_CLIENT_CAMERA_CHANGE);
 		}
-		
+		@Override
+		public void encode(ChannelHandlerContext ctx, CameraPointMessage msg, ByteBuf buf) {
+			buf.writeByte(0);
+			buf.writeDouble(msg.getScale());
+			ThoraCodec.write2DLocation(msg.getFocus(), buf);
+		}
+	}
+	
+	public class CameraEntityMessageEncoder extends MessageEncoder<CameraEntityMessage> {
+		protected CameraEntityMessageEncoder() {
+			super(OPCODE_CLIENT_CAMERA_CHANGE);
+		}
+		@Override
+		public void encode(ChannelHandlerContext ctx, CameraEntityMessage msg, ByteBuf buf) {
+			buf.writeByte(1);
+			buf.writeDouble(msg.getScale());
+			ThoraCodec.writeEntityReference(msg.getFocus(), buf);
+			buf.writeBoolean(msg.canControl());
+		}
 	}
 	
 	private static final void encodeTileData(TileData data, ByteBuf buf) {

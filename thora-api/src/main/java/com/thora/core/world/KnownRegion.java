@@ -31,4 +31,9 @@ public interface KnownRegion extends Region {
 	 */
 	public Stream<Location> points();
 	
+	public default Stream<? extends Tile> tiles() {
+		return points()
+				.map(Location::getTile);
+	}
+	
 }

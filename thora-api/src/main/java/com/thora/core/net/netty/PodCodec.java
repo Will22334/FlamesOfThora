@@ -66,7 +66,7 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 		int initialRead = in.readerIndex();
 		int length = in.readableBytes();
 		
-		int opcode = EncodingUtils.readUByte(in);
+		final int opcode = EncodingUtils.readUByte(in);
 		
 		MessageDecoder<? extends M> decoder = getDecoder(opcode);
 		if(decoder != null) {
@@ -105,37 +105,37 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 		}
 	}
 	
-	public static void discard(ByteBuf buf) {
+	public static void discard(final ByteBuf buf) {
 		buf.skipBytes(buf.readableBytes());
 	}
 	
-	protected void postDecode(ChannelHandlerContext ctx, M message, long arrivalTime) {
+	protected void postDecode(final ChannelHandlerContext ctx, final M message, final long arrivalTime) {
 		
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected final <P extends M> MessageEncoder<P> getEncoder(P packet) {
+	protected final <P extends M> MessageEncoder<P> getEncoder(final P packet) {
 		return (PodCodec<M>.MessageEncoder<P>) encoders.get(packet.getClass());
 	}
 	
-	protected final boolean addEncoder(MessageEncoder<? extends M> encoder) {
+	protected final boolean addEncoder(final MessageEncoder<? extends M> encoder) {
 		return encoders.putIfAbsent(encoder.messageClass, encoder) == null;
 	}
 	
-	protected final MessageEncoder<? extends M> removeEncoder(M mesageClass) {
+	protected final MessageEncoder<? extends M> removeEncoder(final M mesageClass) {
 		return encoders.remove(mesageClass);
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected final <P extends M> MessageDecoder<P> getDecoder(int opcode) {
+	protected final <P extends M> MessageDecoder<P> getDecoder(final int opcode) {
 		return (PodCodec<M>.MessageDecoder<P>) decoders.get(opcode);
 	}
 	
-	protected final <P extends M> boolean addDecoder(MessageDecoder<P> decoder) {
+	protected final <P extends M> boolean addDecoder(final MessageDecoder<P> decoder) {
 		return decoders.putIfAbsent(decoder.opcode(), decoder) == null;
 	}
 	
-	protected final MessageDecoder<? extends M> removeDecoder(int opcode) {
+	protected final MessageDecoder<? extends M> removeDecoder(final int opcode) {
 		return decoders.remove(opcode);
 	}
 	
@@ -174,11 +174,11 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 		}
 		
 		@SuppressWarnings("unchecked")
-		public void invoke(ChannelHandlerContext ctx, M m, ByteBuf buf) {
-			encode(ctx, (O) m, buf);
+		public void invoke(ChannelHandlerContext ctx, M msg, ByteBuf buf) {
+			encode(ctx, (O) msg, buf);
 		}
 		
-		public abstract void encode(ChannelHandlerContext ctx, O obj, ByteBuf buf);
+		public abstract void encode(ChannelHandlerContext ctx, O msg, ByteBuf buf);
 		
 		@SuppressWarnings("unchecked")
 		private Class<O> findPacketClass() {
@@ -251,12 +251,12 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 	public abstract class EncryptedPayloadMessageDecoder<K extends M> extends MessageDecoder<K> {
 		
 		@Override
-		public K decode(ChannelHandlerContext ctx, ByteBuf enc) throws IOException {
+		public K decode(final ChannelHandlerContext ctx, final ByteBuf enc) throws IOException {
 			//TODO length is still included in read buf and rest of message header/payload.
-			NetworkSession session = getSession(ctx);
+			final NetworkSession session = getSession(ctx);
 			
-			int length = enc.readableBytes();
-			ByteBuf plain = ctx.alloc().buffer(length);
+			final int length = enc.readableBytes();
+			final ByteBuf plain = ctx.alloc().buffer(length);
 			
 			try {
 				plain.writeBytes(enc, length);
@@ -266,7 +266,7 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 				
 			} catch (IllegalBlockSizeException | BadPaddingException e) {
 				
-				throw EncodingUtils.wrapIO("Exception while decrypting " + getMessageName() + " from " + ctx.channel(), e);
+				throw EncodingUtils.wrapIO("Exception while decrypting " + getMessageName() + " from " + ctx, e);
 				
 			} finally {
 				// Meant for releasing local ByteBuf
@@ -274,9 +274,9 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 			}
 		}
 		
-		protected abstract K decodePlain(ChannelHandlerContext ctx, ByteBuf buf);
+		protected abstract K decodePlain(final ChannelHandlerContext ctx, final ByteBuf buf);
 		
-		public EncryptedPayloadMessageDecoder(int opcode) {
+		public EncryptedPayloadMessageDecoder(final int opcode) {
 			super(opcode);
 		}
 		
@@ -284,14 +284,14 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 	
 	public abstract class EncryptedPayloadMessageEncoder<K extends M> extends MessageEncoder<K> {
 		
-		public abstract void encodePlain(ChannelHandlerContext ctx, K packet, ByteBuf buf);
+		public abstract void encodePlain(final ChannelHandlerContext ctx, final K packet, final ByteBuf buf);
 		
-		protected Cipher getCipher(ChannelHandlerContext ctx, NetworkSession session) {
+		protected Cipher getCipher(final ChannelHandlerContext ctx, final NetworkSession session) {
 			return session.getCryptoCreds().getSymmetric().getEncryptCipher();
 		}
 		
-		public void encode(ChannelHandlerContext ctx, K packet, ByteBuf buf) {
-			NetworkSession session = getSession(ctx);
+		public void encode(final ChannelHandlerContext ctx, final K packet, final ByteBuf buf) {
+			final NetworkSession session = getSession(ctx);
 			int initialRead = buf.readerIndex();
 			//EncodingUtils.writeUByte(opcode(), buf);
 			int payloadHeadIndex = buf.writerIndex();

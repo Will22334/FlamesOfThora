@@ -256,5 +256,10 @@ public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 	public void moveEntity(WorldEntity e, Tile p) {
 		throw new RuntimeException("Not implemented");
 	}
+
+	@Override
+	public WorldEntity getEntity(int id) {
+		throw new RuntimeException("Not implemented");
+	}
 	
 }

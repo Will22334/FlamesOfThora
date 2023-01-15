@@ -9,6 +9,8 @@ public abstract class Location implements Locatable, Cloneable {
 		return new WeakVectorLocation<>(world, x, y);
 	}
 	
+	
+	
 	public Location() {
 		super();
 	}

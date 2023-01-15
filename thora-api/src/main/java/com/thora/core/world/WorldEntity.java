@@ -2,6 +2,8 @@ package com.thora.core.world;
 
 import java.util.Objects;
 
+import com.thora.core.entity.EntityType;
+
 public interface WorldEntity extends Locatable {
 	
 	public static final int EMPTY_ID = -1;
@@ -11,6 +13,8 @@ public interface WorldEntity extends Locatable {
 	public WorldEntity setID(int id);
 	
 	public String getName();
+	
+	public EntityType getEntityType();
 	
 	public void setLocation(Location p);
 	

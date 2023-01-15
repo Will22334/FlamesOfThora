@@ -30,6 +30,7 @@ import com.thora.core.HasLogger;
 import com.thora.core.Utils;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.world.ClientHashChunkWorld;
+import com.thora.core.world.Locatable;
 import com.thora.core.world.Pole;
 import com.thora.core.world.World;
 
@@ -68,6 +69,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	
 	private NettyNetworkManager network;
 	private World world;
+	private Locatable focus;
 	
 	@Override
 	public final Logger logger() {
@@ -84,6 +86,14 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	
 	public World world() {
 		return world;
+	}
+	
+	public Locatable getFocus() {
+		return focus;
+	}
+	
+	public void setFocus(final Locatable focus) {
+		this.focus = focus;
 	}
 	
 	public void setWorld(World world) {

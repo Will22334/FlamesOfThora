@@ -34,7 +34,7 @@ public interface RectangularRegion extends KnownRegion {
 	}
 	
 	@Override
-	default Stream<Location> points() {
+	public default Stream<Location> points() {
 		final WorldRectangle r = getRectRegion();
 		return IntStream.rangeClosed(r.getMinY(), r.getMaxY())
 				.mapToObj(y -> {

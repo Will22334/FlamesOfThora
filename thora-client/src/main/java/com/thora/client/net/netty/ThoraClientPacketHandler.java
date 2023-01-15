@@ -5,6 +5,8 @@ import org.apache.logging.log4j.Logger;
 import com.thora.client.FlamesOfThoraClient;
 import com.thora.core.net.LoginTransaction;
 import com.thora.core.net.message.BasicTileMessage;
+import com.thora.core.net.message.CameraEntityMessage;
+import com.thora.core.net.message.CameraPointMessage;
 import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.LoginResponseMessage;
 import com.thora.core.net.message.StateChangeMessage;
@@ -36,12 +38,18 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 		return client;
 	}
 	
+	protected World world() {
+		return getManager().client().world();
+	}
+	
 	@Override
 	protected void populate() {
 		addHandler(new LoginResponseConsumer());
 		addHandler(new ChatMessageConsumer());
 		addHandler(new WorldDefinitionConsumer());
 		addHandler(new TileMessageConsumer());
+		addHandler(new CameraPointMessageConsumer());
+		addHandler(new CameraEntityMessageConsumer());
 		addHandler(new StateChangeMessageConsumer());
 	}
 	
@@ -58,13 +66,11 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 	}
 	
 	public class ChatMessageConsumer extends MessageConsumer<ChatMessage> {
-
 		@Override
 		public void consume(ChannelHandlerContext ctx, ChatMessage message) {
 			PlayerSession session = PlayerSession.findSession(ctx);
 			logger().info("Got Message \"{}\" from {}", message.message, session);
 		}
-		
 	}
 	
 	public class WorldDefinitionConsumer extends MessageConsumer<WorldDefinitionMessage> {
@@ -99,6 +105,24 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 			
 		}
 		
+	}
+	
+	
+	
+	public class CameraPointMessageConsumer extends MessageConsumer<CameraPointMessage> {
+		@Override
+		public void consume(ChannelHandlerContext ctx, CameraPointMessage message) {
+			logger().debug("Camera focused on {}", message.getFocus());
+			client().setFocus(message.getFocus());
+		}
+	}
+	
+	public class CameraEntityMessageConsumer extends MessageConsumer<CameraEntityMessage> {
+		@Override
+		public void consume(ChannelHandlerContext ctx, CameraEntityMessage message) {
+			logger().debug("Camera focused on {}", message.getFocus());
+			client().setFocus(message.getFocus());
+		}
 	}
 	
 	public class StateChangeMessageConsumer extends MessageConsumer<StateChangeMessage> {

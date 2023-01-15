@@ -178,14 +178,14 @@ public class PlayingState extends GameState implements HasLogger {
 		
 		hudBatch.end();
 		
-		shapeRend.setProjectionMatrix(uiMatrix);
-		shapeRend.begin(ShapeRenderer.ShapeType.Line);
-		Gdx.gl.glEnable(GL11.GL_BLEND);
-		shapeRend.setColor(COLOR_OFF_WHITE);
-		shapeRend.line(width/2, 0, width/2, height);
-		shapeRend.line(0, height/2, width, height/2);
-		Gdx.gl.glLineWidth(1f);
-		shapeRend.end();
+//		shapeRend.setProjectionMatrix(uiMatrix);
+//		shapeRend.begin(ShapeRenderer.ShapeType.Line);
+//		Gdx.gl.glEnable(GL11.GL_BLEND);
+//		shapeRend.setColor(COLOR_OFF_WHITE);
+//		shapeRend.line(width/2, 0, width/2, height);
+//		shapeRend.line(0, height/2, width, height/2);
+//		Gdx.gl.glLineWidth(1f);
+//		shapeRend.end();
 		
 		//update(dt);
 	}
@@ -295,7 +295,7 @@ public class PlayingState extends GameState implements HasLogger {
 		
 		PlayerComponent player = engine.createComponent(PlayerComponent.class);
 		
-		TypeComponent type = engine.createComponent(TypeComponent.class).set(EntityType.PLAYER);
+		TypeComponent type = engine.createComponent(TypeComponent.class).set(EntityType.HUMAN_MALE);
 		LocationComponent location = engine.createComponent(LocationComponent.class).setLocation(new WeakVectorLocation<>(client().world(), x, y));
 		MovableComponent movable = engine.createComponent(MovableComponent.class);
 		

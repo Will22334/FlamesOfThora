@@ -169,7 +169,7 @@ public class PlayingState extends GameState implements HasLogger {
 		//Handle Key Events for Keyboard Keys registered in this state.
 		handleInput();
 		
-		engine().update(delta);
+		//engine().update(delta);
 		
 		//Update the camera.
 		//worldCamera.update();
@@ -265,7 +265,7 @@ public class PlayingState extends GameState implements HasLogger {
 		
 		PlayerComponent player = engine.createComponent(PlayerComponent.class);
 		
-		TypeComponent type = engine.createComponent(TypeComponent.class).set(EntityType.PLAYER);
+		TypeComponent type = engine.createComponent(TypeComponent.class).set(EntityType.HUMAN_MALE);
 		LocationComponent location = engine.createComponent(LocationComponent.class).setLocation(x, y);
 		MovableComponent movable = engine.createComponent(MovableComponent.class);
 		

@@ -205,10 +205,10 @@ public class MenuState extends GameState {
 
 		//Add all UI objects to the table
 		menuUITable.row().height(150);
-		menuUITable.add(singleplayerButton).center().fill();
-		menuUITable.add(multiplayerButton).center().fill();
-		menuUITable.add(optionsButton).center().fill();
-		menuUITable.add(exitButton).center().fill();
+		menuUITable.add(singleplayerButton);
+		menuUITable.add(multiplayerButton);
+		menuUITable.add(optionsButton);
+		menuUITable.add(exitButton);
 		menuUITable.row();
 		menuUITable.add(loggedinLabel);
 		menuUITable.add();

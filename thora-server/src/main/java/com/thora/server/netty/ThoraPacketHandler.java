@@ -3,7 +3,9 @@ package com.thora.server.netty;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
+import com.thora.core.entity.EntityType;
 import com.thora.core.net.message.BasicTileMessage;
+import com.thora.core.net.message.CameraEntityMessage;
 import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
@@ -51,15 +53,14 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 			if(response.isAccepted()) {
 				final ServerHashChunkWorld w = server().getWorld();
 				final Location l = new WeakVectorLocation<>(w,0,0);
-				final PlayerEntity p = new PlayerEntity(message.username, l);
+				final PlayerEntity p = new PlayerEntity(message.username, EntityType.HUMAN_MALE,  l);
 				w.register(p);
 				
 				
-				
 				session.write(new WorldDefinitionMessage(w));
-				
 				w.informSurroundingTiles(p, session);
 				
+				session.write(new CameraEntityMessage(p, true, 0f));
 				session.write(new StateChangeMessage(3));
 				
 			}

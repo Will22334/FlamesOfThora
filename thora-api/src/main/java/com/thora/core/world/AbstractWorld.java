@@ -66,7 +66,8 @@ public abstract class AbstractWorld implements World {
 	public abstract Location getLocation(int x, int y);
 
 	public abstract void initialize() throws Exception;
-
+	
+	@Override
 	public Tile getTile(Locatable loc) {
 		return getTile(loc.getLocation());
 	}
@@ -79,6 +80,7 @@ public abstract class AbstractWorld implements World {
 	 */
 	public abstract Tile getTile(int x, int y);
 
+	@Override
 	public Tile getTile(Location l) {
 		return getTile(l.getX(), l.getY());
 	}
@@ -88,7 +90,7 @@ public abstract class AbstractWorld implements World {
 		return tile;
 	}
 
-	public Tile setTile(TileData data, Locatable l) {
+	public Tile setTile(TileData data, Location l) {
 		return setTile(data, l.getTile());
 	}
 

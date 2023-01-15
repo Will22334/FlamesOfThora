@@ -121,5 +121,10 @@ public class KeyMapWorld extends GeneralWorld {
 	public void moveEntity(WorldEntity e, Tile p) {
 		throw new RuntimeException("Not implemented");
 	}
+
+	@Override
+	public WorldEntity getEntity(int id) {
+		throw new RuntimeException("Not implemented");
+	}
 	
 }

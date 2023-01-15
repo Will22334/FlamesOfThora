@@ -58,7 +58,7 @@ public class ClientHashChunkWorld extends HashChunkWorld {
 
 	@Override
 	protected boolean doRegister(WorldEntity e) {
-		HashChunk chunk = this.getChunk(e);
+		HashChunk chunk = this.getGeneratedChunk(e.getLocation());
 		if(chunk != null) {
 			chunk.addEntity(e);
 			this.entities.put(e.getID(), e);

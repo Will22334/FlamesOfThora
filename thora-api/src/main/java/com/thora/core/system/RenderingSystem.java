@@ -62,7 +62,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 	
 	protected SpriteBatch batch; // a reference to our spritebatch
 	
-	private final Listener<Dimension> resizeListener = new Listener<Dimension>() {
+	protected final Listener<Dimension> resizeListener = new Listener<Dimension>() {
 		@Override
 		public void receive(Signal<Dimension> signal, Dimension newSize) {
 			FRUSTUM_WIDTH = newSize.getWidth()/PPM;
@@ -89,7 +89,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 	
 	protected Locatable focus;
 	
-	private Signal<Dimension> resizeSignal;
+	protected Signal<Dimension> resizeSignal;
 	
 	public RenderingSystem(SpriteBatch batch, Camera camera, Locatable focus,
 			Signal<Dimension> resizeSignal, int priority) {

@@ -6,7 +6,6 @@ import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.TileGenerator;
 import com.thora.core.world.WorldEntity;
-import com.thora.core.world.HashChunkWorld.HashChunk;
 import com.thora.server.netty.ClientSession;
 
 public class ServerHashChunkWorld extends HashChunkWorld {

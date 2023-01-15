@@ -10,6 +10,7 @@ import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
 import com.thora.core.world.WeakVectorLocation;
 import com.thora.core.world.World;
+import com.thora.core.world.WorldEntity;
 
 import io.netty.buffer.ByteBuf;
 
@@ -30,7 +31,11 @@ public abstract class ThoraCodec extends PodCodec<ThoraMessage> {
 	
 	public static final int OPCODE_CLIENT_ENTITY_INFORM = 5;
 	
-	public static final int OPCODE_CLIENT_STATE_CHANGE = 6;
+	public static final int OPCODE_CLIENT_CAMERA_CHANGE = 6;
+	
+	public static final int OPCODE_CLIENT_STATE_CHANGE = 7;
+	
+	public static final int OPCODE_CLIENT_MOVE_REQUSET = 8;
 	
 	public ThoraCodec(Logger logger) {
 		super(logger);
@@ -59,10 +64,14 @@ public abstract class ThoraCodec extends PodCodec<ThoraMessage> {
 		return (buf) -> read2DLocation(world, buf);
 	}
 	
-	public static Location read2DLocation(final World world, final ByteBuf buf) {
+	public static <W extends World> Location read2DLocation(final W world, final ByteBuf buf) {
 		final int x = EncodingUtils.readSignedVarInt(buf);
 		final int y = EncodingUtils.readSignedVarInt(buf);
 		return new WeakVectorLocation<>(world, x, y);
+	}
+	
+	public static ByteBuf writeEntityReference(final WorldEntity entity, ByteBuf buf) {
+		return EncodingUtils.writePosVarInt(entity.getID(), buf);
 	}
 	
 }

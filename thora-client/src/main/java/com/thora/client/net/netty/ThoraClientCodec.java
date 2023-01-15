@@ -8,8 +8,15 @@ import javax.crypto.IllegalBlockSizeException;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.ashley.core.PooledEngine;
+import com.thora.core.Utils;
+import com.thora.core.entity.EntityType;
 import com.thora.core.net.message.BasicTileMessage;
+import com.thora.core.net.message.CameraEntityMessage;
+import com.thora.core.net.message.CameraMessage;
+import com.thora.core.net.message.CameraPointMessage;
 import com.thora.core.net.message.ChatMessage;
+import com.thora.core.net.message.EntityMessage;
+import com.thora.core.net.message.EntityMoveRequestMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
 import com.thora.core.net.message.StateChangeMessage;
@@ -21,10 +28,14 @@ import com.thora.core.world.ClientHashChunkWorld;
 import com.thora.core.world.Location;
 import com.thora.core.world.Material;
 import com.thora.core.world.TileData;
+import com.thora.core.world.WeakVectorLocation;
 import com.thora.core.world.World;
+import com.thora.core.world.WorldEntity;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.collection.IntObjectHashMap;
+import io.netty.util.collection.IntObjectMap;
 
 public class ThoraClientCodec extends ThoraCodec {
 	
@@ -37,6 +48,10 @@ public class ThoraClientCodec extends ThoraCodec {
 	
 	protected NettyNetworkManager manager() {
 		return manager;
+	}
+	
+	protected World world() {
+		return manager().client().world();
 	}
 	
 	@Override
@@ -54,6 +69,7 @@ public class ThoraClientCodec extends ThoraCodec {
 		this.addDecoder(new ChatMessageDecoder());
 		this.addDecoder(new WorldDefinitionDecoder());
 		this.addDecoder(new TileMessageDecoder());
+		this.addDecoder(new CameraMessageDecoder());
 		this.addDecoder(new StateChangeMessageDecoder());
 	}
 	
@@ -152,6 +168,33 @@ public class ThoraClientCodec extends ThoraCodec {
 		
 	}
 	
+	public class EntityMessageDecoder extends MessageDecoder<EntityMessage> {
+		public EntityMessageDecoder() {
+			super(OPCODE_CLIENT_ENTITY_INFORM);
+		}
+		@Override
+		public EntityMessage decode(final ChannelHandlerContext ctx, final ByteBuf buf) throws IOException {
+			final byte header = buf.readByte();
+			
+			IntObjectMap<WorldEntity> mapCreate = new IntObjectHashMap<>();
+			if((header & 0x01) == 0x01) {
+				EncodingUtils.decodIntObjeMap(this::readEntityCreate, buf);
+			}
+			
+			return null;
+		}
+		
+		private void readEntityCreate(final IntObjectMap<WorldEntity> map, final ByteBuf buf) {
+			final int id = EncodingUtils.readPosVarInt(buf);
+			final Location loc = ThoraCodec.read2DLocation(world(), buf);
+			final EntityType type = EntityType.getAll().get(buf.readByte());
+			final String name = EncodingUtils.readNullablerVarString(buf);
+			
+			
+		}
+		
+	}
+	
 	public class StateChangeMessageDecoder extends MessageDecoder<StateChangeMessage> {
 		public StateChangeMessageDecoder() {
 			super(OPCODE_CLIENT_STATE_CHANGE);
@@ -162,7 +205,46 @@ public class ThoraClientCodec extends ThoraCodec {
 		}
 	}
 	
-	private static final TileData decodeTileData(ByteBuf buf) {
+	public class CameraMessageDecoder extends MessageDecoder<CameraMessage> {
+		public CameraMessageDecoder() {
+			super(OPCODE_CLIENT_CAMERA_CHANGE);
+		}
+		@Override
+		public CameraMessage decode(ChannelHandlerContext ctx, ByteBuf buf) throws IOException {
+			final byte type = buf.readByte();
+			final double scale = buf.readDouble();
+			if(type == 0) {
+				return new CameraPointMessage(read2DLocation(buf), scale);
+			} else if(type == 1) {
+				return new CameraEntityMessage(readEntityReference(buf), buf.readBoolean(), scale);
+			}
+			throw new IllegalStateException(String.format("Failed to decode %s due to invalid type code=%s, scale=%s", Utils.simpleClassName(CameraMessage.class), type, scale));
+		}
+	}
+	
+	public class EntityMoveRequestMessageEncoder extends MessageEncoder<EntityMoveRequestMessage> {
+		protected EntityMoveRequestMessageEncoder() {
+			super(OPCODE_CLIENT_MOVE_REQUSET);
+		}
+		@Override
+		public void encode(final ChannelHandlerContext ctx, final EntityMoveRequestMessage msg, final ByteBuf buf) {
+			ThoraCodec.write2DLocation(msg.getTo(), buf);
+		}
+	}
+	
+	protected Location read2DLocation(final ByteBuf buf) {
+		return new WeakVectorLocation<World>(world(), EncodingUtils.readSignedVarInt(buf), EncodingUtils.readSignedVarInt(buf));
+	}
+	
+	protected WorldEntity readEntityReference(final ByteBuf buf) {
+		return getEntity(EncodingUtils.readPosVarInt(buf));
+	}
+	
+	protected WorldEntity getEntity(final int id) {
+		return world().getEntity(id);
+	}
+	
+	private static final TileData decodeTileData(final ByteBuf buf) {
 		final Material mat = Material.get(buf.readByte());
 		return new BasicTileData(mat);
 	}
