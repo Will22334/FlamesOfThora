@@ -1,5 +1,7 @@
 package com.thora.core.math;
 
+import java.util.Objects;
+
 public class BasicDoubleVector implements DoubleVector {
 	
 	private double x, y;
@@ -52,6 +54,25 @@ public class BasicDoubleVector implements DoubleVector {
 	@Override
 	public BasicDoubleVector clone() {
 		return new BasicDoubleVector(this);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(x, y);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof Vector) {
+			Vector o = (Vector) obj;
+			return x == o.getX() && y == o.getY();
+		}
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "[" + x + ", " + y + "]";
 	}
 	
 }

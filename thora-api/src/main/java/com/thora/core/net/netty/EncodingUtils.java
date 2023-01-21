@@ -45,6 +45,7 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.thora.core.Utils;
+import com.thora.core.Utils.IntIntObjFunction;
 import com.thora.core.Utils.IntObjObjConsumer;
 import com.thora.core.Utils.IntObjObjFunction;
 import com.thora.core.Utils.TriConsumer;
@@ -55,6 +56,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.handler.codec.DecoderException;
 import io.netty.util.ByteProcessor;
 import io.netty.util.CharsetUtil;
 import io.netty.util.collection.IntObjectHashMap;
@@ -947,25 +949,71 @@ public class EncodingUtils {
 			return buf;
 		}
 		
-		final int sizeIndex = buf.writerIndex();
+		final int byteLengthIndex = buf.writerIndex();
 		buf.writeInt(0);
 		
 		for(M m: list) {
 			encoder.accept(m, buf);
 		}
 		
+		buf.setInt(byteLengthIndex, buf.writerIndex()-byteLengthIndex-4);
+		return buf;
+	}
+	
+	public static final <M> List<M> decodeList(final Supplier<List<M>> sup, final Function<ByteBuf,M> decoder, final ByteBuf buf) {
+		int count = EncodingUtils.readPosVarIntUnwrapped(buf);
+		if(count < 1) return Collections.emptyList();
+		
+		final List<M> list = sup.get();
+		final int byteLength = buf.readInt();
+		
+		for(int i=0; i<count; ++i) {
+			list.add(decoder.apply(buf));
+		}
+		
+		return list;
+	}
+	
+	public static final <M> ByteBuf encodeIndexedList(final List<M> list, final BiConsumer<? super M,ByteBuf> encoder, final ByteBuf buf) {
+		EncodingUtils.writePosVarInt(list.size(), buf);
+		if(list.isEmpty()) {
+			return buf;
+		}
+		
+		final int sizeIndex = buf.writerIndex();
+		buf.writeInt(0);
+		
+		final int lookupTableIndex = buf.writerIndex();
+		buf.writeBytes(new byte[4 * list.size()]);
+		
+		final int lookupTableRelativeIndex = buf.writerIndex();
+		
+		int n = 0;
+		for(M m: list) {
+			final int elementIndex = buf.writerIndex();
+			encoder.accept(m, buf);
+			buf.setInt(lookupTableIndex + 4*n, elementIndex - lookupTableRelativeIndex);
+			++n;
+		}
+		
 		buf.setInt(sizeIndex, buf.writerIndex()-sizeIndex-4);
 		return buf;
 	}
 	
-	public static final <M> List<M> decodeObjectList(final ByteBuf buf, final Function<ByteBuf,M> decoder) {
-		int count = EncodingUtils.readPosVarIntUnwrapped(buf);
-		if(count < 1) return Collections.emptyList();
-		
-		List<M> list = new ArrayList<>();
-		
-		for(int i=0; i<count; ++i) {
-			list.add(decoder.apply(buf));
+	public static final <M> List<M> decodeIndexedList(final Supplier<List<M>> sup, final IntIntObjFunction<ByteBuf,M> decoder, final ByteBuf buf) {
+		final List<M> list = sup.get();
+		final int size = EncodingUtils.readPosVarInt(buf);
+		if(size > 0) {
+			final int byteLength = buf.readInt();
+			final int lookupTableIndex = buf.readerIndex();
+			final int lookupTableRelativeIndex = lookupTableIndex + 4*size;
+			final int[] lookupTable = new int[size];
+			for(int i=0; i<size; ++i) {
+				lookupTable[i] = buf.readInt();
+			}
+			for(int i=0; i<size; ++i) {
+				list.add(decoder.apply(i, lookupTable[i] + lookupTableRelativeIndex, buf));
+			}
 		}
 		
 		return list;
@@ -1056,6 +1104,20 @@ public class EncodingUtils {
 		
 	}
 	
+	public static final <V> ByteBuf encodeSizedCollection(final Collection<V> c, final BiConsumer<V,ByteBuf> encoder, final ByteBuf buf) {
+		EncodingUtils.writePosVarInt(c.size(), buf);
+		final int byteLengthIndex = buf.writerIndex();
+		buf.writeInt(0);
+		final int byteLengthCompareIndex = buf.writerIndex();
+		
+		for(final V e: c) {
+			encoder.accept(e, buf);
+		}
+		
+		buf.setInt(byteLengthIndex, buf.writerIndex() - byteLengthCompareIndex);
+		return buf;
+	}
+	
 	public static final <V> ByteBuf encodeCollection(final Collection<V> c, final BiConsumer<V,ByteBuf> encoder, final ByteBuf buf) {
 		EncodingUtils.writePosVarInt(c.size(), buf);
 		for(final V e: c) {
@@ -1064,8 +1126,35 @@ public class EncodingUtils {
 		return buf;
 	}
 	
+	public static final <V> ByteBuf encodeSizedCollection(final Collection<V> c, final BiFunction<V,ByteBuf,ByteBuf> encoder, final ByteBuf buf) {
+		return encodeSizedCollection(c, Utils.consume(encoder), buf);
+	}
+	
 	public static final <V> ByteBuf encodeCollection(final Collection<V> c, final BiFunction<V,ByteBuf,ByteBuf> encoder, final ByteBuf buf) {
 		return encodeCollection(c, Utils.consume(encoder), buf);
+	}
+	
+	public static final <V,C extends Collection<V>> C decodeSizedCollection(final Supplier<C> sup, final Function<ByteBuf,V> decoder, final ByteBuf buf) {
+		final C c = sup.get();
+		final int size = EncodingUtils.readPosVarInt(buf);
+		if(size < 1) {
+			return c;
+		}
+		
+		final int byteLength = buf.readInt();
+		final int byteEndIndex = byteLength + buf.readerIndex();
+		final int readStart = buf.readerIndex();
+		
+		for(int i=0; i<size; ++i) {
+			c.add(decoder.apply(buf));
+		}
+		
+		if(buf.readerIndex() != byteEndIndex) {
+			final int bytesRead = buf.readerIndex() - readStart;
+			throw new DecoderException(String.format("decodingSizedCollection read %d bytes instead of %d from %s", bytesRead, byteLength, buf));
+		}
+		
+		return c;
 	}
 	
 	public static final <V,C extends Collection<V>> C decodeCollection(final Supplier<C> sup, final Function<ByteBuf,V> decoder, final ByteBuf buf) {

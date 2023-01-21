@@ -320,6 +320,11 @@ public final class Utils {
 	}
 	
 	@FunctionalInterface
+	public static interface IntIntObjFunction<A,R> {
+		public R apply(int i1, int i2, A a);
+	}
+	
+	@FunctionalInterface
 	public static interface IntObjObjFunction<A,B,R> {
 		public R apply(int i, A a, B b);
 	}

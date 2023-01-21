@@ -1,12 +1,17 @@
 package com.thora.core;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +22,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import com.google.common.base.Objects;
+import com.thora.core.math.BasicDoubleVector;
+import com.thora.core.math.Vector;
 import com.thora.core.net.netty.EncodingUtils;
 
 import io.netty.buffer.ByteBuf;
@@ -65,6 +73,13 @@ class TestEncodingUtils {
 		buf.clear();
 	}
 	
+	@AfterEach
+	void checkBuffer() throws Exception {
+		if(buf.readableBytes() > 0) {
+			
+		}
+	}
+	
 	public static final IntStream sourceSingedVarInts() {
 		return IntStream.of(signedIntsArr);
 	}
@@ -109,6 +124,78 @@ class TestEncodingUtils {
 		final int got = EncodingUtils.readUShort(buf);
 		
 		Assertions.assertEquals(value, got);
+	}
+	
+	private static class NObj {
+		public String name;
+		public Vector vector;
+		@Override
+		public String toString() {
+			return "[" + name + ": " + vector + "]";
+		}
+		@Override
+		public int hashCode() {
+			return Objects.hashCode(name, vector);
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if(obj == null) return false;
+			if(this == obj) return true;
+			if(obj instanceof NObj) {
+				NObj o = (NObj) obj;
+				return Objects.equal(name, o.name) && Objects.equal(vector, o.vector);
+			}
+			return false;
+		}
+		
+	}
+	
+	private static void encodeNObj(final NObj o, final ByteBuf buf) {
+		EncodingUtils.writeString(o.name, buf);
+		encodeVector(o.vector, buf);
+	}
+	
+	private static void encodeVector(final Vector v, final ByteBuf buf) {
+		buf.writeDouble(v.getX());
+		buf.writeDouble(v.getY());
+	}
+	
+	private static NObj decodeNObj(final ByteBuf buf) {
+		NObj o = new NObj();
+		o.name = EncodingUtils.readString(buf);
+		o.vector = decodeVector(buf);
+		return o;
+	}
+	
+	private static Vector decodeVector(final ByteBuf buf) {
+		final double x = buf.readDouble();
+		final double y = buf.readDouble();
+		return new BasicDoubleVector(x, y);
+	}
+	
+	@Test
+	void testEncodeCollection() {
+		try {
+			final Collection<NObj> c = new LinkedList<>();
+			final int size = 20;
+			for(int i=0; i<size; ++i) {
+				NObj o = new NObj();
+				o.name = "O-" + (i + 1);
+				o.vector = new BasicDoubleVector(i * 1.25d, i * -3.75d);
+				c.add(o);
+			}
+			
+			EncodingUtils.encodeSizedCollection(c, TestEncodingUtils::encodeNObj, buf);
+			
+			final Collection<NObj> readList = EncodingUtils.decodeSizedCollection(ArrayList::new, TestEncodingUtils::decodeNObj, buf);
+			
+			Assertions.assertEquals(0, buf.readableBytes(), "There are left over bytes after decoding Collection!");
+			Assertions.assertEquals(c, readList);
+			
+		} catch(Throwable t) {
+			logger().atWarn().withThrowable(t).log("Encode/Decode Collection failed!\n{}", () -> ByteBufUtil.prettyHexDump(buf));
+			throw t;
+		}
 	}
 	
 }
