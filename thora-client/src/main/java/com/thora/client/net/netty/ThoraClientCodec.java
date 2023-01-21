@@ -185,7 +185,13 @@ public class ThoraClientCodec extends ThoraCodec {
 			IntObjectMap<WorldEntity> mapCreate = null;
 			if((header & HEADER_BIT_CREATE) == HEADER_BIT_CREATE) {
 				mapCreate = new IntObjectHashMap<>();
-				EncodingUtils.decodIntObjMap(this::readEntityCreate, buf);
+				EncodingUtils.decodIntMap(this::readEntityCreate, buf);
+			}
+			
+			IntObjectMap<WorldEntity> mapUpdate = null;
+			if((header & HEADER_BIT_CREATE) == HEADER_BIT_CREATE) {
+				mapCreate = new IntObjectHashMap<>();
+				EncodingUtils.decodIntMap(this::readEntityUpdate, buf);
 			}
 			
 			return null;
@@ -196,6 +202,13 @@ public class ThoraClientCodec extends ThoraCodec {
 			final Location loc = ThoraCodec.read2DLocation(world(), buf);
 			final EntityType type = EntityType.getAll().get(buf.readByte());
 			final String name = EncodingUtils.readNullablerVarString(buf);
+			
+		}
+		
+		private void readEntityUpdate(final IntObjectMap<WorldEntity> map, final ByteBuf buf) {
+			final int id = EncodingUtils.readPosVarInt(buf);
+			final Location loc = ThoraCodec.read2DLocation(world(), buf);
+			final WorldEntity entity = world().getEntity(id);
 			
 		}
 		

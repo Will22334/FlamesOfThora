@@ -282,6 +282,14 @@ public final class Utils {
 		return (a) -> f.apply(a);
 	}
 	
+	public static final <A,B,R> BiConsumer<A,B> consume(final BiFunction<A,B,R> f) {
+		return (a1,a2) -> f.apply(a1, a2);
+	}
+	
+	public static final <A,B,C,R> TriConsumer<A,B,C> consume(final TriFunction<A,B,C,R> f) {
+		return (a1,a2,a3) -> f.apply(a1, a2, a3);
+	}
+	
 	public static final <A,R> Supplier<R> bindArg(final Function<A,R> f, final A arg) {
 		return () -> f.apply(arg);
 	}

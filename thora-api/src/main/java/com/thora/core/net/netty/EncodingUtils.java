@@ -47,6 +47,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.thora.core.Utils;
 import com.thora.core.Utils.IntObjObjConsumer;
 import com.thora.core.Utils.IntObjObjFunction;
+import com.thora.core.Utils.TriConsumer;
 import com.thora.core.Utils.TriFunction;
 import com.thora.core.net.HasCryptographicCredentials;
 
@@ -889,6 +890,14 @@ public class EncodingUtils {
 		return buf.readByte() & 0xFF;
 	}
 	
+	public static final ByteBuf writeUShort(final int value, final ByteBuf buf) {
+		return buf.writeShort(value);
+	}
+	
+	public static final int readUShort(final ByteBuf buf) {
+		return buf.readShort() & 0xFFFF;
+	}
+	
 	public static final ByteBuf writeVarArray(final byte[] arr, final ByteBuf buf) {
 		return writePosVarInt(arr.length, buf)
 				.writeBytes(arr);
@@ -924,28 +933,28 @@ public class EncodingUtils {
 	
 	/**
 	 * Encodes a List of Objects that can be encoded into a ByteBuf by passing a mapping function.
-	 * The list has a header consisting of the length of the list as a PosVarIntCount
-	 * and if the list is not empty then a signed Int  that indicates how long the rest of the encoded List is in bytes,
-	 * @param <M> The message type to be encoded
-	 * @param buf The ByteBuf to encode the bytes into
+	 * The list has a header consisting of size of list(int) and
+	 * if the list is not empty then a signed Int  that indicates how long the rest of the encoded List is in bytes.
 	 * @param list The list of objects to be encoded
 	 * @param encoder The encoding function that consumes a element and writes it to a passed ByteBuf.
+	 * @param buf The ByteBuf to encode the bytes into
+	 * @param <M> The message type to be encoded
 	 * @return
 	 */
-	public static final <M> ByteBuf encodeObjectList(final ByteBuf buf, final List<M> list, final BiConsumer<? super M,ByteBuf> encoder) {
+	public static final <M> ByteBuf encodeList(final List<M> list, final BiConsumer<? super M,ByteBuf> encoder, final ByteBuf buf) {
 		EncodingUtils.writePosVarInt(list.size(), buf);
 		if(list.isEmpty()) {
 			return buf;
 		}
 		
-		int sizeIndex = buf.writerIndex();
+		final int sizeIndex = buf.writerIndex();
 		buf.writeInt(0);
 		
 		for(M m: list) {
 			encoder.accept(m, buf);
 		}
 		
-		buf.setInt(sizeIndex, buf.writerIndex()-sizeIndex+1);
+		buf.setInt(sizeIndex, buf.writerIndex()-sizeIndex-4);
 		return buf;
 	}
 	
@@ -1047,35 +1056,50 @@ public class EncodingUtils {
 		
 	}
 	
-	public static final <V> ByteBuf encodeCollection(final Collection<V> c, final BiConsumer<V,ByteBuf> f, final ByteBuf buf) {
+	public static final <V> ByteBuf encodeCollection(final Collection<V> c, final BiConsumer<V,ByteBuf> encoder, final ByteBuf buf) {
 		EncodingUtils.writePosVarInt(c.size(), buf);
-		c.forEach(Utils.bindArg2(f, buf));
+		for(final V e: c) {
+			encoder.accept(e, buf);
+		}
 		return buf;
 	}
 	
-	public static final <V> ByteBuf encodeCollection(final Collection<V> c, final BiFunction<V,ByteBuf,ByteBuf> f, final ByteBuf buf) {
-		EncodingUtils.writePosVarInt(c.size(), buf);
-		c.forEach(v -> f.apply(v, buf));
-		return buf;
+	public static final <V> ByteBuf encodeCollection(final Collection<V> c, final BiFunction<V,ByteBuf,ByteBuf> encoder, final ByteBuf buf) {
+		return encodeCollection(c, Utils.consume(encoder), buf);
 	}
 	
-	public static final <K,V> ByteBuf encodeMap(final Map<K,V> map, final TriFunction<K,V,ByteBuf,ByteBuf> f, ByteBuf buf) {
+	public static final <V,C extends Collection<V>> C decodeCollection(final Supplier<C> sup, final Function<ByteBuf,V> decoder, final ByteBuf buf) {
+		final C c = sup.get();
+		
+		final int size = EncodingUtils.readPosVarInt(buf);
+		for(int i=0; i<size; ++i) {
+			c.add(decoder.apply(buf));
+		}
+		
+		return c;
+	}
+	
+	public static final <K,V> ByteBuf encodeMap(final Map<K,V> map, final TriConsumer<K,V,ByteBuf> encoder, final ByteBuf buf) {
 		EncodingUtils.writePosVarInt(map.size(), buf);
 		for(final Entry<K,V> e: map.entrySet()) {
-			f.apply(e.getKey(), e.getValue(), buf);
+			encoder.accept(e.getKey(), e.getValue(), buf);
 		}
 		return buf;
 	}
 	
-	public static final <V> ByteBuf encodeMap(final IntObjectMap<V> map, final IntObjObjFunction<V,ByteBuf,ByteBuf> f, final ByteBuf buf) {
+	public static final <K,V> ByteBuf encodeMap(final Map<K,V> map, final TriFunction<K,V,ByteBuf,ByteBuf> encoder, ByteBuf buf) {
+		return encodeMap(map, Utils.consume(encoder), buf);
+	}
+	
+	public static final <V> ByteBuf encodeIntMap(final IntObjectMap<V> map, final IntObjObjFunction<V,ByteBuf,ByteBuf> encoder, final ByteBuf buf) {
 		EncodingUtils.writePosVarInt(map.size(), buf);
 		for(final PrimitiveEntry<V> e: map.entries()) {
-			f.apply(e.key(), e.value(), buf);
+			encoder.apply(e.key(), e.value(), buf);
 		}
 		return buf;
 	}
 	
-	public static final <V> IntObjectMap<V> decodIntObjMap(final BiConsumer<IntObjectMap<V>,ByteBuf> f, final ByteBuf buf) {
+	public static final <V> IntObjectMap<V> decodIntMap(final BiConsumer<IntObjectMap<V>,ByteBuf> f, final ByteBuf buf) {
 		final int size = EncodingUtils.readPosVarIntUnwrapped(buf);
 		final IntObjectMap<V> map = new IntObjectHashMap<>();
 		for(int i=0; i<size; ++i) {
@@ -1084,7 +1108,7 @@ public class EncodingUtils {
 		return map;
 	}
 	
-	public static final <V> ByteBuf encodeMap(final IntObjectMap<V> map, final IntObjObjConsumer<V,ByteBuf> f, final ByteBuf buf) {
+	public static final <V> ByteBuf encodeIntMap(final IntObjectMap<V> map, final IntObjObjConsumer<V,ByteBuf> f, final ByteBuf buf) {
 		EncodingUtils.writePosVarInt(map.size(), buf);
 		for(final PrimitiveEntry<V> e: map.entries()) {
 			f.accept(e.key(), e.value(), buf);

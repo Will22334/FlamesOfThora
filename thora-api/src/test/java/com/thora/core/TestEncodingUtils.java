@@ -15,6 +15,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.thora.core.net.netty.EncodingUtils;
 
@@ -99,6 +100,15 @@ class TestEncodingUtils {
 		
 		Assertions.assertEquals(value, got);
 		
+	}
+	
+	@ParameterizedTest
+	@ValueSource(ints = {0, 1, 2, 4, 8, 16, 32, 64, 128-1, 2*128-1, 4*128-1, 8*128-1, 16*128-1, 32*128-1, 64*128-1, 128*128-1, 64*256-1, 2*(Short.MAX_VALUE)+1})
+	void testUShort(final int value) {
+		EncodingUtils.writeUShort(value, buf);
+		final int got = EncodingUtils.readUShort(buf);
+		
+		Assertions.assertEquals(value, got);
 	}
 	
 }

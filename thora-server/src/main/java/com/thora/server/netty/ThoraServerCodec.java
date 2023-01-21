@@ -199,12 +199,12 @@ public class ThoraServerCodec extends ThoraCodec {
 			
 			if(!msg.getCreate().isEmpty()) {
 				header |= HEADER_BIT_CREATE;
-				EncodingUtils.encodeMap(msg.getCreate(), this::encodeEntityCreate, buf);
+				EncodingUtils.encodeIntMap(msg.getCreate(), this::encodeEntityCreate, buf);
 			}
 			
 			if(!msg.getUpdate().isEmpty()) {
 				header |= HEADER_BIT_UPDATE;
-				EncodingUtils.encodeMap(msg.getUpdate(), this::encodeEntityUpdate, buf);
+				EncodingUtils.encodeIntMap(msg.getUpdate(), this::encodeEntityUpdate, buf);
 			}
 			
 			if(!msg.getDestroy().isEmpty()) {
