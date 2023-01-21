@@ -44,6 +44,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.google.common.collect.Lists;
 import com.thora.core.Utils;
 import com.thora.core.Utils.IntIntObjFunction;
 import com.thora.core.Utils.IntObjObjConsumer;
@@ -576,8 +577,7 @@ public class EncodingUtils {
 	
 	
 	public static final ByteBuf writeSignedVarInt(int value, final ByteBuf buf) {
-		writeSignedVarIntProto(value, buf);
-		return buf;
+		return writeSignedVarIntProto(value, buf);
 	}
 	
 	public static final ByteBuf writeSignedVarIntLoop(int value, final ByteBuf buf) {
@@ -603,6 +603,30 @@ public class EncodingUtils {
 	}
 	
 	public static final ByteBuf writePosVarInt(int value, final ByteBuf buf) {
+		return writeUnsignedVarIntProto(value, buf);
+	}
+	
+	public static final ByteBuf writePosVarIntUnwrapped(int value, final ByteBuf buf) {
+		if (((value & ~SEGMENT_BITS) != 0)) {
+			buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
+			value >>>= 7;
+			if (((value & ~SEGMENT_BITS) != 0)) {
+				buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
+				value >>>= 7;
+				if (((value & ~SEGMENT_BITS) != 0)) {
+					buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
+					value >>>= 7;
+					if (((value & ~SEGMENT_BITS) != 0)) {
+						buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
+						value >>>= 7;
+					}
+				}
+			}
+		}
+		return buf.writeByte(value);
+	}
+	
+	public static final ByteBuf writePosVarIntLoop(int value, final ByteBuf buf) {
 		while((value & ~SEGMENT_BITS) != 0) {
 			buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
 			value >>>= 7;
@@ -617,11 +641,11 @@ public class EncodingUtils {
 	}
 	
 	public static final int readVarInt(final ByteBuf buf) {
-		return readSignedVarInt(buf);
+		return readSignedVarIntProto(buf);
 	}
 	
 	public static final int readPosVarInt(final ByteBuf buf) {
-		return readPosVarIntUnwrapped(buf);
+		return readUnsignedVarIntProto(buf);
 	}
 	
 	public static final int readPosVarIntLoop(final ByteBuf buf) {
@@ -736,7 +760,7 @@ public class EncodingUtils {
         return temp ^ (raw & (1 << 31));
     }
 	
-	public static int readUnsignedVarIntProto(final ByteBuf buf) {
+	public static int readUnsignedVarIntProtoLoop(final ByteBuf buf) {
 		int value = 0;
 		int i = 0;
 		int b;
@@ -750,17 +774,91 @@ public class EncodingUtils {
 		return value | (b << i);
 	}
 	
-	public static void writeSignedVarIntProto(int value, final ByteBuf out)  {
+	public static final int readPosVarIntUnwrapped2(final ByteBuf buf) {
+		int tmp;
+	    if ((tmp = buf.readByte()) >= 0) {
+	      return tmp;
+	    }
+	    int result = tmp & 0x7f;
+	    if ((tmp = buf.readByte()) >= 0) {
+	      result |= tmp << 7;
+	    } else {
+	      result |= (tmp & 0x7f) << 7;
+	      if ((tmp = buf.readByte()) >= 0) {
+	        result |= tmp << 14;
+	      } else {
+	        result |= (tmp & 0x7f) << 14;
+	        if ((tmp = buf.readByte()) >= 0) {
+	          result |= tmp << 21;
+	        } else {
+	          result |= (tmp & 0x7f) << 21;
+	          result |= (tmp = buf.readByte()) << 28;
+	        }
+	      }
+	    }
+	    return result;
+	}
+	
+	public static int readUnsignedVarIntProto(final ByteBuf buf) {
+		int value = 0;
+		int i = 0;
+		int b;
+		if (((b = buf.readByte()) & CONTINUE_BIT) != 0) {
+			value |= (b & SEGMENT_BITS);
+			i += 7;
+			if (((b = buf.readByte()) & CONTINUE_BIT) != 0) {
+				value |= (b & SEGMENT_BITS) << i;
+				i += 7;
+				if (((b = buf.readByte()) & CONTINUE_BIT) != 0) {
+					value |= (b & SEGMENT_BITS) << i;
+					i += 7;
+					if (((b = buf.readByte()) & CONTINUE_BIT) != 0) {
+						value |= (b & SEGMENT_BITS) << i;
+						i += 7;
+						if (((b = buf.readByte()) & CONTINUE_BIT) != 0) {
+							value |= (b & SEGMENT_BITS) << i;
+							i += 7;
+						}
+					}
+				}
+			}
+		}
+		return value | (b << i);
+	}
+	
+	public static ByteBuf writeSignedVarIntProto(final int value, final ByteBuf out)  {
         // Great trick from http://code.google.com/apis/protocolbuffers/docs/encoding.html#types
-        writeUnsignedVarIntProto((value << 1) ^ (value >> 31), out);
+		return writeUnsignedVarIntProto((value << 1) ^ (value >> 31), out);
     }
 	
-	public static void writeUnsignedVarIntProto(int value, final ByteBuf buf) {
-		while ((value & 0xFFFFFF80) != 0L) {
+	private static final long U_VARINT_MASK = 0xFFFFFF80;
+	
+	protected static void writeUnsignedVarIntProtoLoop(int value, final ByteBuf buf) {
+		while ((value & U_VARINT_MASK) != 0L) {
 			buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
 			value >>>= 7;
 		}
 		buf.writeByte(value & SEGMENT_BITS);
+	}
+	
+	public static ByteBuf writeUnsignedVarIntProto(int value, final ByteBuf buf) {
+		if ((value & U_VARINT_MASK) != 0L) {
+			buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
+			value >>>= 7;
+			if ((value & U_VARINT_MASK) != 0L) {
+				buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
+				value >>>= 7;
+				if ((value & U_VARINT_MASK) != 0L) {
+					buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
+					value >>>= 7;
+					if ((value & U_VARINT_MASK) != 0L) {
+						buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
+						value >>>= 7;
+					}
+				}
+			}
+		}
+		return buf.writeByte(value & SEGMENT_BITS);
 	}
 	
 	private static final long SEGMENT_BITS_LONG = (long) SEGMENT_BITS;
@@ -990,9 +1088,8 @@ public class EncodingUtils {
 		
 		int n = 0;
 		for(M m: list) {
-			final int elementIndex = buf.writerIndex();
+			buf.setInt(lookupTableIndex + 4*n, buf.writerIndex() - lookupTableRelativeIndex);
 			encoder.accept(m, buf);
-			buf.setInt(lookupTableIndex + 4*n, elementIndex - lookupTableRelativeIndex);
 			++n;
 		}
 		
@@ -1001,9 +1098,10 @@ public class EncodingUtils {
 	}
 	
 	public static final <M> List<M> decodeIndexedList(final Supplier<List<M>> sup, final IntIntObjFunction<ByteBuf,M> decoder, final ByteBuf buf) {
-		final List<M> list = sup.get();
+		
 		final int size = EncodingUtils.readPosVarInt(buf);
 		if(size > 0) {
+			final List<M> list = sup.get();
 			final int byteLength = buf.readInt();
 			final int lookupTableIndex = buf.readerIndex();
 			final int lookupTableRelativeIndex = lookupTableIndex + 4*size;
@@ -1014,9 +1112,10 @@ public class EncodingUtils {
 			for(int i=0; i<size; ++i) {
 				list.add(decoder.apply(i, lookupTable[i] + lookupTableRelativeIndex, buf));
 			}
+			return list;
+		} else {
+			return Collections.emptyList();
 		}
-		
-		return list;
 	}
 	
 	/**
@@ -1142,8 +1241,8 @@ public class EncodingUtils {
 		}
 		
 		final int byteLength = buf.readInt();
-		final int byteEndIndex = byteLength + buf.readerIndex();
 		final int readStart = buf.readerIndex();
+		final int byteEndIndex = byteLength + readStart;
 		
 		for(int i=0; i<size; ++i) {
 			c.add(decoder.apply(buf));

@@ -57,8 +57,18 @@ class TestEncodingUtils {
 			Integer.MIN_VALUE, Integer.MAX_VALUE
 	};
 	
+	private static final Collection<NObj> c;
+	
 	static {
 		signedInts = Collections.unmodifiableList(IntStream.of(signedIntsArr).mapToObj(Integer::valueOf).collect(Collectors.toList()));
+		c = new LinkedList<>();
+		final int size = 200;
+		for(int i=0; i<size; ++i) {
+			NObj o = new NObj();
+			o.name = "O-" + (i + 1);
+			o.vector = new BasicDoubleVector(i * 1.25d, i * -3.75d);
+			c.add(o);
+		}
 	}
 	
 	private ByteBuf buf;
@@ -88,7 +98,7 @@ class TestEncodingUtils {
 	@MethodSource("sourceSingedVarInts")
 	void testPosVarIntLoop(final int value) {
 		
-		EncodingUtils.writePosVarInt(value, buf);
+		EncodingUtils.writePosVarIntLoop(value, buf);
 		final int got = EncodingUtils.readPosVarIntLoop(buf);
 		
 		Assertions.assertEquals(value, got);
@@ -99,7 +109,7 @@ class TestEncodingUtils {
 	@MethodSource("sourceSingedVarInts")
 	void testPosVarIntUnwrapped(final int value) {
 		
-		EncodingUtils.writePosVarInt(value, buf);
+		EncodingUtils.writePosVarIntUnwrapped(value, buf);
 		final int got = EncodingUtils.readPosVarIntUnwrapped(buf);
 		
 		Assertions.assertEquals(value, got);
@@ -114,6 +124,33 @@ class TestEncodingUtils {
 		final int got = EncodingUtils.readSignedVarIntProto(buf);
 		
 		Assertions.assertEquals(value, got);
+		
+	}
+	
+	@ParameterizedTest
+	@MethodSource("sourceSingedVarInts")
+	void testUnsignedVarIntProto(final int value) {
+		
+		EncodingUtils.writeUnsignedVarIntProto(value, buf);
+		final int got = EncodingUtils.readUnsignedVarIntProto(buf);
+		
+		Assertions.assertEquals(value, got);
+		
+	}
+	
+	@ParameterizedTest
+	@MethodSource("sourceSingedVarInts")
+	void testUnsignedVarIntProtoAndPosVarInt(final int value) {
+		
+		EncodingUtils.writePosVarInt(value, buf);
+		final int got = EncodingUtils.readUnsignedVarIntProto(buf);
+		
+		Assertions.assertEquals(value, got);
+		
+		EncodingUtils.writeUnsignedVarIntProto(value, buf);
+		final int go2 = EncodingUtils.readPosVarIntUnwrapped(buf);
+		
+		Assertions.assertEquals(value, got, "writeUnsignedVarIntProto != readPosVarIntUnwrapped");
 		
 	}
 	
@@ -176,14 +213,6 @@ class TestEncodingUtils {
 	@Test
 	void testEncodeCollection() {
 		try {
-			final Collection<NObj> c = new LinkedList<>();
-			final int size = 20;
-			for(int i=0; i<size; ++i) {
-				NObj o = new NObj();
-				o.name = "O-" + (i + 1);
-				o.vector = new BasicDoubleVector(i * 1.25d, i * -3.75d);
-				c.add(o);
-			}
 			
 			EncodingUtils.encodeSizedCollection(c, TestEncodingUtils::encodeNObj, buf);
 			
