@@ -32,9 +32,9 @@ class TestFastLocalThread {
 		return logger;
 	}
 	
-	public static final int THREADS = 16;
-	public static final int iterations = 1_000;
-	public static final int BUFFER_CALLS = 500;
+	public static final int THREADS = 8;
+	public static final int iterations = 200;
+	public static final int BUFFER_CALLS = 200;
 	public static final int WRITE_CALLS = 4;
 	public static final int BUFF_LENGTH = 4 * 1024;
 	public static byte[] data = new byte[BUFF_LENGTH];

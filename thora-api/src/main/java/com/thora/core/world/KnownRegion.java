@@ -36,4 +36,6 @@ public interface KnownRegion extends Region {
 				.map(Location::getTile);
 	}
 	
+	public Stream<? extends WorldEntity> entities();
+	
 }

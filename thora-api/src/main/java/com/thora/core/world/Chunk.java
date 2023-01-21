@@ -5,28 +5,30 @@ import java.util.stream.Stream;
 public abstract class Chunk implements HasWorld, RectangularRegion {
 	
 	@Override
-	public abstract World getWorld();
+	public abstract World world();
 	
 	public abstract Location getOrigin();
 	
-	public abstract int getWidth();
+	public abstract int chunkWidth();
 	
-	public abstract int getHeight();
+	public abstract int chunkHeight();
 	
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " " + getOrigin() + "[" + getWidth() + "x" + getHeight() + "]";
+		return getClass().getSimpleName() + " " + getOrigin() + "[" + chunkWidth() + "x" + chunkHeight() + "]";
 	}
 	
 	@Override
 	public Stream<? extends Tile> tiles() {
 		final Location o = getOrigin();
-		return getWorld().tiles(o.getX(), o.getY(), o.getX() + getWidth(), o.getY() + getHeight());
+		return world().tiles(o.getX(), o.getY(), o.getX() + chunkWidth(), o.getY() + chunkHeight());
 	}
 	
 	@Override
 	public WorldRectangle getRectRegion() {
-		return RectangularRegion.computeRect(getOrigin(), getWidth(), getHeight());
+		return RectangularRegion.computeRect(getOrigin(), chunkWidth(), chunkHeight());
 	}
+	
+	public abstract Stream<? extends WorldEntity> entities();
 	
 }

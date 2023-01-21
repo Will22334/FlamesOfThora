@@ -82,7 +82,7 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 	}
 	
 	public class TileMessageConsumer extends MessageConsumer<BasicTileMessage> {
-
+		
 		@Override
 		public void consume(ChannelHandlerContext ctx, BasicTileMessage message) {
 			PlayerSession session = PlayerSession.findSession(ctx);

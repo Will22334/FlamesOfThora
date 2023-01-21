@@ -14,8 +14,10 @@ public interface Tile extends Locatable {
 	public TileData setTileData(TileData tileData);
 	
 	public default Material getMaterial() {
-		TileData data = getTileData();
-		if(data == null) data = TileData.VOID;
+		final TileData data = getTileData();
+		if(data == null) {
+			return Material.VOID;
+		}
 		return data.material();
 	}
 	

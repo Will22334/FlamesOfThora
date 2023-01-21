@@ -30,7 +30,7 @@ public class LocationComponent implements Component, Locatable {
 	}
 	
 	public LocationComponent setLocation(int x, int y) {
-		return setLocation(new WeakVectorLocation<>(getLocation().getWorld(), x, y));
+		return setLocation(new WeakVectorLocation<>(getLocation().world(), x, y));
 	}
 	
 }

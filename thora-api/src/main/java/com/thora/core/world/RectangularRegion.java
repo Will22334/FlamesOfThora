@@ -27,7 +27,7 @@ public interface RectangularRegion extends KnownRegion {
 	@Override
 	public default boolean contains(Locatable loc) {
 		if(loc == null) return false;
-		if(!getRectRegion().getWorld().equals(loc.getWorld())) {
+		if(!getRectRegion().world().equals(loc.world())) {
 			return false;
 		}
 		return getRectRegion().contains(loc.getX(), loc.getY());
@@ -43,6 +43,19 @@ public interface RectangularRegion extends KnownRegion {
 				})
 				.flatMap(Function.identity());
 		
+	}
+
+	@Override
+	public default World world() {
+		final Location point = points().findAny().orElse(null);
+		if(point == null) return null;
+		return point.world();
+	}
+
+	@Override
+	public default Stream<? extends WorldEntity> entities() {
+		return world().entities()
+				.filter(this::contains);
 	}
 	
 }

@@ -23,7 +23,7 @@ public interface WorldEntity extends Locatable {
 	}
 	
 	public default boolean isRegistered(World world) {
-		return isRegistered() && Objects.equals(getWorld(), world);
+		return isRegistered() && Objects.equals(world(), world);
 	}
 	
 	public default boolean isRegistered() {

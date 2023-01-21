@@ -33,8 +33,8 @@ public class WorldRectangle implements RectangularRegion {
 	}
 
 	@Override
-	public World getWorld() {
-		return bottomLeft.getWorld();
+	public World world() {
+		return bottomLeft.world();
 	}
 	
 	public int getX() {
@@ -72,7 +72,7 @@ public class WorldRectangle implements RectangularRegion {
 	@Override
 	public boolean contains(Locatable loc) {
 		Objects.requireNonNull(loc, "WorldRectangle cannot check contains on Location with null World");
-		if(!getWorld().equals(loc.getWorld())) {
+		if(!world().equals(loc.world())) {
 			return false;
 		}
 		return contains(loc.getX(), loc.getY());

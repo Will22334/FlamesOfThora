@@ -11,7 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.ashley.core.PooledEngine;
-import com.thora.core.Utils;
 import com.thora.core.math.FinalIntVector;
 import com.thora.core.world.HashChunkWorld.HashChunk.CTile;
 
@@ -20,18 +19,24 @@ import io.netty.util.collection.IntObjectMap;
 
 public abstract class HashChunkWorld extends GeneralWorld {
 	
-	public class HashChunk extends Chunk {
+	public static class HashChunk extends Chunk {
 		
 		public class CTile extends BasicTile {
-			protected CTile(Material material, Location point) {
+			protected CTile(final TileData data, final Location point) {
+				super(data, point);
+			}
+			protected CTile(final Material material, final Location point) {
 				super(material, point);
 			}
 			@Override
-			public HashChunkWorld getWorld() {
-				return getChunk().getWorld();
+			public HashChunkWorld world() {
+				return getChunk().world();
 			}
 			protected HashChunk getChunk() {
 				return HashChunk.this;
+			}
+			public Location getOrigin() {
+				return getChunk().getOrigin();
 			}
 			protected int ix() {
 				return getX() - getOrigin().getX();
@@ -41,22 +46,22 @@ public abstract class HashChunkWorld extends GeneralWorld {
 			}
 		}
 		
-		
+		private final HashChunkWorld world;
 		public final CTile[][] tiles;
-		//protected final Map<Integer,WorldEntity> entities = new ConcurrentHashMap<>();
 		protected final IntObjectMap<WorldEntity> entities = new IntObjectHashMap<>();
 		public final ChunkCoordinate coord;
 		public final Location bottomLeft;
 		
-		protected HashChunk(ChunkCoordinate coord) {
+		protected HashChunk(final HashChunkWorld world, final ChunkCoordinate coord) {
+			this.world = world;
 			this.coord = coord;
-			this.bottomLeft = getChunkOrigin(coord);
-			this.tiles = new CTile[chunkHeight][chunkWidth];
+			this.bottomLeft = world.getChunkOrigin(coord);
+			this.tiles = new CTile[world.chunkHeight][world.chunkWidth];
 		}
 		
 		@Override
-		public final HashChunkWorld getWorld() {
-			return HashChunkWorld.this;
+		public final HashChunkWorld world() {
+			return world;
 		}
 		
 		@Override
@@ -65,13 +70,13 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		}
 		
 		@Override
-		public int getWidth() {
-			return chunkWidth;
+		public int chunkWidth() {
+			return world().chunkWidth;
 		}
 		
 		@Override
-		public int getHeight() {
-			return chunkHeight;
+		public int chunkHeight() {
+			return world().chunkHeight;
 		}
 		
 		protected int ix(int wx) {
@@ -131,15 +136,16 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		}
 		
 		protected HashChunk generate() {
-			for(int y=0; y<chunkHeight; ++y) {
-				for(int x=0; x<chunkWidth; ++x) {
+			for(int y=0; y<chunkHeight(); ++y) {
+				for(int x=0; x<chunkWidth(); ++x) {
 					Location point = getOrigin().clone().shift(x, y);
-					tiles[y][x] = new CTile(getWorld().generate(point), point);
+					tiles[y][x] = new CTile(new BasicTileData(world().generate(point)), point);
 				}
 			}
 			return this;
 		}
 		
+		@Override
 		public Stream<? extends WorldEntity> entities() {
 			return entities.values().stream();
 		}
@@ -170,16 +176,16 @@ public abstract class HashChunkWorld extends GeneralWorld {
 	protected final int chunkHeight;
 	
 	protected final Map<ChunkCoordinate,HashChunk> chunks = new ConcurrentHashMap<ChunkCoordinate,HashChunk>();
-	protected final Map<Integer,WorldEntity> entities = new ConcurrentHashMap<>();
+	protected final Map<Integer,WorldEntity> entities = new ConcurrentHashMap<Integer,WorldEntity>();
 	
-	public HashChunkWorld(String name, Locatable origin, int chunkWidth, int chunkHeight, PooledEngine engine, TileGenerator generator) {
+	public HashChunkWorld(final String name, final Locatable origin, final int chunkWidth, final int chunkHeight, final PooledEngine engine, final TileGenerator generator) {
 		super(name, origin, engine, generator);
 		
 		this.chunkWidth = chunkWidth;
 		this.chunkHeight = chunkHeight;
 	}
 	
-	public HashChunkWorld(String name, int chunkWidth, int chunkHeight, PooledEngine engine, TileGenerator generator) {
+	public HashChunkWorld(final String name, final int chunkWidth, final int chunkHeight, final PooledEngine engine, final TileGenerator generator) {
 		super(name, engine, generator);
 		
 		this.chunkWidth = chunkWidth;
@@ -235,8 +241,8 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		return getChunkOrigin(c.getIX(), c.getIY());
 	}
 	
-	protected HashChunk createChunk(ChunkCoordinate coord) {
-		return new HashChunk(coord);
+	protected HashChunk createChunk(final ChunkCoordinate coord) {
+		return new HashChunk(this, coord);
 	}
 	
 	protected float chunkWidths(int dwx) {
@@ -330,8 +336,7 @@ public abstract class HashChunkWorld extends GeneralWorld {
 	
 	@Override
 	public Stream<? extends WorldEntity> entities() {
-		return chunks()
-				.flatMap(HashChunk::entities);
+		return entities.values().stream();
 	}
 	
 	protected abstract boolean doRegister(WorldEntity e);

@@ -7,6 +7,7 @@ import com.thora.core.entity.EntityType;
 import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.CameraEntityMessage;
 import com.thora.core.net.message.ChatMessage;
+import com.thora.core.net.message.EntityMoveRequestMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
 import com.thora.core.net.message.StateChangeMessage;
@@ -16,6 +17,7 @@ import com.thora.core.net.netty.PodHandler;
 import com.thora.core.world.Location;
 import com.thora.core.world.WeakVectorLocation;
 import com.thora.core.world.World;
+import com.thora.server.ServerPlayer;
 import com.thora.server.world.PlayerEntity;
 import com.thora.server.world.ServerHashChunkWorld;
 
@@ -39,6 +41,7 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 	protected void populate() {
 		this.addHandler(new LoginRequestHandler());
 		this.addHandler(new ChatMessageHandler());
+		this.addHandler(new EntityMoveRequestMessageHandler());
 	}
 	
 	private final class LoginRequestHandler extends MessageConsumer<LoginRequestMessage> {
@@ -54,11 +57,17 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 				final ServerHashChunkWorld w = server().getWorld();
 				final Location l = new WeakVectorLocation<>(w,0,0);
 				final PlayerEntity p = new PlayerEntity(message.username, EntityType.HUMAN_MALE,  l);
+				final NettyServerPlayer player = new NettyServerPlayer(session, message.username, p);
+				p.setPlayer(player);
+				session.setPlayer(player);
+				
+				
 				w.register(p);
 				
 				
 				session.write(new WorldDefinitionMessage(w));
-				w.informSurroundingTiles(p, session);
+				w.informSurroundingTiles(p, player);
+				
 				
 				session.write(new CameraEntityMessage(p, true, 0f));
 				session.write(new StateChangeMessage(3));
@@ -74,6 +83,20 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 			ClientSession session = ClientSession.get(ctx);
 			logger().info("Got message \"{}\" from {}", message.message, session);
 		}
+	}
+	
+	private final class EntityMoveRequestMessageHandler extends MessageConsumer<EntityMoveRequestMessage> {
+
+		@Override
+		public void consume(ChannelHandlerContext ctx, EntityMoveRequestMessage message) {
+			final ClientSession session = ClientSession.get(ctx);
+			final ServerPlayer player = session.getPlayer();
+			final PlayerEntity entity = player.getEntity();
+			
+			logger().trace("Handling MoveRequest from {} to {} for {}", message.getFrom(), message.getTo(), message.getEntity());
+			entity.world().moveEntity(entity, message.getTo());
+		}
+		
 	}
 	
 }

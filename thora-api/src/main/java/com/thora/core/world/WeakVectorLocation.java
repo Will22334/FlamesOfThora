@@ -33,13 +33,13 @@ public class WeakVectorLocation<W extends World> extends IntVectorLocation {
 	}
 	
 	@Override
-	public W getWorld() {
+	public W world() {
 		return worldRef.get();
 	}
 	
 	@Override
 	public WeakVectorLocation<W> clone() {
-		return new WeakVectorLocation<W>(getWorld(), vector().clone());
+		return new WeakVectorLocation<W>(world(), vector().clone());
 	}
 	
 	@Override

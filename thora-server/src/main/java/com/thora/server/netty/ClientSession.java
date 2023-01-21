@@ -13,6 +13,7 @@ import com.thora.core.net.NetworkSession;
 import com.thora.core.net.SimpleCryptographicCredentials;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.NettyNetworkChannel;
+import com.thora.server.ServerPlayer;
 import com.thora.server.ThoraServer;
 
 import io.netty.buffer.ByteBuf;
@@ -37,6 +38,8 @@ public class ClientSession extends AbstractNettySession {
 	private final ThoraServer server;
 	private SimpleCryptographicCredentials creds;
 	
+	private ServerPlayer player;
+	
 	protected ClientSession(NettyNetworkChannel channel, ThoraServer server, KeyPair pair) {
 		super(channel);
 		this.server = server;
@@ -55,6 +58,14 @@ public class ClientSession extends AbstractNettySession {
 	@Override
 	protected ByteBufAllocator alloc() {
 		return super.alloc();
+	}
+	
+	public ServerPlayer getPlayer() {
+		return player;
+	}
+	
+	public void setPlayer(final ServerPlayer player) {
+		this.player = player;
 	}
 	
 	@Override

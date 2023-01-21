@@ -1,6 +1,6 @@
 package com.thora.core.world;
 
-public abstract class BasicTile implements Tile {
+public class BasicTile implements Tile {
 	
 	Location point;
 	protected TileData data;
@@ -25,8 +25,8 @@ public abstract class BasicTile implements Tile {
 	}
 	
 	@Override
-	public TileData setTileData(TileData tileData) {
-		final TileData old = tileData;
+	public TileData setTileData(final TileData tileData) {
+		final TileData old = this.data;
 		this.data = tileData;
 		return old;
 	}

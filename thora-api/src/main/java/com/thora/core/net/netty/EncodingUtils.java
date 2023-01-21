@@ -6,6 +6,7 @@ import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.DigestException;
@@ -46,6 +47,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.thora.core.Utils;
 import com.thora.core.Utils.IntObjObjConsumer;
 import com.thora.core.Utils.IntObjObjFunction;
+import com.thora.core.Utils.TriFunction;
 import com.thora.core.net.HasCryptographicCredentials;
 
 import io.netty.buffer.ByteBuf;
@@ -53,6 +55,7 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.util.ByteProcessor;
+import io.netty.util.CharsetUtil;
 import io.netty.util.collection.IntObjectHashMap;
 import io.netty.util.collection.IntObjectMap;
 import io.netty.util.collection.IntObjectMap.PrimitiveEntry;
@@ -891,8 +894,13 @@ public class EncodingUtils {
 				.writeBytes(arr);
 	}
 	
+	public static final ByteBuf writeVarArray(final byte[] arr, final int index, final int length, final ByteBuf buf) {
+		return writePosVarInt(length, buf)
+				.writeBytes(arr, index, length);
+	}
+	
 	public static final byte[] readVarArray(final ByteBuf buf) {
-		byte[] arr = new byte[readPosVarInt(buf)];
+		final byte[] arr = new byte[readPosVarInt(buf)];
 		buf.readBytes(arr);
 		return arr;
 	}
@@ -1051,40 +1059,52 @@ public class EncodingUtils {
 		return buf;
 	}
 	
-	public static final <V> ByteBuf encodeMap(final IntObjectMap<V> map, final IntObjObjFunction<V,ByteBuf,ByteBuf> f, final ByteBuf buf) {
+	public static final <K,V> ByteBuf encodeMap(final Map<K,V> map, final TriFunction<K,V,ByteBuf,ByteBuf> f, ByteBuf buf) {
 		EncodingUtils.writePosVarInt(map.size(), buf);
-		map.entries().forEach(e -> f.apply(e.key(), e.value(), buf));
+		for(final Entry<K,V> e: map.entrySet()) {
+			f.apply(e.getKey(), e.getValue(), buf);
+		}
 		return buf;
 	}
 	
-	public static final <V> IntObjectMap<V> decodIntObjeMap(final BiConsumer<IntObjectMap<V>,ByteBuf> f, final ByteBuf buf) {
-		final int size = EncodingUtils.readPosVarIntUnwrapped(buf);
-		if(size < 1) {
-			return new IntObjectHashMap<>();
-		} else {
-			final IntObjectMap<V> map = new IntObjectHashMap<>();
-			for(int i=0; i<size; ++i) {
-				f.accept(map, buf);
-			}
-			return map;
+	public static final <V> ByteBuf encodeMap(final IntObjectMap<V> map, final IntObjObjFunction<V,ByteBuf,ByteBuf> f, final ByteBuf buf) {
+		EncodingUtils.writePosVarInt(map.size(), buf);
+		for(final PrimitiveEntry<V> e: map.entries()) {
+			f.apply(e.key(), e.value(), buf);
 		}
+		return buf;
+	}
+	
+	public static final <V> IntObjectMap<V> decodIntObjMap(final BiConsumer<IntObjectMap<V>,ByteBuf> f, final ByteBuf buf) {
+		final int size = EncodingUtils.readPosVarIntUnwrapped(buf);
+		final IntObjectMap<V> map = new IntObjectHashMap<>();
+		for(int i=0; i<size; ++i) {
+			f.accept(map, buf);
+		}
+		return map;
 	}
 	
 	public static final <V> ByteBuf encodeMap(final IntObjectMap<V> map, final IntObjObjConsumer<V,ByteBuf> f, final ByteBuf buf) {
 		EncodingUtils.writePosVarInt(map.size(), buf);
-		map.entries().forEach(e -> f.apply(e.key(), e.value(), buf));
+		for(final PrimitiveEntry<V> e: map.entries()) {
+			f.accept(e.key(), e.value(), buf);
+		}
 		return buf;
 	}
 	
 	public static final <K,V,R> ByteBuf encodeMap(final Map<K,V> map, final BiFunction<K,V,R> f, final ByteBuf buf) {
 		EncodingUtils.writePosVarInt(map.size(), buf);
-		map.forEach((k,v) -> f.apply(k, v));
+		for(final Entry<K,V> e: map.entrySet()) {
+			f.apply(e.getKey(), e.getValue());
+		}
 		return buf;
 	}
 	
 	public static final <K,V> ByteBuf encodeMap(final Map<K,V> map, final BiConsumer<? super Entry<K,V>,ByteBuf> f, final ByteBuf buf) {
 		EncodingUtils.writePosVarInt(map.size(), buf);
-		map.entrySet().forEach(Utils.bindArg2(f, buf));
+		for(final Entry<K,V> e: map.entrySet()) {
+			f.accept(e, buf);
+		}
 		return buf;
 	}
 	
@@ -1250,12 +1270,12 @@ public class EncodingUtils {
 	}
 	
 	public static final ByteBuf writeVarIntString(final String s, final Charset charset, final ByteBuf buf) {
-		byte[] arr = s.getBytes(charset);
+		final byte[] arr = s.getBytes(charset);
 		return writeVarArray(arr, buf);
 	}
 	
 	public static final ByteBuf writeByteString(final String s, final Charset charset, final ByteBuf buf) {
-		byte[] arr = s.getBytes(charset);
+		final byte[] arr = s.getBytes(charset);
 		writeUByte(arr.length, buf);
 		return buf.writeBytes(arr);
 	}
@@ -1265,13 +1285,13 @@ public class EncodingUtils {
 	}
 	
 	public static final void writeShortString(final String s, final ByteBuf buf) {
-		byte[] arr = s.getBytes();
+		final byte[] arr = s.getBytes();
 		buf.writeShort(arr.length);
 		buf.writeBytes(arr);
 	}
 	
 	public static final void writeIntString(final String s, final ByteBuf buf) {
-		byte[] arr = s.getBytes();
+		final byte[] arr = s.getBytes();
 		buf.writeInt(arr.length);
 		buf.writeBytes(arr);
 	}
@@ -1281,7 +1301,7 @@ public class EncodingUtils {
 	}
 	
 	public static final PublicKey decodeRSAPublicKey(final ByteBuf buf) throws InvalidKeySpecException, NoSuchAlgorithmException {
-		byte[] arr = new byte[buf.readableBytes()];
+		final byte[] arr = new byte[buf.readableBytes()];
 		buf.readBytes(arr);
 		return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(arr));
 	}

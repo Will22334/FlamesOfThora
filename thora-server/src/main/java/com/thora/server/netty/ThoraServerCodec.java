@@ -14,15 +14,18 @@ import com.thora.core.net.message.CameraMessage;
 import com.thora.core.net.message.CameraPointMessage;
 import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.EntityMessage;
+import com.thora.core.net.message.EntityMoveRequestMessage;
 import com.thora.core.net.message.LoginRequestMessage;
 import com.thora.core.net.message.LoginResponseMessage;
 import com.thora.core.net.message.StateChangeMessage;
 import com.thora.core.net.message.WorldDefinitionMessage;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.ThoraCodec;
+import com.thora.core.world.Location;
 import com.thora.core.world.TileData;
 import com.thora.core.world.World;
 import com.thora.core.world.WorldEntity;
+import com.thora.server.ServerPlayer;
 import com.thora.server.ThoraServer;
 
 import io.netty.buffer.ByteBuf;
@@ -51,12 +54,14 @@ public class ThoraServerCodec extends ThoraCodec {
 		
 		addDecoder(new LoginRequestDecoder());
 		addDecoder(new ChatMessageDecoder());
+		addDecoder(new EntityMoveRequestMessageDecoder());
 		
 		
 		addEncoder(new LoginResponseEncoder());
 		addEncoder(new ChatMessageEncoder());
 		addEncoder(new WorldDefMessageEncoder());
 		addEncoder(new TileMessageEncoder());
+		addEncoder(new EntityMessageEncoder());
 		addEncoder(new StateChangeMessageEncoder());
 		addEncoder(new CameraPointMessageEncoder());
 		addEncoder(new CameraEntityMessageEncoder());
@@ -121,8 +126,8 @@ public class ThoraServerCodec extends ThoraCodec {
 		}
 
 		@Override
-		protected ChatMessage decodePlain(ChannelHandlerContext ctx, ByteBuf buf) {
-			String text = EncodingUtils.readString(buf);
+		protected ChatMessage decodePlain(final ChannelHandlerContext ctx, final ByteBuf buf) {
+			final String text = EncodingUtils.readString(buf);
 			return new ChatMessage(text);
 		}
 		
@@ -176,7 +181,7 @@ public class ThoraServerCodec extends ThoraCodec {
 		
 	}
 	
-	public class EntityMessageEncoder extends MessageEncoder<EntityMessage> {
+	public final class EntityMessageEncoder extends MessageEncoder<EntityMessage> {
 		protected EntityMessageEncoder() {
 			super(OPCODE_CLIENT_ENTITY_INFORM);
 		}
@@ -186,7 +191,7 @@ public class ThoraServerCodec extends ThoraCodec {
 		public static final int HEADER_BIT_DESTROY = 0x04;
 		
 		@Override
-		public void encode(ChannelHandlerContext ctx, EntityMessage msg, ByteBuf buf) {
+		public final void encode(ChannelHandlerContext ctx, EntityMessage msg, ByteBuf buf) {
 			
 			final int headerIndex = buf.writerIndex();
 			byte header = 0;
@@ -211,13 +216,13 @@ public class ThoraServerCodec extends ThoraCodec {
 			
 		}
 		
-		private void encodeEntityCreate(final int id, final WorldEntity e, final ByteBuf buf) {
+		private final void encodeEntityCreate(final int id, final WorldEntity e, final ByteBuf buf) {
 			encodeEntityLocHeader(e, buf);
 			buf.writeByte(e.getEntityType().ordinal());
 			EncodingUtils.writenNullableVarString(e.getName(), buf);
 		}
 		
-		private void encodeEntityUpdate(final int id, final WorldEntity e, final ByteBuf buf) {
+		private final void encodeEntityUpdate(final int id, final WorldEntity e, final ByteBuf buf) {
 			encodeEntityLocHeader(e, buf);
 		}
 		
@@ -226,6 +231,25 @@ public class ThoraServerCodec extends ThoraCodec {
 	private void encodeEntityLocHeader(final WorldEntity e, final ByteBuf buf) {
 		EncodingUtils.writePosVarInt(e.getID(), buf);
 		ThoraCodec.write2DLocation(e, buf);
+	}
+	
+	public class EntityMoveRequestMessageDecoder extends MessageDecoder<EntityMoveRequestMessage> {
+
+		public EntityMoveRequestMessageDecoder() {
+			super(OPCODE_CLIENT_MOVE_REQUSET);
+		}
+
+		@Override
+		public EntityMoveRequestMessage decode(ChannelHandlerContext ctx, ByteBuf buf) throws IOException {
+			ClientSession session = ClientSession.get(ctx);
+			ServerPlayer player = session.getPlayer();
+			
+			final Location from = ThoraCodec.read2DLocation(player.world(), buf);
+			final Location to = ThoraCodec.read2DLocation(player.world(), buf);
+			
+			return new EntityMoveRequestMessage(player.getEntity(), from, to);
+		}
+		
 	}
 	
 	public class CameraPointMessageEncoder extends MessageEncoder<CameraPointMessage> {

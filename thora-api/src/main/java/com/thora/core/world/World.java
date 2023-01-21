@@ -14,7 +14,7 @@ public interface World extends HasWorld, Disposable, HasLogger {
 	public String getName();
 	
 	@Override
-	public default World getWorld() {
+	public default World world() {
 		return this;
 	}
 	

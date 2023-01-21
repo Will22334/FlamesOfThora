@@ -17,12 +17,12 @@ public interface Locatable extends HasWorld {
 	public Location getLocation();
 	
 	@Override
-	public default World getWorld() {
-		return getLocation().getWorld();
+	public default World world() {
+		return getLocation().world();
 	}
 	
 	public default Tile getTile() {
-		return getWorld().getTile(getLocation());
+		return world().getTile(getLocation());
 	}
 	
 	public default int getX() {

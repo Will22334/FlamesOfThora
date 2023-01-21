@@ -32,13 +32,13 @@ public abstract class IntVectorLocation extends Location {
 		}
 
 		@Override
-		public W getWorld() {
+		public W world() {
 			return worldRef.get();
 		}
 
 		@Override
 		public IntVectorRefLocation<W> clone() {
-			return new IntVectorRefLocation<W>(getWorld(), this.v.clone());
+			return new IntVectorRefLocation<W>(world(), this.v.clone());
 		}
 		
 	}
@@ -54,7 +54,7 @@ public abstract class IntVectorLocation extends Location {
 	}
 	
 	@Override
-	public abstract World getWorld();
+	public abstract World world();
 	
 	public IntVector vector() {
 		return v;

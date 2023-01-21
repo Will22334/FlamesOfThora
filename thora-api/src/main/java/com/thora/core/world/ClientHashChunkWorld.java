@@ -8,13 +8,13 @@ public class ClientHashChunkWorld extends HashChunkWorld {
 	
 	public class ClientHashChunk extends HashChunk {
 
-		protected ClientHashChunk(ChunkCoordinate coord) {
-			super(coord);
+		protected ClientHashChunk(final ClientHashChunkWorld world, final ChunkCoordinate coord) {
+			super(world, coord);
 		}
 		
 		protected ClientHashChunk generate() {
-			for(int y=0; y<chunkHeight; ++y) {
-				for(int x=0; x<chunkWidth; ++x) {
+			for(int y=0; y<chunkHeight(); ++y) {
+				for(int x=0; x<chunkWidth(); ++x) {
 					Location point = getOrigin().clone().shift(x, y);
 					tiles[y][x] = new CTile(Material.VOID, point);
 				}

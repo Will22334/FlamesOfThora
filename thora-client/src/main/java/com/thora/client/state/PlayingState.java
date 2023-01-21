@@ -2,7 +2,6 @@ package com.thora.client.state;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Dimension;
 
 import com.badlogic.ashley.core.Entity;
@@ -11,6 +10,9 @@ import com.badlogic.ashley.signals.Listener;
 import com.badlogic.ashley.signals.Signal;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -21,6 +23,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.thora.client.FlamesOfThoraClient;
 import com.thora.client.graphics.MultiTextureComponent;
 import com.thora.client.graphics.TextureComponent;
@@ -37,12 +41,12 @@ import com.thora.core.HasLogger;
 import com.thora.core.entity.EntityType;
 import com.thora.core.entity.PlayerComponent;
 import com.thora.core.entity.TypeComponent;
+import com.thora.core.net.message.EntityMoveRequestMessage;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
 import com.thora.core.world.LocationComponent;
 import com.thora.core.world.MovableComponent;
 import com.thora.core.world.MoveEvent;
-import com.thora.core.world.MoveRequestComponent;
 import com.thora.core.world.WeakVectorLocation;
 
 public class PlayingState extends GameState implements HasLogger {
@@ -90,6 +94,10 @@ public class PlayingState extends GameState implements HasLogger {
 	 */
 	private Dimension appSize;
 	
+	protected InputMultiplexer inputMultiplex;
+	protected Stage uiStage;
+	
+	
 	private Signal<Dimension> resizeSignal = new Signal<>();
 	
 	float viewportScale = 20f;
@@ -97,7 +105,7 @@ public class PlayingState extends GameState implements HasLogger {
 	
 	private final InputHandler in = new InputHandler();
 	private final InputListener inputListener = new InputListener(in) {
-
+		
 		@Override
 		public boolean scrolled(final int amount) {
 			logger().trace(() -> "Mouse scroll: " + amount);
@@ -138,13 +146,29 @@ public class PlayingState extends GameState implements HasLogger {
 	@Override
 	public void onCreate() {
 		this.appSize = new Dimension(g().getWidth(), g().getHeight());
+		
+		
+		uiStage = new Stage(new ScreenViewport());
+		
+		this.inputMultiplex = new InputMultiplexer(uiStage, worldInutProcessor);
+		Gdx.input.setInputProcessor(inputMultiplex);
+		
+		
 		logger().trace("Created Playing State!");
+	}
+	
+	protected void toggleGridView() {
+		logger().debug("Last Resized at: {}", lastGridToggleTime);
+		logger().debug("Toggling Grid");
+		worldRenderer.toggleBorders();
+		lastGridToggleTime = delta;
 	}
 	
 	private Matrix4 uiMatrix = new Matrix4();
 	private static final Color COLOR_OFF_WHITE = new Color(1f, 1f, 1f, .5f);
 	
 	private final Vector2 v = new Vector2();
+	private final Vector2 lastWalkV = new Vector2();
 	
 	//Various tasks that should be completed on the render portion of the game loop.
 	@Override
@@ -153,7 +177,7 @@ public class PlayingState extends GameState implements HasLogger {
 		Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
 		
 		//Updates the entity system. 
-		engine().update(delta);
+		engine().update(dt);
 		
 		float width = g().getWidth();
 		float height = g().getHeight();
@@ -178,14 +202,14 @@ public class PlayingState extends GameState implements HasLogger {
 		
 		hudBatch.end();
 		
-//		shapeRend.setProjectionMatrix(uiMatrix);
-//		shapeRend.begin(ShapeRenderer.ShapeType.Line);
-//		Gdx.gl.glEnable(GL11.GL_BLEND);
-//		shapeRend.setColor(COLOR_OFF_WHITE);
-//		shapeRend.line(width/2, 0, width/2, height);
-//		shapeRend.line(0, height/2, width, height/2);
-//		Gdx.gl.glLineWidth(1f);
-//		shapeRend.end();
+		//		shapeRend.setProjectionMatrix(uiMatrix);
+		//		shapeRend.begin(ShapeRenderer.ShapeType.Line);
+		//		Gdx.gl.glEnable(GL11.GL_BLEND);
+		//		shapeRend.setColor(COLOR_OFF_WHITE);
+		//		shapeRend.line(width/2, 0, width/2, height);
+		//		shapeRend.line(0, height/2, width, height/2);
+		//		Gdx.gl.glLineWidth(1f);
+		//		shapeRend.end();
 		
 		//update(dt);
 	}
@@ -200,7 +224,7 @@ public class PlayingState extends GameState implements HasLogger {
 		//Handle Key Events for Keyboard Keys registered in this state.
 		handleInput();
 		
-		engine().update(delta);
+		engine().update(dt);
 		
 		//Update the camera.
 		//worldCamera.update();
@@ -251,17 +275,17 @@ public class PlayingState extends GameState implements HasLogger {
 		playerImgRegion = new TextureRegion(playerImg);
 		playerImgBackRegion = new TextureRegion(playerImgBack);
 		
-		Gdx.input.setInputProcessor(inputListener);
+//		Gdx.input.setInputProcessor(inputListener);
 		
-		in.bindKey(EXIT_BINDING, Keys.ESCAPE);
-		in.bindKey(SHOW_GRID_BIDING, Keys.G);
+//		in.bindKey(EXIT_BINDING, Keys.ESCAPE);
+//		in.bindKey(SHOW_GRID_BIDING, Keys.G);
 		
 		//inputHandler.RegisterKey(KEY_ESCAPE);
-		in.RegisterKey(KEY_UP);
-		in.RegisterKey(KEY_DOWN);
-		in.RegisterKey(KEY_LEFT);
-		in.RegisterKey(KEY_RIGHT);
-		in.RegisterKey(KEY_G);
+//		in.RegisterKey(KEY_UP);
+//		in.RegisterKey(KEY_DOWN);
+//		in.RegisterKey(KEY_LEFT);
+//		in.RegisterKey(KEY_RIGHT);
+//		in.RegisterKey(KEY_G);
 		
 		
 		Location spawn = new WeakVectorLocation<>(client().world(), 0, 0);
@@ -284,6 +308,8 @@ public class PlayingState extends GameState implements HasLogger {
 		
 		engine().addSystem(new MoveSystem(20));
 		
+		Gdx.input.setInputProcessor(inputMultiplex);
+		
 	}
 	
 	private Entity createPlayerEntity(PooledEngine engine, Locatable loc) {
@@ -302,10 +328,15 @@ public class PlayingState extends GameState implements HasLogger {
 		movable.signal.add(new Listener<MoveEvent>() {
 			@Override
 			public void receive(Signal<MoveEvent> signal, MoveEvent event) {
+				final Location oldLoc = location.getLocation().clone();
 				location.getLocation().shift(event.dx(), event.dy());
 				
 				worldCamera.position.add(event.dx(), event.dy(), 0);
 				worldCamera.update();
+				
+				EntityMoveRequestMessage packet = new EntityMoveRequestMessage(null, oldLoc, location.getLocation().clone());
+				client().network().session().writeAndFlush(packet);
+				
 			}
 		});
 		
@@ -369,9 +400,114 @@ public class PlayingState extends GameState implements HasLogger {
 		}
 	};
 	
+	private final InputProcessor worldInutProcessor = new InputAdapter() {
+		
+		@Override
+		public boolean keyTyped(char character) {
+			boolean handled = true;
+			
+			switch(character) {
+			
+			default:
+				handled = false;
+				break;
+				
+			}
+			
+			return handled;
+		}
+
+		@Override
+		public boolean keyDown(int keycode) {
+			boolean handled = true;
+			
+			switch(keycode) {
+			
+			case Keys.UP:
+				walk(0, 1);
+				break;
+			case Keys.DOWN:
+				walk(0, -1);
+				break;
+			case Keys.LEFT:
+				walk(-1, 0);
+				break;
+			case Keys.RIGHT:
+				walk(1, 0);
+				break;
+				
+			default:
+				handled = false;
+				break;
+				
+			}
+			
+			return handled;
+		}
+		
+		@Override
+		public boolean keyUp(int keycode) {
+			boolean handled = true;
+			
+			switch(keycode) {
+			
+			case Keys.UP:
+				walk(0, -1);
+				break;
+			case Keys.DOWN:
+				walk(0, 1);
+				break;
+			case Keys.LEFT:
+				walk(1, 0);
+				break;
+			case Keys.RIGHT:
+				walk(-1, 0);
+				break;
+				
+			default:
+				handled = false;
+				break;
+				
+			}
+			
+			return handled;
+		}
+		
+		@Override
+		public boolean mouseMoved(int screenX, int screenY) {
+			// TODO Auto-generated method stub
+			return super.mouseMoved(screenX, screenY);
+		}
+		
+		@Override
+		public boolean scrolled(int amount) {
+			logger().trace("Mouse scroll: {}", amount);
+			if(amount != 0) {
+				if(amount > 0) {
+					for(int i=amount; i>0; --i) {
+						scaleCamera(1f - scrollScaleChange);
+					}
+				} else {
+					for(int i=amount; i<0; ++i) {
+						scaleCamera(1f + scrollScaleChange);
+					}
+				}
+				return true;
+			}
+			
+			return false;
+		}
+		
+	};
+	
 	private void handleInput() {
 		
 		//TODO Instead of polling input every frame, have a State specific InputProcesser implement input logic.
+		
+		
+		if(Gdx.input.isKeyJustPressed(Keys.G)) {
+			toggleGridView();
+		}
 		
 		
 		Location loc = player.getComponent(LocationComponent.class).getLocation();
@@ -379,18 +515,18 @@ public class PlayingState extends GameState implements HasLogger {
 		long time = System.currentTimeMillis();
 		if(time > lastWalkTime + WALK_TILE_DURATION) {
 			
-			if(in.isKeyDown(Keys.UP)) {
-				walk(0, 1);
-			}
-			if(in.isKeyDown(Keys.DOWN)) {
-				walk(0, -1);
-			}
-			if(in.isKeyDown(Keys.LEFT)) {
-				walk(-1, 0);
-			}
-			if(in.isKeyDown(Keys.RIGHT)) {
-				walk(1, 0);
-			}
+			//			if(in.isKeyDown(Keys.UP)) {
+			//				walk(0, 1);
+			//			}
+			//			if(in.isKeyDown(Keys.DOWN)) {
+			//				walk(0, -1);
+			//			}
+			//			if(in.isKeyDown(Keys.LEFT)) {
+			//				walk(-1, 0);
+			//			}
+			//			if(in.isKeyDown(Keys.RIGHT)) {
+			//				walk(1, 0);
+			//			}
 			
 			//			if(KEY_UP.ifPressed()) {
 			//				walk(0, 1);
@@ -409,11 +545,27 @@ public class PlayingState extends GameState implements HasLogger {
 			//			}
 			
 			if(!v.isZero()) {
-				player.add(engine().createComponent(MoveRequestComponent.class).set(v.cpy()));
+				final LocationComponent locComp = player.getComponent(LocationComponent.class);
+				final Location oldLoc = locComp.getLocation().clone();
+				
+				final float yDir = Math.signum(v.y);
+				if(yDir != Math.signum(lastWalkV.y)) {
+					if(yDir > 0) {
+						player.getComponent(MultiTextureComponent.class).setActiveComponent(1);
+					} else if(yDir < 0) {
+						player.getComponent(MultiTextureComponent.class).setActiveComponent(0);
+					}
+				}
+				lastWalkV.set(v);
+				
+				locComp.setLocation(locComp.getLocation().shift((int)v.x, (int)v.y));
+				
+				final Location newLoc = locComp.getLocation().clone();
+				client().network().session().writeAndFlush(new EntityMoveRequestMessage(null, oldLoc, newLoc));
 				
 				//loc.shift((int)v.x, (int)v.y);
 				//worldCamera.position.add(v.x, v.y, 0);
-				v.setZero();
+				//v.setZero();
 				lastWalkTime = time;
 				//worldCamera.update();
 			}
@@ -423,11 +575,6 @@ public class PlayingState extends GameState implements HasLogger {
 	
 	protected void walk(int dx, int dy) {
 		v.add(dx, dy);
-		if(dy > 0) {
-			player.getComponent(MultiTextureComponent.class).setActiveComponent(1);
-		} else if(dy < 0) {
-			player.getComponent(MultiTextureComponent.class).setActiveComponent(0);
-		}
 	}
 	
 	/* Updates the local delta time. 
@@ -435,7 +582,7 @@ public class PlayingState extends GameState implements HasLogger {
 	 */
 	private void updateLocalDelta(float dt) {
 		//delta += Gdx.app.getGraphics().getDeltaTime();
-		delta += dt;
+		delta = dt;
 	}
 	
 	@Override

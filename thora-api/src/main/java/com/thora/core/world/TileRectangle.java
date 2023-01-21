@@ -11,8 +11,8 @@ public class TileRectangle implements RectangularRegion {
 	}
 	
 	@Override
-	public World getWorld() {
-		return tiles[0][0].getWorld();
+	public World world() {
+		return tiles[0][0].world();
 	}
 
 	@Override
@@ -23,7 +23,7 @@ public class TileRectangle implements RectangularRegion {
 	void populate() {
 		Location origin = rect.getBottomLeft().clone();
 		tiles = new Tile[rect.getHeight()][rect.getWidth()];
-		origin.getWorld().putTiles2D(tiles, origin);
+		origin.world().putTiles2D(tiles, origin);
 	}
 	
 }

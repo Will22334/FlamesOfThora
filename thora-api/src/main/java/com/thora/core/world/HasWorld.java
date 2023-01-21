@@ -5,10 +5,10 @@ import java.util.Objects;
 public interface HasWorld {
 	
 	public static boolean sameWorld(HasWorld a, HasWorld b) {
-		return Objects.equals(a.getWorld(), b.getWorld());
+		return Objects.equals(a.world(), b.world());
 	}
 	
-	public World getWorld();
+	public World world();
 	
 	/**
 	 * Returns true if this Ojbect is located in the passed world

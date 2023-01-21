@@ -14,7 +14,7 @@ public class KeyMapWorld extends GeneralWorld {
 			super(material, point);
 		}
 		@Override
-		public KeyMapWorld getWorld() {
+		public KeyMapWorld world() {
 			return KeyMapWorld.this;
 		}
 	}

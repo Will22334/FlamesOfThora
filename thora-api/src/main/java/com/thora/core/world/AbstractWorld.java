@@ -38,7 +38,7 @@ public abstract class AbstractWorld implements World {
 	public boolean register(WorldEntity e) {
 		Objects.requireNonNull(e, "Cannot register null Entity to World");
 		if(e.isRegistered()) {
-			throw new IllegalArgumentException("Entity already registered: " + e + " in " + e.getWorld());
+			throw new IllegalArgumentException("Entity already registered: " + e + " in " + e.world());
 		}
 		if(!e.contains(this)) {
 			throw new IllegalArgumentException("Cannot register ");

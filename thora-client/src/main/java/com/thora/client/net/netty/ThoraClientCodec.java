@@ -63,6 +63,7 @@ public class ThoraClientCodec extends ThoraCodec {
 	protected void populate() {
 		this.addEncoder(new LoginRequestEncoder());
 		this.addEncoder(new ChatMessageEncoder());
+		this.addEncoder(new EntityMoveRequestMessageEncoder());
 		
 		
 		this.addDecoder(new LoginResponseDecoder());
@@ -169,6 +170,11 @@ public class ThoraClientCodec extends ThoraCodec {
 	}
 	
 	public class EntityMessageDecoder extends MessageDecoder<EntityMessage> {
+		
+		public static final int HEADER_BIT_CREATE = 0x01;
+		public static final int HEADER_BIT_UPDATE = 0x02;
+		public static final int HEADER_BIT_DESTROY = 0x04;
+		
 		public EntityMessageDecoder() {
 			super(OPCODE_CLIENT_ENTITY_INFORM);
 		}
@@ -176,9 +182,10 @@ public class ThoraClientCodec extends ThoraCodec {
 		public EntityMessage decode(final ChannelHandlerContext ctx, final ByteBuf buf) throws IOException {
 			final byte header = buf.readByte();
 			
-			IntObjectMap<WorldEntity> mapCreate = new IntObjectHashMap<>();
-			if((header & 0x01) == 0x01) {
-				EncodingUtils.decodIntObjeMap(this::readEntityCreate, buf);
+			IntObjectMap<WorldEntity> mapCreate = null;
+			if((header & HEADER_BIT_CREATE) == HEADER_BIT_CREATE) {
+				mapCreate = new IntObjectHashMap<>();
+				EncodingUtils.decodIntObjMap(this::readEntityCreate, buf);
 			}
 			
 			return null;
@@ -189,7 +196,6 @@ public class ThoraClientCodec extends ThoraCodec {
 			final Location loc = ThoraCodec.read2DLocation(world(), buf);
 			final EntityType type = EntityType.getAll().get(buf.readByte());
 			final String name = EncodingUtils.readNullablerVarString(buf);
-			
 			
 		}
 		
@@ -228,6 +234,7 @@ public class ThoraClientCodec extends ThoraCodec {
 		}
 		@Override
 		public void encode(final ChannelHandlerContext ctx, final EntityMoveRequestMessage msg, final ByteBuf buf) {
+			ThoraCodec.write2DLocation(msg.getFrom(), buf);
 			ThoraCodec.write2DLocation(msg.getTo(), buf);
 		}
 	}

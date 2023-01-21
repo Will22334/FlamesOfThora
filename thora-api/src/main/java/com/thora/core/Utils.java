@@ -318,12 +318,22 @@ public final class Utils {
 	
 	@FunctionalInterface
 	public static interface IntObjConsumer<A> {
-		public void apply(int i, A a);
+		public void accept(int i, A a);
 	}
 	
 	@FunctionalInterface
 	public static interface IntObjObjConsumer<A,B> {
-		public void apply(int i, A a, B b);
+		public void accept(int i, A a, B b);
+	}
+	
+	@FunctionalInterface
+	public static interface TriConsumer<A,B,C> {
+		public void accept(A a, B b, C c);
+	}
+	
+	@FunctionalInterface
+	public static interface TriFunction<A,B,C,R> {
+		public R apply(A a, B b, C c);
 	}
 	
 	public static final String newThreadDumpMessage() {
@@ -358,17 +368,17 @@ public final class Utils {
 
 	private Utils() {}
 
-	public static IntStream reverseIntRange(int from, int to) {
-		return IntStream.range(from, to)
-				.map(i -> to - i + from - 1);
+	public static IntStream reverseIntRange(final int from, final int to) {
+		return IntStream.iterate(to, i -> i - 1)
+				.limit(to - from);
 	}
 
-	public static <T> Stream<T> reverseIntRange(T[] arr, int from, int to) {
+	public static <T> Stream<T> reverseIntRange(final T[] arr, final int from, final int to) {
 		return reverseIntRange(from, to)
 				.mapToObj(i -> arr[i]);
 	}
 
-	public static <T> Stream<T> reverseStream(T[] arr) {
+	public static <T> Stream<T> reverseStream(final T[] arr) {
 		return reverseIntRange(arr, 0, arr.length);
 	}
 

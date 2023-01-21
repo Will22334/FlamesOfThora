@@ -16,7 +16,7 @@ public abstract class Location implements Locatable, Cloneable {
 	}
 	
 	@Override
-	public abstract World getWorld();
+	public abstract World world();
 	
 	/**
 	 * Returns a {@link Vector} that represents the position of this {@link Location}

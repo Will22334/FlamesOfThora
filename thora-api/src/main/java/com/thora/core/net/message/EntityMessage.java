@@ -34,6 +34,10 @@ public class EntityMessage extends AbstractThoraMessage {
 	private IntObjectMap<WorldEntity> allUpdate = null;
 	private Collection<Integer> allDestroy = null;
 	
+	public boolean isEmpty() {
+		return this.getCreate().isEmpty() && this.getUpdate().isEmpty() && this.getDestroy().isEmpty();
+	}
+	
 	public IntObjectMap<WorldEntity> getCreate() {
 		if(allCreate == null) {
 			return IntCollections.emptyMap();
@@ -69,6 +73,10 @@ public class EntityMessage extends AbstractThoraMessage {
 			return Collections.emptySet();
 		}
 		return allDestroy;
+	}
+	
+	public EntityMessage addDestroy(WorldEntity e) {
+		return addDestroy(e.getID());
 	}
 	
 	public EntityMessage addDestroy(int id) {

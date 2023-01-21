@@ -24,7 +24,7 @@ public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 			iy = iy(point.getY());
 		}
 		@Override
-		public final ArrayWorld getWorld() {
+		public final ArrayWorld world() {
 			return ArrayWorld.this;
 		}
 	}
@@ -243,7 +243,7 @@ public class ArrayWorld extends AbstractWorld implements RectangularRegion {
 	}
 
 	@Override
-	public ArrayWorld getWorld() {
+	public ArrayWorld world() {
 		return this;
 	}
 

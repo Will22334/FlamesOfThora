@@ -25,7 +25,7 @@ public abstract class DoubleArrLocation extends Location {
 		}
 		
 		@Override
-		public W getWorld() {
+		public W world() {
 			return worldRef.get();
 		}
 
@@ -47,7 +47,7 @@ public abstract class DoubleArrLocation extends Location {
 
 		@Override
 		public DoubleArrRefLocation<W> clone() {
-			return new DoubleArrRefLocation<>(getWorld(), asVector().clone());
+			return new DoubleArrRefLocation<>(world(), asVector().clone());
 		}
 		
 	}
