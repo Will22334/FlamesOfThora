@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import com.badlogic.gdx.utils.Disposable;
 import com.thora.core.HasLogger;
+import com.thora.core.Player;
 import com.thora.core.math.Vector;
 
 public interface World extends HasWorld, Disposable, HasLogger {
@@ -41,6 +42,8 @@ public interface World extends HasWorld, Disposable, HasLogger {
 	public WorldEntity getEntity(int id);
 	
 	public Stream<? extends WorldEntity> entities();
+	
+	public Stream<? extends Player> players();
 	
 	public boolean register(WorldEntity e);
 	

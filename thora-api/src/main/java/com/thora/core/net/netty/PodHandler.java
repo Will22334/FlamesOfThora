@@ -87,14 +87,33 @@ public abstract class PodHandler<M> extends SimpleChannelInboundHandler<M> {
 		public abstract void consume(ChannelHandlerContext ctx, P message);
 		
 		@SuppressWarnings("unchecked")
-		private Class<P> findmessageClass() {
+		private Class<P> findmessageClass(int index) {
 			return (Class<P>) ((ParameterizedType) getClass().getGenericSuperclass())
-					.getActualTypeArguments()[0];
+					.getActualTypeArguments()[index];
+		}
+		
+		public MessageConsumer(int index) {
+			this.messageClass = findmessageClass(index);
 		}
 		
 		public MessageConsumer() {
-			this.messageClass = findmessageClass();
+			this(0);
 		}
+	}
+	
+	protected abstract class SessionMessageConsumer<P extends M, S extends NetworkSession> extends MessageConsumer<P> {
+		
+		public SessionMessageConsumer() {
+			
+		}
+		
+		@Override
+		public final void consume(ChannelHandlerContext ctx, P message) {
+			consume(ctx, NetworkSession.findSession(ctx), message);
+		}
+		
+		public abstract void consume(ChannelHandlerContext ctx, S session, P message);
+		
 	}
 	
 }

@@ -3,6 +3,7 @@ package com.thora.client.net.netty;
 import org.apache.logging.log4j.Logger;
 
 import com.thora.client.FlamesOfThoraClient;
+import com.thora.client.state.PlayingState;
 import com.thora.core.net.LoginTransaction;
 import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.CameraEntityMessage;
@@ -70,6 +71,8 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 		public void consume(ChannelHandlerContext ctx, ChatMessage message) {
 			PlayerSession session = PlayerSession.findSession(ctx);
 			logger().info("Got Message \"{}\" from {}", message.message, session);
+			PlayingState st = (PlayingState) client().States.getActiveState();
+			st.handleNewChatMessage(message);
 		}
 	}
 	

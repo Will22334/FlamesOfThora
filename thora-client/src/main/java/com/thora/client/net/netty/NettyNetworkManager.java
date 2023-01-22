@@ -122,6 +122,10 @@ public class NettyNetworkManager {
 		return rawChannel().write(msg);
 	}
 	
+	public ChannelFuture writeAndFlush(Object msg) {
+		return rawChannel().writeAndFlush(msg);
+	}
+	
 	public ChannelFuture connect(InetSocketAddress address) {
 		this.workerGroup = new NioEventLoopGroup(workerIOThreads);
 		bootstrap = new Bootstrap();
@@ -140,6 +144,7 @@ public class NettyNetworkManager {
 		
 		connectFuture.addListener((ChannelFuture f) -> {
 			if(f.isSuccess()) {
+				channel = (SocketChannel) f.channel();
 				logger().info("Successfully connected to {}", f.channel());
 				activePromise.setSuccess();
 			} else {

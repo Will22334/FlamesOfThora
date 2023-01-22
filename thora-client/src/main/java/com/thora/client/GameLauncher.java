@@ -19,7 +19,7 @@ public class GameLauncher {
 		return logger;
 	}
 	
-	static Application app() {
+	public static Application app() {
 		return app;
 	}
 	

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.thora.core.Player;
 import com.thora.core.math.BasicIntVector;
 
 /**
@@ -145,4 +146,9 @@ public abstract class AbstractWorld implements World {
 				.filter(Objects::nonNull);
 	}
 
+	@Override
+	public Stream<? extends Player> players() {
+		throw new RuntimeException("Not implemented yet!");
+	}
+	
 }

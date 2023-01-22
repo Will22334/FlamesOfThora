@@ -1,5 +1,8 @@
 package com.thora.client.state;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.Dimension;
@@ -26,10 +29,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputEvent.Type;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.thora.client.FlamesOfThoraClient;
@@ -48,6 +53,7 @@ import com.thora.core.HasLogger;
 import com.thora.core.entity.EntityType;
 import com.thora.core.entity.PlayerComponent;
 import com.thora.core.entity.TypeComponent;
+import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.EntityMoveRequestMessage;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.Location;
@@ -106,7 +112,9 @@ public class PlayingState extends GameState implements HasLogger {
 	protected InputMultiplexer inputMultiplex;
 	protected Stage uiStage;
 	
-	protected WidgetGroup chatBox;
+	protected Table chatTable;
+	protected Table chatLines;
+	protected Queue<ChatMessage> chatMessages = new LinkedList<>();
 	protected TextField chatbar;
 	
 	
@@ -155,32 +163,124 @@ public class PlayingState extends GameState implements HasLogger {
 		return logger;
 	}
 	
+	protected void handleNewChatRequest(final String text) {
+		client().sendChatMessage(text);
+	}
+	
+	public void handleNewChatMessage(final ChatMessage message) {
+		ChatEntry entry = new ChatEntry(message, skin);
+		this.chatMessages.add(message);
+		chatLines.add(entry);
+		entry.setWidth(entry.getParent().getWidth());
+		chatLines.row();
+	}
+	
+	private class ChatEntry extends Label {
+		
+		final ChatMessage message;
+		
+		public final ChatMessage getMessage() {
+			return message;
+		}
+		
+		public ChatEntry(final ChatMessage message, final Skin skin) {
+			super(message.message, skin);
+			this.message = message;
+		}
+		
+	}
+	
 	@Override
 	public void onCreate() {
 		this.appSize = new Dimension(g().getWidth(), g().getHeight());
 		
 		uiStage = new Stage(new ScreenViewport());
 		
-		chatBox = new WidgetGroup();
-		chatBox.setHeight(200f);
-		chatBox.setWidth(uiStage.getViewport().getScreenWidth());
-		chatBox.setX(0, Align.bottomLeft);
-		//chatBox.setOrigin(Align.center);
+		Color bckColor = Color.DARK_GRAY;
+		bckColor.a = .75f;
+		
+		chatTable = new Table();
+		chatTable.setX(0, Align.bottomLeft);
+		chatTable.setHeight(250f);
+		chatTable.setWidth(uiStage.getViewport().getScreenWidth());
+		chatTable.setBackground(skin.newDrawable("white", bckColor));
+		
+		chatTable.defaults().align(Align.bottomLeft);
+		chatLines.columnDefaults(0).align(Align.bottomLeft);
+		chatTable.defaults().prefWidth(uiStage.getViewport().getScreenWidth());
+		
+		chatLines = new Table();
+		chatLines.defaults().align(Align.bottomLeft);
+		chatLines.defaults().prefWidth(chatTable.getWidth());
+		chatLines.setHeight(220f);
+		chatLines.setFillParent(false);
+		chatLines.setX(0, Align.bottomLeft);
+		chatTable.setWidth(uiStage.getViewport().getScreenWidth());
+		chatTable.add(chatLines).height(180f);
+		chatLines.pack();
+		
 		
 		chatbar = new TextField("", skin);
-		logger().info("Chatbar {} | {}", chatbar.getHeight(), chatbar.getPrefWidth());
-		//chatbar.setFillParent(true);
-		chatbar.setHeight(31);
-		chatbar.setSize(chatBox.getWidth() * .85f, 31);
-		chatbar.setX(chatBox.getWidth()/2, Align.center);
-		chatBox.setVisible(true);
+		bckColor.a = .45f;
+		chatbar.getStyle().disabledBackground = skin.newDrawable("white", bckColor);
+		chatbar.setStyle(chatbar.getStyle());
+		chatbar.setFillParent(false);
+		chatbar.setX(0, Align.bottomLeft);
+		chatbar.pack();
 		
-		chatBox.addActor(chatbar);
+		chatbar.addListener(new EventListener() {
+
+			@Override
+			public boolean handle(Event event) {
+				if(event instanceof InputEvent) {
+					InputEvent e = (InputEvent) event;
+					if(e.getType() == Type.keyTyped) {
+						char c = e.getCharacter();
+						if(c == '\r') {
+							final String text = chatbar.getText();
+							if(!text.isEmpty()) {
+								handleNewChatRequest(text);
+							}
+							chatbar.setText("");
+							chatbar.setVisible(false);
+							uiStage.unfocus(chatbar);
+						}
+					}
+				}
+				return false;
+			}
+			
+		});
 		
-		uiStage.addActor(chatBox);
+		chatTable.row();
+		chatTable.add(chatbar);
 		
-		chatBox.validate();
-		chatbar.validate();
+		uiStage.addActor(chatTable);
+		
+		
+		chatTable.pack();
+		
+//		chatBox = new WidgetGroup();
+//		chatBox.setHeight(200f);
+//		chatBox.setWidth(uiStage.getViewport().getScreenWidth());
+//		chatBox.setX(0, Align.bottomLeft);
+//		//chatBox.setOrigin(Align.center);
+//		
+//		
+//		chatbar.getStyle().background = skin.newDrawable("white", bckColor);
+//		logger().info("Chatbar {} | {}", chatbar.getHeight(), chatbar.getPrefWidth());
+//		//chatbar.setFillParent(true);
+//		chatbar.setHeight(31);
+//		chatbar.setSize(chatBox.getWidth() * .85f, 31);
+//		chatbar.setX(chatBox.getWidth()/2, Align.center);
+//		chatBox.setVisible(true);
+//		
+//		chatBox.addActor(chatbar);
+//		
+//		uiStage.addActor(chatBox);
+//		
+//		chatBox.validate();
+//		chatbar.validate();
 		
 		this.inputMultiplex = new InputMultiplexer(uiStage, worldInutProcessor);
 		Gdx.input.setInputProcessor(inputMultiplex);
@@ -439,13 +539,14 @@ public class PlayingState extends GameState implements HasLogger {
 	private final InputProcessor worldInutProcessor = new InputAdapter() {
 		
 		@Override
-		public boolean keyTyped(char character) {
+		public boolean keyTyped(final char character) {
 			boolean handled = true;
 			
 			switch(character) {
 			
 			case '\r':
-				chatBox.setVisible(!chatBox.isVisible());
+				chatbar.setVisible(true);
+				uiStage.setKeyboardFocus(chatbar);
 				break;
 			
 			default:
@@ -458,7 +559,7 @@ public class PlayingState extends GameState implements HasLogger {
 		}
 
 		@Override
-		public boolean keyDown(int keycode) {
+		public boolean keyDown(final int keycode) {
 			boolean handled = true;
 			
 			switch(keycode) {
@@ -486,7 +587,7 @@ public class PlayingState extends GameState implements HasLogger {
 		}
 		
 		@Override
-		public boolean keyUp(int keycode) {
+		public boolean keyUp(final int keycode) {
 			boolean handled = true;
 			
 			switch(keycode) {
@@ -509,6 +610,10 @@ public class PlayingState extends GameState implements HasLogger {
 				onCreate();
 				break;
 			
+			case Keys.ESCAPE:
+				client().dispose();
+				break;
+			
 			default:
 				handled = false;
 				break;
@@ -519,13 +624,13 @@ public class PlayingState extends GameState implements HasLogger {
 		}
 		
 		@Override
-		public boolean mouseMoved(int screenX, int screenY) {
+		public boolean mouseMoved(final int screenX, final int screenY) {
 			// TODO Auto-generated method stub
 			return super.mouseMoved(screenX, screenY);
 		}
 		
 		@Override
-		public boolean scrolled(int amount) {
+		public boolean scrolled(final int amount) {
 			logger().trace("Mouse scroll: {}", amount);
 			if(amount != 0) {
 				if(amount > 0) {

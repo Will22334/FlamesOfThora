@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Gdx;
 import com.thora.client.net.netty.NettyNetworkManager;
 import com.thora.client.state.GameState;
 import com.thora.client.state.LoadingState;
@@ -28,6 +29,7 @@ import com.thora.client.state.StateManager;
 import com.thora.client.world.WorldRenderer;
 import com.thora.core.HasLogger;
 import com.thora.core.Utils;
+import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.world.ClientHashChunkWorld;
 import com.thora.core.world.Locatable;
@@ -237,6 +239,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	@Override
 	public void dispose() {
 		logger().trace("DISPOSING:\t{}", this);
+		Gdx.app.exit();
 	}
 	
 	@Override
@@ -296,5 +299,9 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 		return world;
 	}
 	
+	public void sendChatMessage(final String text) {
+		final ChatMessage packet = new ChatMessage(text);
+		network().writeAndFlush(packet);
+	}
 	
 }

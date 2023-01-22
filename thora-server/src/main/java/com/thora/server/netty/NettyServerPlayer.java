@@ -21,7 +21,7 @@ public class NettyServerPlayer implements ServerPlayer {
 	}
 	
 	@Override
-	public ClientSession getSession() {
+	public ClientSession session() {
 		return session;
 	}
 	

@@ -77,11 +77,20 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 		}
 	}
 	
-	private final class ChatMessageHandler extends MessageConsumer<ChatMessage> {
+	private final class ChatMessageHandler extends SessionMessageConsumer<ChatMessage,ClientSession> {
 		@Override
-		public void consume(ChannelHandlerContext ctx, ChatMessage message) {
-			ClientSession session = ClientSession.get(ctx);
-			logger().info("Got message \"{}\" from {}", message.message, session);
+		public void consume(ChannelHandlerContext ctx, ClientSession session, ChatMessage packet) {
+			final ServerPlayer player = session.getPlayer();
+			if(packet.isCommand()) {
+				//Handle command
+				player.executeCommand(packet.message);
+			} else {
+				logger().info("Got message \"{}\" from {}", packet.message, session);
+				player.world().players().forEach(p -> p.sendMessage(packet));
+			}
+			
+			
+			
 		}
 	}
 	
