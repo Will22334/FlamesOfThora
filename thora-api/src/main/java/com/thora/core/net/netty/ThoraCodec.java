@@ -1,5 +1,6 @@
 package com.thora.core.net.netty;
 
+import java.time.Instant;
 import java.util.function.Function;
 
 import org.apache.logging.log4j.Logger;
@@ -72,6 +73,14 @@ public abstract class ThoraCodec extends PodCodec<ThoraMessage> {
 	
 	public static ByteBuf writeEntityReference(final WorldEntity entity, ByteBuf buf) {
 		return EncodingUtils.writePosVarInt(entity.getID(), buf);
+	}
+	
+	public static ByteBuf writeInstantUTC(final Instant time, final ByteBuf buf) {
+		return buf.writeLong(time.getEpochSecond());
+	}
+	
+	public static Instant readInstantUTC(final ByteBuf buf) {
+		return Instant.ofEpochSecond(buf.readLong());
 	}
 	
 }

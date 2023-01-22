@@ -1,6 +1,7 @@
 package com.thora.server.netty;
 
 import java.io.IOException;
+import java.time.Instant;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -115,7 +116,9 @@ public class ThoraServerCodec extends ThoraCodec {
 
 		@Override
 		public void encodePlain(ChannelHandlerContext ctx, ChatMessage packet, ByteBuf buf) {
-			EncodingUtils.writeString(packet.message, buf);
+			ThoraCodec.writeInstantUTC(packet.time, buf);
+			EncodingUtils.writenNullableVarString(packet.getSenderName(), buf);
+			EncodingUtils.writeString(packet.content, buf);
 		}
 	}
 	
@@ -127,8 +130,13 @@ public class ThoraServerCodec extends ThoraCodec {
 
 		@Override
 		protected ChatMessage decodePlain(final ChannelHandlerContext ctx, final ByteBuf buf) {
-			final String text = EncodingUtils.readString(buf);
-			return new ChatMessage(text);
+			final ClientSession session = ClientSession.get(ctx);
+			
+			final Instant serverTime = Instant.now();
+			final Instant clientTime = ThoraCodec.readInstantUTC(buf);
+			final String content = EncodingUtils.readString(buf);
+			
+			return new ChatMessage(serverTime, session.getPlayer(), content);
 		}
 		
 	}

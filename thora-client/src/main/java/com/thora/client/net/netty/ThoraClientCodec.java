@@ -1,6 +1,7 @@
 package com.thora.client.net.netty;
 
 import java.io.IOException;
+import java.time.Instant;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -8,7 +9,10 @@ import javax.crypto.IllegalBlockSizeException;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.gdx.graphics.Color;
+import com.thora.client.ColoredMessagable;
 import com.thora.core.Utils;
+import com.thora.core.chat.Messageable;
 import com.thora.core.entity.EntityType;
 import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.CameraEntityMessage;
@@ -121,7 +125,8 @@ public class ThoraClientCodec extends ThoraCodec {
 
 		@Override
 		public void encodePlain(ChannelHandlerContext ctx, ChatMessage packet, ByteBuf buf) {
-			EncodingUtils.writeString(packet.message, buf);
+			ThoraCodec.writeInstantUTC(packet.time, buf);
+			EncodingUtils.writeString(packet.content, buf);
 		}
 	}
 	
@@ -131,8 +136,14 @@ public class ThoraClientCodec extends ThoraCodec {
 		}
 		@Override
 		protected ChatMessage decodePlain(ChannelHandlerContext ctx, ByteBuf buf) {
-			String text = EncodingUtils.readString(buf);
-			return new ChatMessage(text);
+			final Instant time = ThoraCodec.readInstantUTC(buf);
+			final String senderName = EncodingUtils.readNullablerVarString(buf);
+			final String content = EncodingUtils.readString(buf);
+			Messageable sender = null;
+			if(senderName != null) {
+				sender = new ColoredMessagable(Color.ORANGE, senderName);
+			}
+			return new ChatMessage(time, sender, content);
 		}
 	}
 	

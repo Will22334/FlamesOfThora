@@ -4,7 +4,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
 import com.thora.core.entity.EntityType;
-import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.CameraEntityMessage;
 import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.EntityMoveRequestMessage;
@@ -16,7 +15,6 @@ import com.thora.core.net.message.WorldDefinitionMessage;
 import com.thora.core.net.netty.PodHandler;
 import com.thora.core.world.Location;
 import com.thora.core.world.WeakVectorLocation;
-import com.thora.core.world.World;
 import com.thora.server.ServerPlayer;
 import com.thora.server.world.PlayerEntity;
 import com.thora.server.world.ServerHashChunkWorld;
@@ -83,9 +81,9 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 			final ServerPlayer player = session.getPlayer();
 			if(packet.isCommand()) {
 				//Handle command
-				player.executeCommand(packet.message);
+				player.executeCommand(packet.content);
 			} else {
-				logger().info("Got message \"{}\" from {}", packet.message, session);
+				logger().info("Got message \"{}\" from {}", packet.content, session);
 				player.world().players().forEach(p -> p.sendMessage(packet));
 			}
 			

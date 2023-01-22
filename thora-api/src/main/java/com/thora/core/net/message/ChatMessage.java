@@ -10,24 +10,33 @@ public class ChatMessage extends AbstractThoraMessage {
 	
 	public final Instant time;
 	public final Messageable sender;
-	public final String message;
+	public final String content;
 	
-	public ChatMessage(final Instant time, final Messageable sender, final String message) {
+	public ChatMessage(final Instant time, final Messageable sender, final String content) {
 		this.time = time;
 		this.sender = sender;
-		this.message = message;
+		this.content = content;
 	}
 	
-	public ChatMessage(final Messageable sender, final String message) {
-		this(Instant.now(), sender, message);
+	public ChatMessage(final Messageable sender, final String content) {
+		this(Instant.now(), sender, content);
 	}
 	
-	public ChatMessage(final String message) {
-		this(Instant.now(), null, message);
+	public ChatMessage(final String content) {
+		this(Instant.now(), null, content);
 	}
 	
 	public boolean isCommand() {
-		return message.startsWith(COMMAND_PREFIX);
+		return content.startsWith(COMMAND_PREFIX);
+	}
+	
+	public boolean isChat() {
+		return !isCommand();
+	}
+	
+	public String getSenderName() {
+		if(sender == null) return null;
+		return sender.getName();
 	}
 	
 }

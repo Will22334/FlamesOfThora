@@ -1,5 +1,7 @@
 package com.thora.client.state;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -32,11 +34,14 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputEvent.Type;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.thora.client.ColoredMessagable;
 import com.thora.client.FlamesOfThoraClient;
 import com.thora.client.graphics.MultiTextureComponent;
 import com.thora.client.graphics.TextureComponent;
@@ -113,6 +118,7 @@ public class PlayingState extends GameState implements HasLogger {
 	protected Stage uiStage;
 	
 	protected Table chatTable;
+	protected ScrollPane chatLineScroll;
 	protected Table chatLines;
 	protected Queue<ChatMessage> chatMessages = new LinkedList<>();
 	protected TextField chatbar;
@@ -170,10 +176,21 @@ public class PlayingState extends GameState implements HasLogger {
 	public void handleNewChatMessage(final ChatMessage message) {
 		ChatEntry entry = new ChatEntry(message, skin);
 		this.chatMessages.add(message);
+		chatLines.row();
 		chatLines.add(entry);
 		entry.setWidth(entry.getParent().getWidth());
-		chatLines.row();
 	}
+	
+	public static String markupColor(final Color color) {
+		return "[#" + color.toString() + "]";
+	}
+	
+	public static final StringBuilder getMarkupColor(final StringBuilder b, final Color color) {
+		return b.append("[#").append(color.toString()).append("]");
+	}
+	
+	private static final DateTimeFormatter instantFormatter = DateTimeFormatter.ISO_LOCAL_TIME
+			.withZone(ZoneId.systemDefault());
 	
 	private class ChatEntry extends Label {
 		
@@ -184,8 +201,25 @@ public class PlayingState extends GameState implements HasLogger {
 		}
 		
 		public ChatEntry(final ChatMessage message, final Skin skin) {
-			super(message.message, skin);
+			super(message.content, skin);
 			this.message = message;
+			this.setText(this.toLineString());
+		}
+		
+		public String toLineString() {
+			StringBuilder b = new StringBuilder();
+			
+			b.append(markupColor(Color.GREEN)).append("[").append(instantFormatter.format(message.time)).append("]");
+			b.append("  ");
+			if(message.sender instanceof ColoredMessagable) {
+				ColoredMessagable sender = (ColoredMessagable) message.sender;
+				b.append(markupColor(sender.getColor())).append(sender.getName()).append("[]");
+			}
+			
+			b.append("[] :  ").append(message.content);
+			
+			return b.toString();
+			
 		}
 		
 	}
@@ -202,31 +236,51 @@ public class PlayingState extends GameState implements HasLogger {
 		chatTable = new Table();
 		chatTable.setX(0, Align.bottomLeft);
 		chatTable.setHeight(250f);
+		chatTable.setFillParent(false);
 		chatTable.setWidth(uiStage.getViewport().getScreenWidth());
+		//chatTable.defaults().fillX();
 		chatTable.setBackground(skin.newDrawable("white", bckColor));
 		
 		chatTable.defaults().align(Align.bottomLeft);
-		chatLines.columnDefaults(0).align(Align.bottomLeft);
 		chatTable.defaults().prefWidth(uiStage.getViewport().getScreenWidth());
 		
 		chatLines = new Table();
 		chatLines.defaults().align(Align.bottomLeft);
 		chatLines.defaults().prefWidth(chatTable.getWidth());
 		chatLines.setHeight(220f);
-		chatLines.setFillParent(false);
+		//chatLines.defaults().fillX();
 		chatLines.setX(0, Align.bottomLeft);
+		chatLines.align(Align.bottom);
+		chatLines.defaults().fillX();
+		chatLines.setClip(true);
+		
 		chatTable.setWidth(uiStage.getViewport().getScreenWidth());
-		chatTable.add(chatLines).height(180f);
-		chatLines.pack();
+		
+		
+		chatLineScroll = new ScrollPane(chatLines, skin);
+		chatLineScroll.getStyle().background = null;
+		//chatLineScroll.setFillParent(true);
+		
+		chatLineScroll.setFadeScrollBars(false);
+		chatLineScroll.setOverscroll(false, false);
+		chatLineScroll.setScrollingDisabled(true, false);
+		chatLineScroll.setForceScroll(false, true);
+		
+		//chatTable.add(chatLines).height(180f);
+		chatTable.add(chatLineScroll).height(180f);
+		
+		chatLines.setDebug(true, true);
+		//chatLines.pack();
+		
+		//chatLineScroll.pack();
 		
 		
 		chatbar = new TextField("", skin);
 		bckColor.a = .45f;
 		chatbar.getStyle().disabledBackground = skin.newDrawable("white", bckColor);
 		chatbar.setStyle(chatbar.getStyle());
-		chatbar.setFillParent(false);
 		chatbar.setX(0, Align.bottomLeft);
-		chatbar.pack();
+		//chatbar.pack();
 		
 		chatbar.addListener(new EventListener() {
 
@@ -285,7 +339,6 @@ public class PlayingState extends GameState implements HasLogger {
 		this.inputMultiplex = new InputMultiplexer(uiStage, worldInutProcessor);
 		Gdx.input.setInputProcessor(inputMultiplex);
 		
-		
 		logger().trace("Created Playing State!");
 	}
 	
@@ -305,6 +358,8 @@ public class PlayingState extends GameState implements HasLogger {
 	//Various tasks that should be completed on the render portion of the game loop.
 	@Override
 	public void render(float dt) {
+		font.getData().markupEnabled = true;
+		
 		Gdx.gl.glClearColor( 0, 0, 0, 1 );
 		Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
 		
@@ -389,6 +444,9 @@ public class PlayingState extends GameState implements HasLogger {
 		
 		resizeSignal.dispatch(appSize);
 		//worldCamera.setToOrtho(false, g().getWidth()/viewportScale, g().getHeight()/viewportScale);
+		uiStage.getViewport().update(width, height, true);
+		chatbar.setWidth(width);
+		chatTable.setWidth(width);
 		worldCamera.update();
 		//		hudBatch.dispose();
 		//		worldBatch.dispose();
@@ -404,6 +462,7 @@ public class PlayingState extends GameState implements HasLogger {
 		worldBatch = new SpriteBatch();
 		shapeRend = new ShapeRenderer();
 		font = new BitmapFont();
+		font.getData().markupEnabled = true;
 		
 		//Player Images
 		playerImg = new Texture("assets/player.png");
@@ -445,6 +504,25 @@ public class PlayingState extends GameState implements HasLogger {
 		engine().addSystem(new MoveSystem(20));
 		
 		Gdx.input.setInputProcessor(inputMultiplex);
+		
+		uiStage.addCaptureListener(new EventListener() {
+			@Override
+			public boolean handle(Event event) {
+				if(event instanceof InputEvent) {
+					InputEvent e = (InputEvent) event;
+					if(Type.touchDown == e.getType()) {
+						if(!(event.getTarget() instanceof TextField)) {
+							uiStage.setKeyboardFocus(null);
+						}
+						if(!(event.getTarget() instanceof ScrollPane)) {
+							uiStage.setScrollFocus(null);
+						}
+					}
+				}
+				
+				return false;
+			}
+		});
 		
 	}
 	

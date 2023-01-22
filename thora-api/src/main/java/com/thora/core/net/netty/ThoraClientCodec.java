@@ -93,7 +93,7 @@ public class ThoraClientCodec extends ThoraCodec {
 
 		@Override
 		public void encodePlain(ChannelHandlerContext ctx, ChatMessage packet, ByteBuf buf) {
-			EncodingUtils.writeVarString(packet.message, buf);
+			EncodingUtils.writeVarString(packet.content, buf);
 		}
 	}
 	

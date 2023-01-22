@@ -35,7 +35,6 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 			LoginTransaction t = getManager().loginTransaction;
 			t.response = message;
 			getManager().loginPromise.setSuccess(t);
-			ctx.channel().writeAndFlush(new ChatMessage("Secret 2.1327"));
 		}
 		
 	}
@@ -45,7 +44,7 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 		@Override
 		public void consume(ChannelHandlerContext ctx, ChatMessage message) {
 			PlayerSession session = PlayerSession.findSession(ctx);
-			logger().info("Got Message \"{}\" from {}", message.message, session);
+			logger().info("Got Message \"{}\" from {}", message.content, session);
 		}
 		
 	}
