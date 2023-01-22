@@ -23,7 +23,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.thora.client.FlamesOfThoraClient;
 import com.thora.client.graphics.MultiTextureComponent;
@@ -94,8 +101,13 @@ public class PlayingState extends GameState implements HasLogger {
 	 */
 	private Dimension appSize;
 	
+	private Skin skin = new Skin(Gdx.files.internal("assets/skin/uiskin.json"));
+	
 	protected InputMultiplexer inputMultiplex;
 	protected Stage uiStage;
+	
+	protected WidgetGroup chatBox;
+	protected TextField chatbar;
 	
 	
 	private Signal<Dimension> resizeSignal = new Signal<>();
@@ -147,8 +159,28 @@ public class PlayingState extends GameState implements HasLogger {
 	public void onCreate() {
 		this.appSize = new Dimension(g().getWidth(), g().getHeight());
 		
-		
 		uiStage = new Stage(new ScreenViewport());
+		
+		chatBox = new WidgetGroup();
+		chatBox.setHeight(200f);
+		chatBox.setWidth(uiStage.getViewport().getScreenWidth());
+		chatBox.setX(0, Align.bottomLeft);
+		//chatBox.setOrigin(Align.center);
+		
+		chatbar = new TextField("", skin);
+		logger().info("Chatbar {} | {}", chatbar.getHeight(), chatbar.getPrefWidth());
+		//chatbar.setFillParent(true);
+		chatbar.setHeight(31);
+		chatbar.setSize(chatBox.getWidth() * .85f, 31);
+		chatbar.setX(chatBox.getWidth()/2, Align.center);
+		chatBox.setVisible(true);
+		
+		chatBox.addActor(chatbar);
+		
+		uiStage.addActor(chatBox);
+		
+		chatBox.validate();
+		chatbar.validate();
 		
 		this.inputMultiplex = new InputMultiplexer(uiStage, worldInutProcessor);
 		Gdx.input.setInputProcessor(inputMultiplex);
@@ -178,6 +210,8 @@ public class PlayingState extends GameState implements HasLogger {
 		
 		//Updates the entity system. 
 		engine().update(dt);
+		
+		uiStage.draw();
 		
 		float width = g().getWidth();
 		float height = g().getHeight();
@@ -225,6 +259,8 @@ public class PlayingState extends GameState implements HasLogger {
 		handleInput();
 		
 		engine().update(dt);
+		
+		uiStage.act();
 		
 		//Update the camera.
 		//worldCamera.update();
@@ -408,6 +444,10 @@ public class PlayingState extends GameState implements HasLogger {
 			
 			switch(character) {
 			
+			case '\r':
+				chatBox.setVisible(!chatBox.isVisible());
+				break;
+			
 			default:
 				handled = false;
 				break;
@@ -463,7 +503,12 @@ public class PlayingState extends GameState implements HasLogger {
 			case Keys.RIGHT:
 				walk(-1, 0);
 				break;
-				
+			
+			case Keys.CONTROL_LEFT:
+				uiStage.dispose();
+				onCreate();
+				break;
+			
 			default:
 				handled = false;
 				break;
