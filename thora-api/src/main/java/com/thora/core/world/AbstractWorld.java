@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 
 import com.thora.core.Player;
 import com.thora.core.math.BasicIntVector;
+import com.thora.core.net.message.ChatMessage;
 
 /**
  * A general plane of {@link Tile Tiles} in which physical entities exist and operate.

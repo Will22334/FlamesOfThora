@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -17,6 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.ashley.signals.Signal;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.thora.client.net.netty.NettyNetworkManager;
@@ -73,6 +75,9 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	private World world;
 	private Locatable focus;
 	
+	protected Queue<ChatMessage> chatMessages = new LinkedList<>();
+	public final Signal<ChatMessage> newMessageSignal = new Signal<>();
+	
 	@Override
 	public final Logger logger() {
 		return logger;
@@ -88,6 +93,11 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	
 	public World world() {
 		return world;
+	}
+	
+	public void handleNewChatMessage(final ChatMessage message) {
+		this.chatMessages.add(message);
+		this.newMessageSignal.dispatch(message);
 	}
 	
 	public Locatable getFocus() {

@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import com.badlogic.ashley.core.PooledEngine;
 import com.thora.core.net.message.BasicTileMessage;
+import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.EntityMessage;
 import com.thora.core.world.HashChunkWorld;
 import com.thora.core.world.Locatable;
@@ -96,6 +97,14 @@ public class ServerHashChunkWorld extends HashChunkWorld {
 	@Override
 	protected void onMoveEntity(final WorldEntity e, final HashChunk.CTile oldTile) {
 		//TODO Inform nearby players/observers
+	}
+	
+	public void broadcast(ChatMessage message) {
+		players().forEach(p -> p.write(message));
+	}
+	
+	public void broadcast(String message) {
+		broadcast(new ChatMessage(message));
 	}
 	
 }

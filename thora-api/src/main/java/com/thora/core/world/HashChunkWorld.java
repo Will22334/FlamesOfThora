@@ -257,11 +257,11 @@ public abstract class HashChunkWorld extends GeneralWorld {
 		return chunks.values().stream();
 	}
 	
-	protected Stream<HashChunk> surroundingChunks(final Locatable p, final int chunkRange) {
+	public Stream<HashChunk> surroundingChunks(final Locatable p, final int chunkRange) {
 		return surroundingChunks(p, chunkRange, chunkRange);
 	}
 	
-	protected Stream<HashChunk> surroundingChunks(final Locatable p, final int chunkXRange, final int ChunkYRange) {
+	public Stream<HashChunk> surroundingChunks(final Locatable p, final int chunkXRange, final int ChunkYRange) {
 		final HashChunk centerChunk = getGeneratedChunk(p);
 		final int cx = centerChunk.coord.getIX(), cy = centerChunk.coord.getIY();
 		return IntStream.rangeClosed(cy-ChunkYRange, cy+ChunkYRange)

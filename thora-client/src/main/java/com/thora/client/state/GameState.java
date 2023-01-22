@@ -85,4 +85,6 @@ public abstract class GameState extends State implements HasLogger, Comparable<G
 		return getName().compareTo(o.getName());
 	}
 	
+	
+	
 }

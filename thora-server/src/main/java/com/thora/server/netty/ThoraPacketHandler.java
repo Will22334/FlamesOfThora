@@ -70,6 +70,8 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 				session.write(new CameraEntityMessage(p, true, 0f));
 				session.write(new StateChangeMessage(3));
 				
+				w.broadcast(player.getUsername() + " logged in.");
+				
 			}
 			session.rawChannel().flush();
 		}

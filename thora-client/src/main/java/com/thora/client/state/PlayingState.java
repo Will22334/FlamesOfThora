@@ -120,7 +120,6 @@ public class PlayingState extends GameState implements HasLogger {
 	protected Table chatTable;
 	protected ScrollPane chatLineScroll;
 	protected Table chatLines;
-	protected Queue<ChatMessage> chatMessages = new LinkedList<>();
 	protected TextField chatbar;
 	
 	
@@ -175,7 +174,6 @@ public class PlayingState extends GameState implements HasLogger {
 	
 	public void handleNewChatMessage(final ChatMessage message) {
 		ChatEntry entry = new ChatEntry(message, skin);
-		this.chatMessages.add(message);
 		chatLines.row();
 		chatLines.add(entry);
 		entry.setWidth(entry.getParent().getWidth());
@@ -521,6 +519,13 @@ public class PlayingState extends GameState implements HasLogger {
 				}
 				
 				return false;
+			}
+		});
+		
+		client().newMessageSignal.add(new Listener<ChatMessage>() {
+			@Override
+			public void receive(Signal<ChatMessage> signal, ChatMessage message) {
+				handleNewChatMessage(message);
 			}
 		});
 		

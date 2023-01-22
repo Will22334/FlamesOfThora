@@ -67,11 +67,11 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 	
 	public class ChatMessageConsumer extends MessageConsumer<ChatMessage> {
 		@Override
-		public void consume(ChannelHandlerContext ctx, ChatMessage message) {
+		public void consume(final ChannelHandlerContext ctx, final ChatMessage message) {
 			PlayerSession session = PlayerSession.findSession(ctx);
 			logger().info("Got Message \"{}\" from {}", message.content, session);
-			PlayingState st = (PlayingState) client().States.getActiveState();
-			st.handleNewChatMessage(message);
+			
+			client().handleNewChatMessage(message);
 		}
 	}
 	
