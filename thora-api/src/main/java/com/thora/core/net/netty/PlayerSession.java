@@ -22,8 +22,6 @@ import io.netty.channel.socket.SocketChannel;
 
 public class PlayerSession extends AbstractNettySession {
 	
-	//public static final AttributeKey<PlayerSession> ATTRIBUTE_SESSION = AttributeKey.newInstance("SESSION");
-	
 	public static PlayerSession get(ChannelHandlerContext ctx) {
 		return get(ctx.channel());
 	}

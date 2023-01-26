@@ -87,7 +87,7 @@ public class EncodingUtils {
 	private static final ThreadLocal<ByteBuffer> tempByteBuffer = ThreadLocal.withInitial(EncodingUtils::newTempByteBuffer);
 	private static final ThreadLocal<ByteBuf> tempByteBuf = ThreadLocal.withInitial(lazyAllocDirect(TEMP_BYTE_BUFFER_SIZE));
 	
-	public static final int TEMP_BYTE_ARRAY_SIZE = 4 * 1024;
+	public static final int TEMP_BYTE_ARRAY_SIZE = 8 * 1024;
 	public static final ThreadLocal<byte[]> bufferByteArray = ThreadLocal.withInitial(EncodingUtils::newTempByteArray);
 	
 	private static final ByteBuffer newTempByteBuffer() {
@@ -124,9 +124,10 @@ public class EncodingUtils {
 		return bufferByteArray.get();
 	}
 	
-	protected static byte[] tempArray(int minSize) {
-		if(minSize > TEMP_BYTE_ARRAY_SIZE)
+	protected static byte[] tempArray(final int minSize) {
+		if(minSize > TEMP_BYTE_ARRAY_SIZE) {
 			return new byte[minSize];
+		}
 		return tempArray();
 	}
 	
@@ -1432,16 +1433,31 @@ public class EncodingUtils {
 	}
 	
 	public static ByteBuf decryptSame(final ByteBuf buf, final int length, final Cipher decCipher) throws IllegalBlockSizeException, BadPaddingException  {
-		int initialRead = buf.readerIndex();
-		byte[] encBytes = new byte[length];
+		final int initialRead = buf.readerIndex();
+		final byte[] encBytes = new byte[length];
 		buf.readBytes(encBytes);
-		byte[] plain = decCipher.doFinal(encBytes);
+		final byte[] plain = decCipher.doFinal(encBytes);
 		buf.readerIndex(initialRead);
 		buf.writerIndex(initialRead);
 		return buf.writeBytes(plain);
 	}
 	
-	public static ByteBuf decryptOther(ByteBuf plain, ByteBuf enc, Cipher decCipher) throws IllegalBlockSizeException, BadPaddingException {
+	public static ByteBuf decryptSameByteArrayBuf(final ByteBuf buf, final int length, final Cipher decCipher) throws IllegalBlockSizeException, BadPaddingException  {
+		final int initialRead = buf.readerIndex();
+		final byte[] bytes = EncodingUtils.tempArray(length);
+		buf.readBytes(bytes, 0, length);
+		try {
+			final int plainLength = decCipher.doFinal(bytes, 0, length, bytes, 0);
+			buf.readerIndex(initialRead);
+			buf.writerIndex(initialRead);
+			return buf.writeBytes(bytes, 0, plainLength);
+		} catch (ShortBufferException | IllegalBlockSizeException | BadPaddingException e) {
+			e.printStackTrace();
+			throw new DecoderException("Failed to decrypyt byte array into same array!");
+		}
+	}
+	
+	public static ByteBuf decryptOther(final ByteBuf plain, final ByteBuf enc, final Cipher decCipher) throws IllegalBlockSizeException, BadPaddingException {
 		plain.writeBytes(enc);
 		return decryptSame(plain, decCipher);
 	}
@@ -1507,21 +1523,21 @@ public class EncodingUtils {
 		return readIntString(buf, DEFAULT_CHARSET);
 	}
 	
-	public static String readByteString(ByteBuf buf, Charset charset) {
-		int length = readUByte(buf);
-		int readIndex = buf.readerIndex();
+	public static String readByteString(final ByteBuf buf, final Charset charset) {
+		final int length = readUByte(buf);
+		final int readIndex = buf.readerIndex();
 		buf.skipBytes(length);
-		String text = buf.toString(readIndex, length, charset);
+		final String text = buf.toString(readIndex, length, charset);
 		return text;
 	}
 	
-	public static String readByteString(ByteBuf buf) {
+	public static String readByteString(final ByteBuf buf) {
 		return readByteString(buf, DEFAULT_CHARSET);
 	}
 	
-	public static String readVarIntString(ByteBuf buf, Charset charset) {
-		int length = readPosVarInt(buf);
-		int readIndex = buf.readerIndex();
+	public static String readVarIntString(final ByteBuf buf, final Charset charset) {
+		final int length = readPosVarInt(buf);
+		final int readIndex = buf.readerIndex();
 		buf.skipBytes(length);
 		return buf.toString(readIndex, length, charset);
 	}

@@ -24,22 +24,22 @@ public interface ServerPlayer extends Player {
 		return getEntity().getLocation();
 	}
 	
-	public default ChannelFuture write(Object msg) {
+	public default ChannelFuture write(final Object msg) {
 		return session().write(msg);
 	}
 	
-	public default ChannelFuture writeAndFlush(Object msg) {
+	public default ChannelFuture writeAndFlush(final Object msg) {
 		return session().writeAndFlush(msg);
 	}
 
 	@Override
-	default void executeCommand(String commandText) {
+	default void executeCommand(final String commandText) {
 		world().logger().debug("Command: {} executing \"{}\"", getName(), commandText);
 		throw new RuntimeException("Not implemented yet!");
 	}
 	
 	@Override
-	default void sendMessage(ChatMessage message) {
+	default void sendMessage(final ChatMessage message) {
 		session().writeAndFlush(message);
 	}
 	

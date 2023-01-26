@@ -8,10 +8,8 @@ import javax.crypto.IllegalBlockSizeException;
 
 import org.apache.logging.log4j.Logger;
 
-import com.thora.core.Utils;
 import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.CameraEntityMessage;
-import com.thora.core.net.message.CameraMessage;
 import com.thora.core.net.message.CameraPointMessage;
 import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.EntityMessage;
@@ -60,6 +58,7 @@ public class ThoraServerCodec extends ThoraCodec {
 		
 		addEncoder(new LoginResponseEncoder());
 		addEncoder(new ChatMessageEncoder());
+		addEncoder(new ByteChatMessageEncoder());
 		addEncoder(new WorldDefMessageEncoder());
 		addEncoder(new TileMessageEncoder());
 		addEncoder(new EntityMessageEncoder());
@@ -76,23 +75,20 @@ public class ThoraServerCodec extends ThoraCodec {
 		}
 
 		@Override
-		public LoginRequestMessage decode(ChannelHandlerContext ctx, ByteBuf encBuf) throws IOException {
-			ClientSession session = getSession(ctx);
+		public LoginRequestMessage decode(final ChannelHandlerContext ctx, final ByteBuf encBuf) throws IOException {
+			final ClientSession session = getSession(ctx);
 			if(!encBuf.isReadable()) {
 				return null;
 			}
-			ByteBuf buf = ctx.alloc().buffer();
 			try {
-				EncodingUtils.decryptOther(buf, encBuf, session.getCryptoCreds().getAssymetric().getDecryptCipher());
-				long sessionKey = buf.readLong();
-				long timeStamp = buf.readLong();
-				String username = EncodingUtils.readByteString(buf);
-				String password = EncodingUtils.readByteString(buf);
+				EncodingUtils.decryptSameByteArrayBuf(encBuf, encBuf.readableBytes(), session.getCryptoCreds().getAssymetric().getDecryptCipher());
+				final long sessionKey = encBuf.readLong();
+				final long timeStamp = encBuf.readLong();
+				final String username = EncodingUtils.readByteString(encBuf);
+				final String password = EncodingUtils.readByteString(encBuf);
 				return new LoginRequestMessage(username, password, sessionKey, timeStamp);
 			} catch (IllegalBlockSizeException | BadPaddingException e) {
 				throw new IOException(e);
-			} finally {
-				buf.release();
 			}
 		}
 		
@@ -113,12 +109,26 @@ public class ThoraServerCodec extends ThoraCodec {
 		protected ChatMessageEncoder() {
 			super(OPCODE_CLIENT_CHAT_MESSAGE);
 		}
-
 		@Override
 		public void encodePlain(ChannelHandlerContext ctx, ChatMessage packet, ByteBuf buf) {
-			ThoraCodec.writeInstantUTC(packet.time, buf);
+			ThoraCodec.writeInstantUTC(packet.getTime(), buf);
 			EncodingUtils.writenNullableVarString(packet.getSenderName(), buf);
-			EncodingUtils.writeString(packet.content, buf);
+			EncodingUtils.writeString(packet.getContent(), buf);
+		}
+	}
+	
+	public class ByteChatMessageEncoder extends EncryptedPayloadMessageEncoder<ByteChatMessage> {
+		protected ByteChatMessageEncoder() {
+			super(OPCODE_CLIENT_CHAT_MESSAGE);
+		}
+		@Override
+		public void encodePlain(final ChannelHandlerContext ctx, final ByteChatMessage message, final ByteBuf buf) {
+			final ByteBuf messageBuf = message.messageBuf;
+			try {
+				buf.writeBytes(messageBuf, 0, messageBuf.writerIndex());
+			} finally {
+				messageBuf.release();
+			}
 		}
 	}
 	

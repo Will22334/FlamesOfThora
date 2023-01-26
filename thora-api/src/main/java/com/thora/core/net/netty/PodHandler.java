@@ -29,32 +29,36 @@ public abstract class PodHandler<M> extends SimpleChannelInboundHandler<M> {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, M message) throws Exception {
+	protected void channelRead0(final ChannelHandlerContext ctx, final M message) throws Exception {
 		
-		Class<? extends M> messageClass = (Class<? extends M>) message.getClass();
-		MessageConsumer<? extends M> consumer = handlers.get(messageClass);
+		final Class<? extends M> messageClass = (Class<? extends M>) message.getClass();
+		final MessageConsumer<? extends M> consumer = handlers.get(messageClass);
 		if(consumer != null) {
 			onHandlerFound(ctx, messageClass, message);
-			consumer.invoke(ctx, message);
+			dispatch(ctx, consumer, message);
 		} else {
 			onNoHandlerFound(ctx, messageClass, message);
 		}
 		
 	}
 	
-	protected <P extends M> void onHandlerFound(ChannelHandlerContext ctx, Class<P> messageClass, M message) {
+	protected <P extends M> void dispatch(final ChannelHandlerContext ctx, final MessageConsumer<P> consumer, final M message) {
+		consumer.invoke(ctx, message);
+	}
+	
+	protected <P extends M> void onHandlerFound(final ChannelHandlerContext ctx, final Class<P> messageClass, final M message) {
 		logger().atLevel(Level.TRACE).log(() -> {
-			return new ParameterizedMessage("Processing {} from {}", prettyMessage(message), NetworkSession.findSession(ctx));
+			return new ParameterizedMessage("Handler found for {} from {}", prettyMessage(message), NetworkSession.findSession(ctx));
 		});
 	}
 	
-	protected <P extends M> void onNoHandlerFound(ChannelHandlerContext ctx, Class<P> messageClass, M message) {
+	protected <P extends M> void onNoHandlerFound(final ChannelHandlerContext ctx, final Class<P> messageClass, final M message) {
 		logger().atLevel(Level.WARN).log(() -> {
 			return new ParameterizedMessage("No handler for {} from {}", prettyMessage(message), NetworkSession.findSession(ctx));
 		});
 	}
 	
-	public static final <P> String prettyMessage(P message) {
+	public static final <P> String prettyMessage(final P message) {
 		if(message == null) return null;
 		return message.getClass().getSimpleName();
 	}
@@ -75,30 +79,36 @@ public abstract class PodHandler<M> extends SimpleChannelInboundHandler<M> {
 		
 		protected final Class<P> messageClass;
 		
-		public final Class<P> getMessageClass() {
-			return messageClass;
-		}
-		
-		@SuppressWarnings("unchecked")
-		public final void invoke(ChannelHandlerContext ctx, M message) {
-			consume(ctx, (P) message);
-		}
-		
-		public abstract void consume(ChannelHandlerContext ctx, P message);
-		
-		@SuppressWarnings("unchecked")
-		private Class<P> findmessageClass(int index) {
-			return (Class<P>) ((ParameterizedType) getClass().getGenericSuperclass())
-					.getActualTypeArguments()[index];
-		}
-		
-		public MessageConsumer(int index) {
+		public MessageConsumer(final int index) {
 			this.messageClass = findmessageClass(index);
 		}
 		
 		public MessageConsumer() {
 			this(0);
 		}
+		
+		public final Class<P> getMessageClass() {
+			return messageClass;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public final void invoke(final ChannelHandlerContext ctx, final M message) {
+			consume(ctx, (P) message);
+		}
+		
+		public abstract void consume(final ChannelHandlerContext ctx, final P message);
+		
+		@SuppressWarnings("unchecked")
+		private Class<P> findmessageClass(final int index) {
+			return (Class<P>) ((ParameterizedType) getClass().getGenericSuperclass())
+					.getActualTypeArguments()[index];
+		}
+
+		@Override
+		public String toString() {
+			return getClass().getSimpleName() + "[" + getMessageClass().getSimpleName() + "]";
+		}
+		
 	}
 	
 	protected abstract class SessionMessageConsumer<P extends M, S extends NetworkSession> extends MessageConsumer<P> {

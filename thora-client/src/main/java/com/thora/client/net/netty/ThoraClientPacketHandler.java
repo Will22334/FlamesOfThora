@@ -1,10 +1,13 @@
 package com.thora.client.net.netty;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.ParameterizedMessage;
 
 import com.thora.client.FlamesOfThoraClient;
-import com.thora.client.state.PlayingState;
+import com.thora.core.Utils;
 import com.thora.core.net.LoginTransaction;
+import com.thora.core.net.NetworkSession;
 import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.CameraEntityMessage;
 import com.thora.core.net.message.CameraPointMessage;
@@ -25,7 +28,7 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 	private final FlamesOfThoraClient client;
 	private final NettyNetworkManager manager;
 	
-	protected ThoraClientPacketHandler(NettyNetworkManager manager, Logger logger) {
+	protected ThoraClientPacketHandler(final NettyNetworkManager manager, final Logger logger) {
 		super(logger);
 		this.manager = manager;
 		this.client = manager.client();
@@ -43,6 +46,21 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 		return getManager().client().world();
 	}
 	
+	@Override
+	protected <P extends ThoraMessage> void dispatch(final ChannelHandlerContext ctx,
+			final PodHandler<ThoraMessage>.MessageConsumer<P> consumer, final ThoraMessage message) {
+//		logger().atLevel(Level.TRACE).log(() -> {
+//			return new ParameterizedMessage("Dispatching off-thread {} from {}", prettyMessage(message), NetworkSession.findSession(ctx));
+//		});
+		client().addTask(() -> super.dispatch(ctx, consumer, message));
+	}
+	
+	@Override
+	protected <P extends ThoraMessage> void onHandlerFound(final ChannelHandlerContext ctx, final Class<P> messageClass,
+			final ThoraMessage message) {
+		
+	}
+
 	@Override
 	protected void populate() {
 		addHandler(new LoginResponseConsumer());
@@ -69,8 +87,8 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 		@Override
 		public void consume(final ChannelHandlerContext ctx, final ChatMessage message) {
 			PlayerSession session = PlayerSession.findSession(ctx);
-			logger().info("Got Message \"{}\" from {}", message.content, session);
 			
+			logger().info("Got Message \"{}\" from {}", message.content, session);
 			client().handleNewChatMessage(message);
 		}
 	}

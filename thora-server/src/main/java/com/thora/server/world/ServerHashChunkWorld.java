@@ -13,6 +13,7 @@ import com.thora.core.world.Locatable;
 import com.thora.core.world.TileGenerator;
 import com.thora.core.world.WorldEntity;
 import com.thora.server.ServerPlayer;
+import com.thora.server.netty.ByteChatMessage;
 import com.thora.server.netty.ClientSession;
 
 public class ServerHashChunkWorld extends HashChunkWorld {
@@ -29,7 +30,8 @@ public class ServerHashChunkWorld extends HashChunkWorld {
 		e.setID(this.nextEntityID());
 		getGeneratedChunk(e).addEntity(e);
 		if(e instanceof PlayerEntity) {
-			ServerPlayer player = getPlayerFromEntity(e);
+			final PlayerEntity pE = (PlayerEntity) e;
+			final ServerPlayer player = pE.getPlayer();
 			this.players.put(player.getUsername(), player);
 		}
 		return true;
@@ -40,7 +42,8 @@ public class ServerHashChunkWorld extends HashChunkWorld {
 		getGeneratedChunk(e).removeEntity(e);
 		e.setID(WorldEntity.EMPTY_ID);
 		if(e instanceof PlayerEntity) {
-			ServerPlayer player = getPlayerFromEntity(e);
+			final PlayerEntity pE = (PlayerEntity) e;
+			final ServerPlayer player = pE.getPlayer();
 			this.players.remove(player.getUsername());
 		}
 		return true;
@@ -99,12 +102,45 @@ public class ServerHashChunkWorld extends HashChunkWorld {
 		//TODO Inform nearby players/observers
 	}
 	
-	public void broadcast(ChatMessage message) {
-		players().forEach(p -> p.write(message));
+	public void broadcast(final ChatMessage message) {
+		final ByteChatMessage m = ByteChatMessage.get(message);
+		broadcast(m);
 	}
 	
-	public void broadcast(String message) {
-		broadcast(new ChatMessage(message));
+	public void broadcast(final String message) {
+		final ByteChatMessage m = new ByteChatMessage(message);
+		m.preEncodeBuffer();
+		players().forEach(p -> {
+			m.messageBuffer().retain();
+			p.write(m);
+		});
+	}
+	
+	public void broadcast(final ByteChatMessage m) {
+		m.preEncodeBuffer();
+		players().forEach(p -> {
+			m.messageBuffer().retain();
+			p.writeAndFlush(m);
+		});
+	}
+	
+	public void broadcastFlush(final ByteChatMessage m) {
+		m.preEncodeBuffer();
+		players().forEach(p -> {
+			m.messageBuffer().retain();
+			p.writeAndFlush(m);
+		});
+		m.messageBuffer().release();
+	}
+	
+	public void broadcastFlush(final ChatMessage message) {
+		final ByteChatMessage m = ByteChatMessage.get(message);
+		broadcastFlush(m);
+	}
+	
+	public void broadcastFlush(final String message) {
+		final ByteChatMessage m = new ByteChatMessage(message);
+		broadcastFlush(m);
 	}
 	
 }

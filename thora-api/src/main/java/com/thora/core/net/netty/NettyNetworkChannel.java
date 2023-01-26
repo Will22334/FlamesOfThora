@@ -54,21 +54,21 @@ public class NettyNetworkChannel extends AsyncNetworkChannel {
 				getClass().getSimpleName(), NetworkChannelListener.class.getSimpleName()));
 	}
 	
-	public ChannelFuture write(Object msg, ChannelPromise p) {
+	public ChannelFuture write(final Object msg, final ChannelPromise p) {
 		return rawChannel().write(msg, p);
 	}
 	
 	@Override
-	public ChannelFuture write(Object msg) {
+	public ChannelFuture write(final Object msg) {
 		return rawChannel().write(msg);
 	}
 	
-	public ChannelFuture writeAndFlush(Object msg, ChannelPromise p) {
+	public ChannelFuture writeAndFlush(final Object msg, final ChannelPromise p) {
 		return rawChannel().writeAndFlush(msg, p);
 	}
 	
 	@Override
-	public ChannelFuture writeAndFlush(Object msg) {
+	public ChannelFuture writeAndFlush(final Object msg) {
 		return rawChannel().writeAndFlush(msg);
 	}
 

@@ -128,29 +128,29 @@ public class PlayingState extends GameState implements HasLogger {
 	float viewportScale = 20f;
 	float scrollScaleChange = .035f;
 	
-	private final InputHandler in = new InputHandler();
-	private final InputListener inputListener = new InputListener(in) {
-		
-		@Override
-		public boolean scrolled(final int amount) {
-			logger().trace(() -> "Mouse scroll: " + amount);
-			if(amount != 0) {
-				if(amount > 0) {
-					for(int i=amount; i>0; --i) {
-						scaleCamera(1f - scrollScaleChange);
-					}
-				} else {
-					for(int i=amount; i<0; ++i) {
-						scaleCamera(1f + scrollScaleChange);
-					}
-				}
-				return true;
-			}
-			
-			return false;
-		}
-		
-	};
+	//	private final InputHandler in = new InputHandler();
+	//	private final InputListener inputListener = new InputListener(in) {
+	//		
+	//		@Override
+	//		public boolean scrolled(final int amount) {
+	//			logger().trace(() -> "Mouse scroll: " + amount);
+	//			if(amount != 0) {
+	//				if(amount > 0) {
+	//					for(int i=amount; i>0; --i) {
+	//						scaleCamera(1f - scrollScaleChange);
+	//					}
+	//				} else {
+	//					for(int i=amount; i<0; ++i) {
+	//						scaleCamera(1f + scrollScaleChange);
+	//					}
+	//				}
+	//				return true;
+	//			}
+	//			
+	//			return false;
+	//		}
+	//		
+	//	};
 	
 	public void scaleCamera(float scale) {
 		viewportScale *= scale;
@@ -173,10 +173,18 @@ public class PlayingState extends GameState implements HasLogger {
 	}
 	
 	public void handleNewChatMessage(final ChatMessage message) {
+		
+		boolean onBottom = chatLineScroll.getScrollY() == chatLineScroll.getMaxY();
+		
 		ChatEntry entry = new ChatEntry(message, skin);
 		chatLines.row();
 		chatLines.add(entry);
 		entry.setWidth(entry.getParent().getWidth());
+		chatLines.pack();
+		if(onBottom) {
+			chatLineScroll.setScrollY(chatLineScroll.getMaxY());
+		}
+		chatLineScroll.invalidate();
 	}
 	
 	public static String markupColor(final Color color) {
@@ -190,7 +198,7 @@ public class PlayingState extends GameState implements HasLogger {
 	private static final DateTimeFormatter instantFormatter = DateTimeFormatter.ISO_LOCAL_TIME
 			.withZone(ZoneId.systemDefault());
 	
-	private class ChatEntry extends Label {
+	private static class ChatEntry extends Label {
 		
 		final ChatMessage message;
 		
@@ -201,7 +209,7 @@ public class PlayingState extends GameState implements HasLogger {
 		public ChatEntry(final ChatMessage message, final Skin skin) {
 			super(message.content, skin);
 			this.message = message;
-			this.setText(this.toLineString());
+			this.setText(ChatMessage.formatEscapes(toLineString()));
 		}
 		
 		public String toLineString() {
@@ -236,7 +244,6 @@ public class PlayingState extends GameState implements HasLogger {
 		chatTable.setHeight(250f);
 		chatTable.setFillParent(false);
 		chatTable.setWidth(uiStage.getViewport().getScreenWidth());
-		//chatTable.defaults().fillX();
 		chatTable.setBackground(skin.newDrawable("white", bckColor));
 		
 		chatTable.defaults().align(Align.bottomLeft);
@@ -246,26 +253,23 @@ public class PlayingState extends GameState implements HasLogger {
 		chatLines.defaults().align(Align.bottomLeft);
 		chatLines.defaults().prefWidth(chatTable.getWidth());
 		chatLines.setHeight(220f);
-		//chatLines.defaults().fillX();
 		chatLines.setX(0, Align.bottomLeft);
 		chatLines.align(Align.bottom);
 		chatLines.defaults().fillX();
-		chatLines.setClip(true);
 		
 		chatTable.setWidth(uiStage.getViewport().getScreenWidth());
 		
 		
 		chatLineScroll = new ScrollPane(chatLines, skin);
 		chatLineScroll.getStyle().background = null;
-		//chatLineScroll.setFillParent(true);
 		
 		chatLineScroll.setFadeScrollBars(false);
 		chatLineScroll.setOverscroll(false, false);
 		chatLineScroll.setScrollingDisabled(true, false);
-		chatLineScroll.setForceScroll(false, true);
+		chatLineScroll.setForceScroll(false, false);
 		
 		//chatTable.add(chatLines).height(180f);
-		chatTable.add(chatLineScroll).height(180f);
+		chatTable.add(chatLineScroll).height(200f);
 		
 		chatLines.setDebug(true, true);
 		//chatLines.pack();
@@ -281,7 +285,7 @@ public class PlayingState extends GameState implements HasLogger {
 		//chatbar.pack();
 		
 		chatbar.addListener(new EventListener() {
-
+			
 			@Override
 			public boolean handle(Event event) {
 				if(event instanceof InputEvent) {
@@ -312,28 +316,6 @@ public class PlayingState extends GameState implements HasLogger {
 		
 		chatTable.pack();
 		
-//		chatBox = new WidgetGroup();
-//		chatBox.setHeight(200f);
-//		chatBox.setWidth(uiStage.getViewport().getScreenWidth());
-//		chatBox.setX(0, Align.bottomLeft);
-//		//chatBox.setOrigin(Align.center);
-//		
-//		
-//		chatbar.getStyle().background = skin.newDrawable("white", bckColor);
-//		logger().info("Chatbar {} | {}", chatbar.getHeight(), chatbar.getPrefWidth());
-//		//chatbar.setFillParent(true);
-//		chatbar.setHeight(31);
-//		chatbar.setSize(chatBox.getWidth() * .85f, 31);
-//		chatbar.setX(chatBox.getWidth()/2, Align.center);
-//		chatBox.setVisible(true);
-//		
-//		chatBox.addActor(chatbar);
-//		
-//		uiStage.addActor(chatBox);
-//		
-//		chatBox.validate();
-//		chatbar.validate();
-		
 		this.inputMultiplex = new InputMultiplexer(uiStage, worldInutProcessor);
 		Gdx.input.setInputProcessor(inputMultiplex);
 		
@@ -356,7 +338,6 @@ public class PlayingState extends GameState implements HasLogger {
 	//Various tasks that should be completed on the render portion of the game loop.
 	@Override
 	public void render(float dt) {
-		font.getData().markupEnabled = true;
 		
 		Gdx.gl.glClearColor( 0, 0, 0, 1 );
 		Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
@@ -413,7 +394,7 @@ public class PlayingState extends GameState implements HasLogger {
 		
 		engine().update(dt);
 		
-		uiStage.act();
+		uiStage.act(dt);
 		
 		//Update the camera.
 		//worldCamera.update();
@@ -428,10 +409,6 @@ public class PlayingState extends GameState implements HasLogger {
 	@Override
 	public void onResume() {
 		
-	}
-	
-	public InputListener getInputlistener() {
-		return inputListener;
 	}
 	
 	@Override
@@ -460,7 +437,6 @@ public class PlayingState extends GameState implements HasLogger {
 		worldBatch = new SpriteBatch();
 		shapeRend = new ShapeRenderer();
 		font = new BitmapFont();
-		font.getData().markupEnabled = true;
 		
 		//Player Images
 		playerImg = new Texture("assets/player.png");
@@ -468,17 +444,17 @@ public class PlayingState extends GameState implements HasLogger {
 		playerImgRegion = new TextureRegion(playerImg);
 		playerImgBackRegion = new TextureRegion(playerImgBack);
 		
-//		Gdx.input.setInputProcessor(inputListener);
+		//		Gdx.input.setInputProcessor(inputListener);
 		
-//		in.bindKey(EXIT_BINDING, Keys.ESCAPE);
-//		in.bindKey(SHOW_GRID_BIDING, Keys.G);
+		//		in.bindKey(EXIT_BINDING, Keys.ESCAPE);
+		//		in.bindKey(SHOW_GRID_BIDING, Keys.G);
 		
 		//inputHandler.RegisterKey(KEY_ESCAPE);
-//		in.RegisterKey(KEY_UP);
-//		in.RegisterKey(KEY_DOWN);
-//		in.RegisterKey(KEY_LEFT);
-//		in.RegisterKey(KEY_RIGHT);
-//		in.RegisterKey(KEY_G);
+		//		in.RegisterKey(KEY_UP);
+		//		in.RegisterKey(KEY_DOWN);
+		//		in.RegisterKey(KEY_LEFT);
+		//		in.RegisterKey(KEY_RIGHT);
+		//		in.RegisterKey(KEY_G);
 		
 		
 		Location spawn = new WeakVectorLocation<>(client().world(), 0, 0);
@@ -528,6 +504,10 @@ public class PlayingState extends GameState implements HasLogger {
 				handleNewChatMessage(message);
 			}
 		});
+		
+		for(ChatMessage message: client().chatMessages) {
+			handleNewChatMessage(message);
+		}
 		
 	}
 	
@@ -631,7 +611,14 @@ public class PlayingState extends GameState implements HasLogger {
 				chatbar.setVisible(true);
 				uiStage.setKeyboardFocus(chatbar);
 				break;
-			
+				
+			case '/':
+				chatbar.setVisible(true);
+				if(uiStage.setKeyboardFocus(chatbar)) {
+					chatbar.appendText("/");
+				}
+				break;
+				
 			default:
 				handled = false;
 				break;
@@ -640,7 +627,7 @@ public class PlayingState extends GameState implements HasLogger {
 			
 			return handled;
 		}
-
+		
 		@Override
 		public boolean keyDown(final int keycode) {
 			boolean handled = true;
@@ -687,16 +674,16 @@ public class PlayingState extends GameState implements HasLogger {
 			case Keys.RIGHT:
 				walk(-1, 0);
 				break;
-			
+				
 			case Keys.CONTROL_LEFT:
 				uiStage.dispose();
 				onCreate();
 				break;
-			
+				
 			case Keys.ESCAPE:
 				client().dispose();
 				break;
-			
+				
 			default:
 				handled = false;
 				break;

@@ -41,7 +41,7 @@ public abstract class GameState extends State implements HasLogger, Comparable<G
 	}
 	
 	public void updateAndRender() {
-		float dt = Gdx.graphics.getDeltaTime();
+		final float dt = Gdx.graphics.getDeltaTime();
 		client().runTasks();
 		update(dt);
 		render(dt);

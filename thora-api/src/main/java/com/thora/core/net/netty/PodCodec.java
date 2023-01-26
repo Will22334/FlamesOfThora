@@ -19,6 +19,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
+import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import io.netty.util.collection.IntObjectHashMap;
 import io.netty.util.collection.IntObjectMap;
@@ -61,31 +62,31 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 	
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-		long arrivalTime = System.currentTimeMillis();
+		final long arrivalTime = System.currentTimeMillis();
 		
-		int initialRead = in.readerIndex();
-		int length = in.readableBytes();
+		final int initialRead = in.readerIndex();
+		final int length = in.readableBytes();
 		
 		final int opcode = EncodingUtils.readUByte(in);
 		
-		MessageDecoder<? extends M> decoder = getDecoder(opcode);
+		final MessageDecoder<? extends M> decoder = getDecoder(opcode);
 		if(decoder != null) {
 			
 			//logger().trace("Using {} to decode packet opcode[{}] from {}", decoder, opcode, ctx);
 			
 			try {
-				M packet = decoder.decode(ctx, in);
+				final M packet = decoder.decode(ctx, in);
 				if(packet != null) {
 					
 					if(in.readableBytes() > 0) {
-						throw new IOException(String.format("Decoded %s but with %d unread bytes in frame!", packet, in.readableBytes()));
+						throw new DecoderException(String.format("Decoded %s but with %d unread bytes in frame!", packet, in.readableBytes()));
 					}
 					
 					postDecode(ctx, packet, arrivalTime);
 					out.add(packet);
 				}
 			} catch(Throwable t) {
-				if(t instanceof IndexOutOfBoundsException || t instanceof IOException) {
+				if(t instanceof IndexOutOfBoundsException || t instanceof DecoderException || t instanceof IOException) {
 					//Handle invalid binary encoding
 					int relativeIndex = in.readerIndex() - initialRead;
 					logger().warn(String.format("Encountered Exception while decoding %s\tfrom %s\tindex:%d=%s\tpayload:\n%s",
@@ -260,8 +261,8 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 			
 			try {
 				plain.writeBytes(enc, length);
-				EncodingUtils.decryptSame(plain, session.getCryptoCreds().decrypt());
-				//EncodingUtils.decryptSameFast(plain, getHandShakeCipher().getDecryptCipher());
+				//EncodingUtils.decryptSame(plain, session.getCryptoCreds().decrypt());
+				EncodingUtils.decryptSameByteArrayBuf(plain, plain.readableBytes(), session.getCryptoCreds().decrypt());
 				return decodePlain(ctx, plain);
 				
 			} catch (IllegalBlockSizeException | BadPaddingException e) {

@@ -49,12 +49,7 @@ public abstract class NetworkSession implements HasCryptographicCredentials {
 
 	@Override
 	public String toString() {
-		try {
-			return "[" + localAddress() + " : " + remoteAddress() + "]";
-		} catch(Throwable t) {
-			t.printStackTrace();
-			throw t;
-		}
+		return "[" + localAddress() + " : " + remoteAddress() + "]";
 	}
 	
 }

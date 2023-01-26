@@ -16,9 +16,9 @@
         </Console>
     </Appenders>
     <Loggers>
-    	<Logger name="com.thora" level="debug" additivity="false">
-			<AppenderRef ref="STDOUT" level="debug" />
-			<AppenderRef ref="LOG_FILE" level="debug" />
+    	<Logger name="com.thora" level="trace" additivity="false">
+			<AppenderRef ref="STDOUT" level="trace" />
+			<AppenderRef ref="LOG_FILE" level="trace" />
 		</Logger>
         <Root level="info">
 			<AppenderRef ref="STDOUT" level="info"/>

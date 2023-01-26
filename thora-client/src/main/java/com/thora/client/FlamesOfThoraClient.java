@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -75,7 +76,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 	private World world;
 	private Locatable focus;
 	
-	protected Queue<ChatMessage> chatMessages = new LinkedList<>();
+	public Deque<ChatMessage> chatMessages = new LinkedList<>();
 	public final Signal<ChatMessage> newMessageSignal = new Signal<>();
 	
 	@Override
@@ -120,10 +121,13 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 		
 	}
 	
-	public void addTask(Runnable r) {
+	public void addTask(final Runnable r) {
 		tasks.add(r);
 	}
 	
+	/**
+	 * Executes all tasks that are meant to be ran within the main game loop {@link Thread}.
+	 */
 	public void runTasks() {
 		Runnable r;
 		while((r = tasks.poll()) != null) {

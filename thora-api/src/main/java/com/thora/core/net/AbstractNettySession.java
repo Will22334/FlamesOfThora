@@ -56,12 +56,12 @@ public abstract class AbstractNettySession extends NetworkSession {
 	}
 	
 	@Override
-	public ChannelFuture write(Object msg) {
+	public ChannelFuture write(final Object msg) {
 		return getChannel().write(msg);
 	}
 	
 	@Override
-	public ChannelFuture writeAndFlush(Object msg) {
+	public ChannelFuture writeAndFlush(final Object msg) {
 		return getChannel().writeAndFlush(msg);
 	}
 	

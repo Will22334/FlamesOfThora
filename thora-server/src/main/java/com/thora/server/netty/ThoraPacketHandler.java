@@ -1,5 +1,7 @@
 package com.thora.server.netty;
 
+import java.time.Instant;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
@@ -62,6 +64,10 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 				
 				w.register(p);
 				
+				session.rawChannel().closeFuture().addListener((ChannelFuture f) -> {
+					w.broadcastFlush(player.getUsername() + " logged out.");
+				});
+				
 				
 				session.write(new WorldDefinitionMessage(w));
 				w.informSurroundingTiles(p, player);
@@ -70,27 +76,25 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 				session.write(new CameraEntityMessage(p, true, 0f));
 				session.write(new StateChangeMessage(3));
 				
-				w.broadcast(player.getUsername() + " logged in.");
+				w.broadcastFlush(player.getUsername() + " logged in.");
 				
 			}
-			session.rawChannel().flush();
 		}
 	}
 	
 	private final class ChatMessageHandler extends SessionMessageConsumer<ChatMessage,ClientSession> {
 		@Override
-		public void consume(ChannelHandlerContext ctx, ClientSession session, ChatMessage packet) {
+		public void consume(final ChannelHandlerContext ctx, final ClientSession session, final ChatMessage packet) {
+			final Instant time = Instant.now();
 			final ServerPlayer player = session.getPlayer();
 			if(packet.isCommand()) {
 				//Handle command
 				player.executeCommand(packet.content);
 			} else {
 				logger().info("Got message \"{}\" from {}", packet.content, session);
-				player.world().players().forEach(p -> p.sendMessage(packet));
+				final ServerHashChunkWorld w = (ServerHashChunkWorld) player.world();
+				w.broadcastFlush(new ByteChatMessage(time, player, packet.getContent()));
 			}
-			
-			
-			
 		}
 	}
 	
