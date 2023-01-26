@@ -22,12 +22,22 @@ public class VarIntBenchmark {
 	static {
 		values = new int[totalCalls];
 		for(int i=0; i<totalCalls; ++i) {
-			values[i] = rand.nextInt() / 1_000_000;
+			//values[i] = Math.abs(rand.nextInt());
+			values[i] = Math.abs(rand.nextInt() / 10);
+			//values[i] = rand.nextInt() / 10;
 		}
 	}
 	
 	private static final Logger logger() {
 		return logger;
+	}
+	
+	private static final int randSigned() {
+		return rand.nextInt();
+	}
+	
+	private static final int randUnsigned() {
+		return Math.abs(randSigned());
 	}
 	
 	public static void main(String[] args) {
@@ -38,6 +48,19 @@ public class VarIntBenchmark {
 		long time;
 		
 		unsignedVarIntProto(totalCalls, buf);
+		
+		
+		
+		
+//		t = new Utils.Timer();
+//		t.start();
+//		signedVarIntUnwrapped(totalCalls, buf);
+//		time = t.mark();
+//		logger().info("{}ms\n", time);
+		
+		
+		
+		
 		
 		t.start();
 		unSignedVarIntProtoLoop(totalCalls, buf);
@@ -52,9 +75,16 @@ public class VarIntBenchmark {
 		
 		t = new Utils.Timer();
 		t.start();
+		posVarInt(totalCalls, buf);
+		time = t.mark();
+		logger().info("{}ms\n", time);
+		
+		t = new Utils.Timer();
+		t.start();
 		posVarIntUnwrapped(totalCalls, buf);
 		time = t.mark();
 		logger().info("{}ms\n", time);
+		
 		
 		
 		t = new Utils.Timer();
@@ -76,6 +106,20 @@ public class VarIntBenchmark {
 		logger().info("{}ms\n", time);
 		
 		
+	}
+	
+	private static void posVarInt(final int totalCalls, final ByteBuf buf) {
+		int bytes = 0;
+		for(int i=0; i<totalCalls; ++i) {
+			final int value = values[i];
+			final int startI = buf.writerIndex();
+			EncodingUtils.writePosVarInt(value, buf);
+			bytes += buf.writerIndex() - startI;
+			final int got = EncodingUtils.readPosVarInt(buf);
+			Assertions.assertEquals(value, got);
+		}
+		System.out.println("PosVarInt wrote " + bytes);
+		buf.clear();
 	}
 	
 	private static void posVarIntUnwrapped(final int totalCalls, final ByteBuf buf) {
@@ -120,6 +164,20 @@ public class VarIntBenchmark {
 		buf.clear();
 	}
 	
+	private static void signedVarIntUnwrapped(final int totalCalls, final ByteBuf buf) {
+		int bytes = 0;
+		for(int i=0; i<totalCalls; ++i) {
+			final int value = values[i];
+			final int startI = buf.writerIndex();
+			EncodingUtils.writeSignedVarIntUnwrapped(value, buf);
+			bytes += buf.writerIndex() - startI;
+			final int got = EncodingUtils.readSignedVarIntUnwrapped(buf);
+			Assertions.assertEquals(value, got);
+		}
+		System.out.println("signedVarIntUnwrapped wrote " + bytes);
+		buf.clear();
+	}
+	
 	private static void signedVarIntLoop(final int totalCalls, final ByteBuf buf) {
 		int bytes = 0;
 		for(int i=0; i<totalCalls; ++i) {
@@ -142,6 +200,7 @@ public class VarIntBenchmark {
 			EncodingUtils.writeSignedVarIntProto(value, buf);
 			bytes += buf.writerIndex() - startI;
 			final int got = EncodingUtils.readSignedVarIntProto(buf);
+			//final int got = EncodingUtils.readSignedVarIntProtoLoop(buf);
 			Assertions.assertEquals(value, got);
 		}
 		System.out.println("signedVarIntProto wrote " + bytes);

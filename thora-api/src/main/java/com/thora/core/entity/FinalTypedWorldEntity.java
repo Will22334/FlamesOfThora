@@ -5,7 +5,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.thora.core.world.Location;
 
-public class BasicTypedWorldEntity extends AbstractWorldEntity {
+public class FinalTypedWorldEntity extends AbstractWorldEntity {
 	
 	public static String sanitizeName(@NonNull final EntityType type, @Nullable final String name) {
 		if(name != null) {
@@ -17,7 +17,7 @@ public class BasicTypedWorldEntity extends AbstractWorldEntity {
 	private final EntityType type;
 	protected String name;
 	
-	public BasicTypedWorldEntity(final int id, @NonNull final EntityType type, @Nullable final String name, @NonNull final Location loc) {
+	public FinalTypedWorldEntity(final int id, @NonNull final EntityType type, @Nullable final String name, @NonNull final Location loc) {
 		super(id, loc);
 		this.type = type;
 		this.name = sanitizeName(type, name);

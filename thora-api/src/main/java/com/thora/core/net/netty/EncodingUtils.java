@@ -604,8 +604,28 @@ public class EncodingUtils {
 		return buf.writerIndex() - startIndex;
 	}
 	
+	public static final ByteBuf writeSignedVarIntUnwrapped(int value, final ByteBuf buf) {
+		if (((value & ~SEGMENT_BITS) != 0)) {
+			buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
+			value >>>= 7;
+			if (((value & ~SEGMENT_BITS) != 0)) {
+				buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
+				value >>>= 7;
+				if (((value & ~SEGMENT_BITS) != 0)) {
+					buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
+					value >>>= 7;
+					if (((value & ~SEGMENT_BITS) != 0)) {
+						buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
+						value >>>= 7;
+					}
+				}
+			}
+		}
+		return buf.writeByte(value >>= 1);
+	}
+	
 	public static final ByteBuf writePosVarInt(final int value, final ByteBuf buf) {
-		return writeUnsignedVarIntProto(value, buf);
+		return writePosVarIntUnwrapped(value, buf);
 	}
 	
 	public static final ByteBuf writePosVarIntUnwrapped(int value, final ByteBuf buf) {
@@ -647,7 +667,7 @@ public class EncodingUtils {
 	}
 	
 	public static final int readPosVarInt(final ByteBuf buf) {
-		return readUnsignedVarIntProto(buf);
+		return EncodingUtils.readPosVarIntUnwrapped(buf);
 	}
 	
 	public static final int readPosVarIntLoop(final ByteBuf buf) {
@@ -688,7 +708,6 @@ public class EncodingUtils {
 	    return result;
 	}
 	
-	@Deprecated
 	public static int readSignedVarIntUnwrapped(final ByteBuf buf) {
 		int tmp;
 	    if ( (tmp = (buf.readByte())) == CONTINUE_BIT) {
@@ -718,9 +737,45 @@ public class EncodingUtils {
 	        }
 	      }
 	    }
-	    if (((signBits >> 1) & result) <= 0) {
-			result |= signBits;
-		}
+//	    if (((signBits >> 1) & result) <= 0) {
+//			result |= signBits;
+//		}
+	    return result;
+	}
+	
+	@Deprecated
+	public static int readSignedVarIntUnwrappedOld(final ByteBuf buf) {
+		int tmp;
+	    if ( (tmp = (buf.readByte())) == CONTINUE_BIT) {
+	      return tmp;
+	    }
+	    int result = tmp & 0x7f;
+	    int signBits = -1 << 7;;
+	    if ((tmp = buf.readByte()) >= 0) {
+	      result |= tmp << 7;
+	      signBits <<= 7;
+	    } else {
+	      result |= (tmp & 0x7f) << 7;
+	      signBits <<= 7;
+	      if ((tmp = buf.readByte()) >= 0) {
+	        result |= tmp << 14;
+	        signBits <<= 7;
+	      } else {
+	        result |= (tmp & 0x7f) << 14;
+	        signBits <<= 7;
+	        if ((tmp = buf.readByte()) >= 0) {
+	          result |= tmp << 21;
+	          signBits <<= 7;
+	        } else {
+	          result |= (tmp & 0x7f) << 21;
+	          result |= (tmp = buf.readByte()) << 28;
+	          signBits <<= 14;
+	        }
+	      }
+	    }
+//	    if (((signBits >> 1) & result) <= 0) {
+//			result |= signBits;
+//		}
 	    return result;
 	}
 	
@@ -741,9 +796,9 @@ public class EncodingUtils {
 			++count;
 		} while (((cur & CONTINUE_BIT) == CONTINUE_BIT) && count < 5);
 		
-		if ((cur & CONTINUE_BIT) == CONTINUE_BIT) {
-			throw new RuntimeException("invalid LEB128 sequence");
-		}
+//		if ((cur & CONTINUE_BIT) == CONTINUE_BIT) {
+//			throw new RuntimeException("invalid LEB128 sequence");
+//		}
 		
 		// Sign extend if appropriate
 		if (((signBits >> 1) & result) != 0) {
@@ -1368,6 +1423,19 @@ public class EncodingUtils {
 			encoder.apply(e.key(), e.value(), buf);
 		}
 		return buf;
+	}
+	
+	public static final <V> IntObjectMap<V> decodeNullableIntMap(final BiConsumer<IntObjectMap<V>,ByteBuf> f, final ByteBuf buf) {
+		final int size = EncodingUtils.readPosVarIntUnwrapped(buf);
+		if(size > 0) {
+			final IntObjectMap<V> map = new IntObjectHashMap<>();
+			for(int i=0; i<size; ++i) {
+				f.accept(map, buf);
+			}
+			return map;
+		} else {
+			return null;
+		}
 	}
 	
 	public static final <V> IntObjectMap<V> decodIntMap(final BiConsumer<IntObjectMap<V>,ByteBuf> f, final ByteBuf buf) {

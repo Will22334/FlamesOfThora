@@ -11,7 +11,7 @@ public class ChatMessage extends AbstractThoraMessage {
 	
 	public static final String formatEscapes(final String text) {
 		final String newText = text.replace("\\n", "\n");
-		FlamesOfThora.logger.info("Formatted {}  into  {}", text, newText);
+		FlamesOfThora.logger.trace("Formatted {}  into  {}", text, newText);
 		return newText;
 	}
 	

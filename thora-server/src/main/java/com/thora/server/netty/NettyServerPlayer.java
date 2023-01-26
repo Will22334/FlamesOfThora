@@ -42,10 +42,10 @@ public class NettyServerPlayer implements ServerPlayer {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if(obj == null) return false;
 		if(obj instanceof NettyServerPlayer) {
-			NettyServerPlayer op = (NettyServerPlayer) obj;
+			final NettyServerPlayer op = (NettyServerPlayer) obj;
 			return Objects.equal(this.session(), op.session()) && Objects.equal(this.getUsername(), op.getUsername())
 					&& Objects.equal(this.getEntity(), op.getEntity());
 		}

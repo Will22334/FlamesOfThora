@@ -37,7 +37,7 @@ public abstract class AbstractWorld implements World {
 	public abstract Locatable getOrigin();
 
 	@Override
-	public boolean register(WorldEntity e) {
+	public boolean register(final WorldEntity e) {
 		Objects.requireNonNull(e, "Cannot register null Entity to World");
 		if(e.isRegistered()) {
 			throw new IllegalArgumentException("Entity already registered: " + e + " in " + e.world());
@@ -48,10 +48,10 @@ public abstract class AbstractWorld implements World {
 		return doRegister(e);
 	}
 
-	protected abstract boolean doRegister(WorldEntity e);
+	protected abstract boolean doRegister(final WorldEntity e);
 
 	@Override
-	public boolean deRegister(WorldEntity e) {
+	public boolean deRegister(final WorldEntity e) {
 		Objects.requireNonNull(e, "Cannot deRegister null Entity in World");
 		if(!e.isRegistered()) {
 			throw new IllegalArgumentException("Cannot deRegister unregisterd Entitiy " + e);
@@ -59,7 +59,7 @@ public abstract class AbstractWorld implements World {
 		return doDeRegister(e);
 	}
 
-	protected abstract boolean doDeRegister(WorldEntity e);
+	protected abstract boolean doDeRegister(final WorldEntity e);
 
 	public Location getLocation(BasicIntVector v) {
 		return getLocation(v.getIX(), v.getIY());
