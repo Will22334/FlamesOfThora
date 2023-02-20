@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import com.thora.core.HasLogger;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.world.World;
+import com.thora.server.command.CommandManager;
 
 public abstract class ThoraServer implements HasLogger {
 	
@@ -77,5 +78,7 @@ public abstract class ThoraServer implements HasLogger {
 	public abstract void stop();
 	
 	public abstract World getWorld();
+	
+	public abstract CommandManager commandManager();
 	
 }

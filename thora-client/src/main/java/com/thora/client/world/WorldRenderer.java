@@ -7,7 +7,6 @@ import java.util.Map;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Dimension;
 
-import com.badlogic.ashley.signals.Listener;
 import com.badlogic.ashley.signals.Signal;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;

@@ -37,6 +37,10 @@ public abstract class NetworkSession implements HasCryptographicCredentials {
 		return getChannel().remoteAddress();
 	}
 	
+	public boolean isConnected() {
+		return getChannel().isOpen();
+	}
+	
 	public abstract long lastResponse();
 	
 	public Object write(Object msg) {

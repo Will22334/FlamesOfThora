@@ -1,10 +1,15 @@
 package com.thora.server.world;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.logging.log4j.Level;
+
 import com.badlogic.ashley.core.PooledEngine;
+import com.thora.core.chat.Chat;
 import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.ChatMessage;
 import com.thora.core.net.message.EntityMessage;
@@ -40,12 +45,12 @@ public class ServerHashChunkWorld extends HashChunkWorld {
 	@Override
 	protected boolean doDeRegister(final WorldEntity e) {
 		getGeneratedChunk(e).removeEntity(e);
-		e.setID(WorldEntity.EMPTY_ID);
 		if(e instanceof PlayerEntity) {
 			final PlayerEntity pE = (PlayerEntity) e;
 			final ServerPlayer player = pE.getPlayer();
 			this.players.remove(player.getUsername());
 		}
+		e.setID(WorldEntity.EMPTY_ID);
 		return true;
 	}
 	
@@ -53,8 +58,15 @@ public class ServerHashChunkWorld extends HashChunkWorld {
 		return ((PlayerEntity) e).getPlayer();
 	}
 	
+	
+	
+	@Override
 	public Stream<ServerPlayer> players() {
 		return players.values().stream();
+	}
+	
+	public ServerPlayer getPlayer(final String username) {
+		return players.get(username);
 	}
 	
 	public Stream<ServerPlayer> players(final HashChunk chunk) {
@@ -109,14 +121,11 @@ public class ServerHashChunkWorld extends HashChunkWorld {
 	
 	public void broadcast(final String message) {
 		final ByteChatMessage m = new ByteChatMessage(message);
-		m.preEncodeBuffer();
-		players().forEach(p -> {
-			m.messageBuffer().retain();
-			p.write(m);
-		});
+		broadcast(m);
 	}
 	
 	public void broadcast(final ByteChatMessage m) {
+		onBroadcast(m);
 		m.preEncodeBuffer();
 		players().forEach(p -> {
 			m.messageBuffer().retain();
@@ -125,6 +134,7 @@ public class ServerHashChunkWorld extends HashChunkWorld {
 	}
 	
 	public void broadcastFlush(final ByteChatMessage m) {
+		onBroadcast(m);
 		m.preEncodeBuffer();
 		players().forEach(p -> {
 			m.messageBuffer().retain();
@@ -141,6 +151,20 @@ public class ServerHashChunkWorld extends HashChunkWorld {
 	public void broadcastFlush(final String message) {
 		final ByteChatMessage m = new ByteChatMessage(message);
 		broadcastFlush(m);
+	}
+	
+	private static final Level chatLogLevel = Level.INFO;
+	
+	protected void onBroadcast(final ChatMessage message) {
+		if(message.getSender() != null) {
+			Chat.logger().atLevel(chatLogLevel).log("{}:  {}", message.getSenderName(), message.getContent());
+		} else {
+			Chat.logger().atLevel(chatLogLevel).log("{}", message.getContent());
+		}
+	}
+
+	public Collection<ServerPlayer> getPlayers() {
+		return players().collect(Collectors.toList());
 	}
 	
 }

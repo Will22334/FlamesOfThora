@@ -38,9 +38,11 @@ public class LoadingState extends GameState implements HasLogger {
 	private InetSocketAddress serverAddress = null;
 	private ChannelFuture bindFuture = null;
 	
+	private Future<LoginTransaction> loginFuture = null;
+	
 	private SpriteBatch loadingScreenGraphics;
 	private Sprite loadingBar;
-
+	
 	private Texture loadingBarTexture;
 	
 	@Override
@@ -85,13 +87,13 @@ public class LoadingState extends GameState implements HasLogger {
 				update(deltatime);
 			}
 			
-						while(renderingComplete != false) {
-							
-							Update();
-							
-							break;
-							
-						}
+			while(renderingComplete != false) {
+				
+				Update();
+				
+				break;
+				
+			}
 			
 			break;
 		}
@@ -105,7 +107,7 @@ public class LoadingState extends GameState implements HasLogger {
 		deltatime += Gdx.graphics.getDeltaTime() - deltatime;
 		
 	}
-
+	
 	@Override
 	public void onPause() {
 		// TODO Auto-generated method stub
@@ -151,16 +153,18 @@ public class LoadingState extends GameState implements HasLogger {
 	
 	@Override
 	public void enter() {
-		this.client().network().connectAndLogin(serverAddress, "user", "pwd")
-		.addListener((Future<LoginTransaction> f) -> {
-			if(f.isSuccess()) {
-				f.get();
-				//this.setFinished(true);
-			} else {
-				logger().atWarn().withThrowable(f.cause()).log("Could not login due to exception!");
-				Gdx.app.exit();
-			}
-		});
+		bindFuture = client().network().connect(serverAddress);
+		loginFuture = client().network().attachLoginListener(bindFuture, "user", "pwd")
+				.addListener((Future<LoginTransaction> f) -> {
+					if(f.isSuccess()) {
+						final LoginTransaction loginTransaction = f.get();
+						logger().trace("Login Request for user {} === {}", loginTransaction.request.username, loginTransaction.response);
+						//this.setFinished(true);
+					} else {
+						logger().atWarn().withThrowable(f.cause()).log("Could not login due to exception!");
+						Gdx.app.exit();
+					}
+				});
 	}
 	
 	@Override
@@ -173,13 +177,13 @@ public class LoadingState extends GameState implements HasLogger {
 	@Override
 	protected void update(float dt) {
 		// TODO Auto-generated method stub
-//		if(!isFinished()) {
-//			//Used for various things to update "separate" from the rendering.
-//			//Handle exit is set
-//			if(exitRequest) {
-//				setFinished(true);
-//			}
-//		}
+		//		if(!isFinished()) {
+		//			//Used for various things to update "separate" from the rendering.
+		//			//Handle exit is set
+		//			if(exitRequest) {
+		//				setFinished(true);
+		//			}
+		//		}
 	}
 	
 	public boolean isRenderingComplete() {

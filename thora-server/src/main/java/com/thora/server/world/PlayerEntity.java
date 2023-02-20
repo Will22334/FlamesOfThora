@@ -10,7 +10,7 @@ public class PlayerEntity implements WorldEntity {
 	
 	private ServerPlayer player;
 	
-	private int id;
+	private int id = EMPTY_ID;
 	private EntityType type;
 	private String name;
 	private Location loc;

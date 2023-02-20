@@ -17,8 +17,8 @@ public class FinalTypedWorldEntity extends AbstractWorldEntity {
 	private final EntityType type;
 	protected String name;
 	
-	public FinalTypedWorldEntity(final int id, @NonNull final EntityType type, @Nullable final String name, @NonNull final Location loc) {
-		super(id, loc);
+	public FinalTypedWorldEntity(final int id, @NonNull final String name, @NonNull final EntityType type, @NonNull final Location loc) {
+		super(id, name, loc);
 		this.type = type;
 		this.name = sanitizeName(type, name);
 	}
@@ -31,6 +31,11 @@ public class FinalTypedWorldEntity extends AbstractWorldEntity {
 	@Override
 	public final EntityType getEntityType() {
 		return type;
+	}
+
+	@Override
+	public boolean setEntityType(final EntityType type) {
+		return false;
 	}
 	
 }

@@ -27,7 +27,7 @@ public interface WorldEntity extends Locatable {
 	}
 	
 	public default boolean isRegistered() {
-		return getID() == EMPTY_ID;
+		return getID() != EMPTY_ID;
 	}
 	
 	

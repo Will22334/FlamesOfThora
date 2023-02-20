@@ -113,7 +113,7 @@ public class NettyNetworkManager {
 		return rawChannel().write(msg);
 	}
 	
-	public ChannelFuture connect(InetSocketAddress address) {
+	public ChannelFuture connect(final InetSocketAddress address) {
 		this.workerGroup = new NioEventLoopGroup(workerIOThreads);
 		bootstrap = new Bootstrap();
 		bootstrap.group(workerGroup)
@@ -144,9 +144,12 @@ public class NettyNetworkManager {
 	
 	
 	
-	public Future<LoginTransaction> connectAndLogin(InetSocketAddress address, String username, String password) {
-		ChannelFuture connectFuture = connect(address);
-		
+	public Future<LoginTransaction> connectAndLogin(final InetSocketAddress address, final String username, final String password) {
+		final ChannelFuture connectFuture = connect(address);
+		return attachLoginListener(connectFuture, username, password);
+	}
+	
+	public Future<LoginTransaction> attachLoginListener(final ChannelFuture connectFuture, final String username, final String password) {
 		connectFuture.addListener((ChannelFuture f) -> {
 			if(f.isSuccess()) {
 				final PlayerSession session = getOrCreateSession(f.channel());
@@ -189,6 +192,10 @@ public class NettyNetworkManager {
 	
 	protected PlayerSession getOrCreateSession(Channel channel) {
 		return getOrCreateSession((SocketChannel)channel);
+	}
+	
+	protected PlayerSession getOrCreateSession(ChannelFuture cf) {
+		return getOrCreateSession(cf.channel());
 	}
 	
 	@Sharable

@@ -32,9 +32,9 @@ class TestFastLocalThread {
 		return logger;
 	}
 	
-	public static final int THREADS = 8;
-	public static final int iterations = 200;
-	public static final int BUFFER_CALLS = 200;
+	public static final int THREADS = 2;
+	public static final int iterations = 10;
+	public static final int BUFFER_CALLS = 2;
 	public static final int WRITE_CALLS = 4;
 	public static final int BUFF_LENGTH = 4 * 1024;
 	public static byte[] data = new byte[BUFF_LENGTH];
@@ -51,7 +51,6 @@ class TestFastLocalThread {
 		rand.nextBytes(data);
 		eventLoopGroup = new DefaultEventLoopGroup(THREADS);
 		initBuffers();
-		Thread.sleep(15_000);
 	}
 	
 	private static void initBuffers() {

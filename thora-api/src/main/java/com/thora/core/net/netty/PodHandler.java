@@ -47,9 +47,9 @@ public abstract class PodHandler<M> extends SimpleChannelInboundHandler<M> {
 	}
 	
 	protected <P extends M> void onHandlerFound(final ChannelHandlerContext ctx, final Class<P> messageClass, final M message) {
-		logger().atLevel(Level.TRACE).log(() -> {
-			return new ParameterizedMessage("Handler found for {} from {}", prettyMessage(message), NetworkSession.findSession(ctx));
-		});
+		//		logger().atLevel(Level.TRACE).log(() -> {
+		//			return new ParameterizedMessage("Handler found for {} from {}", prettyMessage(message), NetworkSession.findSession(ctx));
+		//		});
 	}
 	
 	protected <P extends M> void onNoHandlerFound(final ChannelHandlerContext ctx, final Class<P> messageClass, final M message) {
@@ -74,7 +74,7 @@ public abstract class PodHandler<M> extends SimpleChannelInboundHandler<M> {
 		super.handlerAdded(ctx);
 		this.populate();
 	}
-
+	
 	protected abstract class MessageConsumer<P extends M> {
 		
 		protected final Class<P> messageClass;
@@ -103,7 +103,7 @@ public abstract class PodHandler<M> extends SimpleChannelInboundHandler<M> {
 			return (Class<P>) ((ParameterizedType) getClass().getGenericSuperclass())
 					.getActualTypeArguments()[index];
 		}
-
+		
 		@Override
 		public String toString() {
 			return getClass().getSimpleName() + "[" + getMessageClass().getSimpleName() + "]";

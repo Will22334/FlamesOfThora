@@ -5,6 +5,7 @@ import java.time.Instant;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
+import com.thora.core.chat.Chat;
 import com.thora.core.entity.EntityType;
 import com.thora.core.net.message.CameraEntityMessage;
 import com.thora.core.net.message.ChatMessage;
@@ -22,9 +23,14 @@ import com.thora.server.world.PlayerEntity;
 import com.thora.server.world.ServerHashChunkWorld;
 
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 
 public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
+	
+	public static final Logger chatLogger() {
+		return Chat.logger();
+	}
 	
 	protected final NettyThoraServer server;
 	
@@ -46,15 +52,24 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 	
 	private final class LoginRequestHandler extends MessageConsumer<LoginRequestMessage> {
 		@Override
-		public void consume(ChannelHandlerContext ctx, LoginRequestMessage message) {
+		public void consume(final ChannelHandlerContext ctx, final LoginRequestMessage message) {
 			final ClientSession session = ClientSession.get(ctx);
 			logger().atLevel(Level.TRACE).log("Received login request = {}", message);
 			session.generateSymmetricCipher(server.publicKey(), message.sessionKey, message.timeStamp);
 			
+			final ServerHashChunkWorld w = server().getWorld();
+			
+			final ServerPlayer oldPlayer = w.getPlayer(message.username);
+			if(oldPlayer != null) {
+				LoginResponseMessage response = new LoginResponseMessage(false, String.format("User already logged in with username \"%s\"", message.username));
+				session.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+				return;
+			}
+			
 			LoginResponseMessage response = new LoginResponseMessage(true, "Successfully logged in!");
 			ChannelFuture cf = session.rawChannel().write(response);
 			if(response.isAccepted()) {
-				final ServerHashChunkWorld w = server().getWorld();
+				
 				final Location l = new WeakVectorLocation<>(w,0,0);
 				final PlayerEntity p = new PlayerEntity(message.username, EntityType.HUMAN_MALE,  l);
 				final NettyServerPlayer player = new NettyServerPlayer(session, message.username, p);
@@ -65,6 +80,9 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 				w.register(p);
 				
 				session.rawChannel().closeFuture().addListener((ChannelFuture f) -> {
+					if(session.getPlayer() != null) {
+						player.world().deRegister(player.getEntity());
+					}
 					w.broadcastFlush(player.getUsername() + " logged out.");
 				});
 				
@@ -85,21 +103,35 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 	private final class ChatMessageHandler extends SessionMessageConsumer<ChatMessage,ClientSession> {
 		@Override
 		public void consume(final ChannelHandlerContext ctx, final ClientSession session, final ChatMessage packet) {
+			
 			final Instant time = Instant.now();
 			final ServerPlayer player = session.getPlayer();
+			
+			
+			
 			if(packet.isCommand()) {
 				//Handle command
-				player.executeCommand(packet.content);
+				server().commandManager().executeCommand(player, packet.getContent());
+				
+				//TODO remove or refactor CommandSender.executeCommand(String)
+				//player.executeCommand(packet.content);
+				
 			} else {
-				logger().info("Got message \"{}\" from {}", packet.content, session);
+				
+				//CHAT
+				
+				logger().info("{}: {}", player.getName(), packet.getContent());
+				
+				//chatLogger().info("{}:  {}", packet.getSenderName(), packet.getContent());
 				final ServerHashChunkWorld w = (ServerHashChunkWorld) player.world();
 				w.broadcastFlush(new ByteChatMessage(time, player, packet.getContent()));
 			}
+			
 		}
 	}
 	
 	private final class EntityMoveRequestMessageHandler extends MessageConsumer<EntityMoveRequestMessage> {
-
+		
 		@Override
 		public void consume(ChannelHandlerContext ctx, EntityMoveRequestMessage message) {
 			final ClientSession session = ClientSession.get(ctx);

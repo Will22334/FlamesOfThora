@@ -6,7 +6,6 @@ import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.DigestException;
@@ -19,7 +18,6 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +42,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.google.common.collect.Lists;
 import com.thora.core.Utils;
 import com.thora.core.Utils.IntIntObjFunction;
 import com.thora.core.Utils.IntObjFunction;
@@ -60,7 +57,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.DecoderException;
 import io.netty.util.ByteProcessor;
-import io.netty.util.CharsetUtil;
 import io.netty.util.collection.IntObjectHashMap;
 import io.netty.util.collection.IntObjectMap;
 import io.netty.util.collection.IntObjectMap.PrimitiveEntry;
@@ -272,15 +268,15 @@ public class EncodingUtils {
 		encryptSame(buf, c.getCryptoCreds().encrypt());
 	}
 	
-	public static final void encryptSame(ByteBuf buf, Cipher c) throws IllegalBlockSizeException, BadPaddingException {
+	public static final void encryptSame(final ByteBuf buf, final Cipher c) throws IllegalBlockSizeException, BadPaddingException {
 		encryptSame(buf, buf.readableBytes(), c);
 	}
 	
-	public static final void encryptSame(ByteBuf buf, int length, Cipher c) throws IllegalBlockSizeException, BadPaddingException {
-		int initialRead = buf.readerIndex();
-		byte[] rawBytes = new byte[length];
+	public static final void encryptSame(final ByteBuf buf, final int length, final Cipher c) throws IllegalBlockSizeException, BadPaddingException {
+		final int initialRead = buf.readerIndex();
+		final byte[] rawBytes = new byte[length];
 		buf.readBytes(rawBytes);
-		byte[] encBytes = encrypt(rawBytes, c);
+		final byte[] encBytes = encrypt(rawBytes, c);
 		buf.readerIndex(initialRead);
 		buf.writerIndex(initialRead);
 		buf.writeBytes(encBytes);
@@ -605,6 +601,11 @@ public class EncodingUtils {
 	}
 	
 	public static final ByteBuf writeSignedVarIntUnwrapped(int value, final ByteBuf buf) {
+		return writePosVarIntUnwrapped((value << 1) ^ (value >> 31), buf);
+	}
+	
+	@Deprecated
+	public static final ByteBuf writeSignedVarIntUnwrappedOld(int value, final ByteBuf buf) {
 		if (((value & ~SEGMENT_BITS) != 0)) {
 			buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
 			value >>>= 7;
@@ -617,11 +618,66 @@ public class EncodingUtils {
 					if (((value & ~SEGMENT_BITS) != 0)) {
 						buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
 						value >>>= 7;
+						return buf;
 					}
+					return buf;
+				} else {
+					return buf.writeByte(value >>= 1);
 				}
+			} else {
+				return buf.writeByte(value >>= 1);
 			}
+		} else {
+			return buf.writeByte(value >>= 1);
 		}
-		return buf.writeByte(value >>= 1);
+		//return buf.writeByte(value >>= 1);
+	}
+	
+	public static int readSignedVarIntUnwrapped(final ByteBuf buf) {
+		final int raw = readPosVarIntUnwrapped(buf);
+        // This undoes the trick in writeSignedVarInt()
+        int temp = (((raw << 31) >> 31) ^ raw) >> 1;
+        // This extra step lets us deal with the largest signed values by treating
+        // negative results from read unsigned methods as like unsigned values.
+        // Must re-flip the top bit if the original read value had it set.
+        return temp ^ (raw & (1 << 31));
+	}
+	
+	@Deprecated
+	public static int readSignedVarIntUnwrappedOld2(final ByteBuf buf) {
+		long tmp;
+	    if ( (tmp = buf.readByte()) == CONTINUE_BIT) {
+	      return (int) tmp;
+	    }
+	    long result = tmp & 0x7f;
+	    int signBits = -1 << 7;;
+	    if ((tmp = buf.readByte()) >= 0) {
+	      result |= tmp << 7;
+	      signBits <<= 7;
+	    } else {
+	      result |= (tmp & 0x7f) << 7;
+	      signBits <<= 7;
+	      if ((tmp = buf.readByte()) >= 0) {
+	        result |= tmp << 14;
+	        signBits <<= 7;
+	      } else {
+	        result |= (tmp & 0x7f) << 14;
+	        signBits <<= 7;
+	        if ((tmp = buf.readByte()) >= 0) {
+	          result |= tmp << 21;
+	          signBits <<= 7;
+	        } else {
+	          result |= (tmp & 0x7f) << 28;
+	          //result |= (tmp & 0x7f) << 21;
+	          //result |= (tmp = buf.readByte()) << 28;
+	          signBits <<= 14;
+	        }
+	      }
+	    }
+//	    if (((signBits >> 1) & result) <= 0) {
+//			result |= signBits;
+//		}
+	    return (int) result;
 	}
 	
 	public static final ByteBuf writePosVarInt(final int value, final ByteBuf buf) {
@@ -630,7 +686,7 @@ public class EncodingUtils {
 	
 	public static final ByteBuf writePosVarIntUnwrapped(int value, final ByteBuf buf) {
 		if (((value & ~SEGMENT_BITS) != 0)) {
-			buf.writeByte((value & 0x7f) | CONTINUE_BIT);
+			buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
 			value >>>= 7;
 			if (((value & ~SEGMENT_BITS) != 0)) {
 				buf.writeByte((value & SEGMENT_BITS) | CONTINUE_BIT);
@@ -705,41 +761,6 @@ public class EncodingUtils {
 	        }
 	      }
 	    }
-	    return result;
-	}
-	
-	public static int readSignedVarIntUnwrapped(final ByteBuf buf) {
-		int tmp;
-	    if ( (tmp = (buf.readByte())) == CONTINUE_BIT) {
-	      return tmp;
-	    }
-	    int result = tmp & 0x7f;
-	    int signBits = -1 << 7;;
-	    if ((tmp = buf.readByte()) >= 0) {
-	      result |= tmp << 7;
-	      signBits <<= 7;
-	    } else {
-	      result |= (tmp & 0x7f) << 7;
-	      signBits <<= 7;
-	      if ((tmp = buf.readByte()) >= 0) {
-	        result |= tmp << 14;
-	        signBits <<= 7;
-	      } else {
-	        result |= (tmp & 0x7f) << 14;
-	        signBits <<= 7;
-	        if ((tmp = buf.readByte()) >= 0) {
-	          result |= tmp << 21;
-	          signBits <<= 7;
-	        } else {
-	          result |= (tmp & 0x7f) << 21;
-	          result |= (tmp = buf.readByte()) << 28;
-	          signBits <<= 14;
-	        }
-	      }
-	    }
-//	    if (((signBits >> 1) & result) <= 0) {
-//			result |= signBits;
-//		}
 	    return result;
 	}
 	
@@ -1272,7 +1293,7 @@ public class EncodingUtils {
 			return buf;
 		}
 		
-		int sizeIndex = buf.writerIndex();
+		final int sizeIndex = buf.writerIndex();
 		buf.writeInt(0);
 		
 		for(M m: arr) {
@@ -1579,15 +1600,15 @@ public class EncodingUtils {
 	public static final String DEFAULT_STRING_ENCODING = "UTF-8";
 	public static final Charset DEFAULT_CHARSET = Charset.forName(DEFAULT_STRING_ENCODING);
 	
-	public static String readIntString(ByteBuf buf, Charset charset) {
-		int length = buf.readInt();
-		int readIndex = buf.readerIndex();
+	public static String readIntString(final ByteBuf buf, final Charset charset) {
+		final int length = buf.readInt();
+		final int readIndex = buf.readerIndex();
 		buf.skipBytes(length);
-		String text = buf.toString(readIndex, length, charset);
+		final String text = buf.toString(readIndex, length, charset);
 		return text;
 	}
 	
-	public static String readIntString(ByteBuf buf) {
+	public static String readIntString(final ByteBuf buf) {
 		return readIntString(buf, DEFAULT_CHARSET);
 	}
 	
@@ -1610,7 +1631,7 @@ public class EncodingUtils {
 		return buf.toString(readIndex, length, charset);
 	}
 	
-	public static String readVarString(ByteBuf buf) {
+	public static String readVarString(final ByteBuf buf) {
 		return readVarIntString(buf, DEFAULT_CHARSET);
 	}
 	
@@ -1668,10 +1689,14 @@ public class EncodingUtils {
 		buf.writeBytes(arr);
 	}
 	
-	public static final void writeIntString(final String s, final ByteBuf buf) {
-		final byte[] arr = s.getBytes();
+	public static final void writeIntString(final String s, final Charset charset, final ByteBuf buf) {
+		final byte[] arr = s.getBytes(charset);
 		buf.writeInt(arr.length);
 		buf.writeBytes(arr);
+	}
+	
+	public static final void writeIntString(final String s, final ByteBuf buf) {
+		writeIntString(s, DEFAULT_CHARSET, buf);
 	}
 	
 	public static final void encode(final PublicKey key, final ByteBuf buf) {

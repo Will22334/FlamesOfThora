@@ -15,6 +15,7 @@ import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.ThoraCodec;
 import com.thora.core.world.World;
 import com.thora.server.ThoraServer;
+import com.thora.server.command.CommandManager;
 import com.thora.server.world.ServerHashChunkWorld;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -36,8 +37,6 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.MessageToMessageDecoder;
-import io.netty.util.ResourceLeakDetector;
-import io.netty.util.ResourceLeakDetector.Level;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -50,6 +49,7 @@ public class NettyThoraServer extends ThoraServer {
 	
 	private final PooledEngine engine;
 	private final ServerHashChunkWorld world;
+	private final CommandManager commandManager;
 	
 	protected ServerBootstrap bootstrap;
 	protected EventLoopGroup bossGroup, childGroup;
@@ -66,6 +66,7 @@ public class NettyThoraServer extends ThoraServer {
 		this.workerIOThreads = workerIOThreads;
 		this.engine = new PooledEngine();
 		this.world = world;
+		this.commandManager = new CommandManager(this);
 	}
 	
 	public PooledEngine engine() {
@@ -92,7 +93,12 @@ public class NettyThoraServer extends ThoraServer {
 	}
 	
 	@Override
-	public synchronized void start(InetSocketAddress address) throws Exception {
+	public CommandManager commandManager() {
+		return commandManager;
+	}
+	
+	@Override
+	public synchronized void start(final InetSocketAddress address) throws Exception {
 		try {
 			try {
 				bind(address).sync();

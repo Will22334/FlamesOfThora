@@ -2,7 +2,6 @@ package com.thora.core.net.message;
 
 import java.time.Instant;
 
-import com.thora.core.FlamesOfThora;
 import com.thora.core.chat.Messageable;
 
 public class ChatMessage extends AbstractThoraMessage {
@@ -11,7 +10,7 @@ public class ChatMessage extends AbstractThoraMessage {
 	
 	public static final String formatEscapes(final String text) {
 		final String newText = text.replace("\\n", "\n");
-		FlamesOfThora.logger.trace("Formatted {}  into  {}", text, newText);
+		//FlamesOfThora.logger.trace("Formatted {}  into  {}", text, newText);
 		return newText;
 	}
 	

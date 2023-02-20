@@ -31,10 +31,16 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 	public class LoginResponseConsumer extends MessageConsumer<LoginResponseMessage> {
 		
 		@Override
-		public void consume(ChannelHandlerContext ctx, LoginResponseMessage message) {
+		public void consume(final ChannelHandlerContext ctx, final LoginResponseMessage message) {
 			LoginTransaction t = getManager().loginTransaction;
-			t.response = message;
-			getManager().loginPromise.setSuccess(t);
+			if(t.response == null) {
+				t.response = message;
+				
+				getManager().loginPromise.setSuccess(t);
+			} else {
+				logger().warn("Recieved an additional {} after being logged in.", message);
+			}
+			
 		}
 		
 	}

@@ -15,7 +15,9 @@ public class VarIntBenchmark {
 	
 	private static final Logger logger = LogManager.getLogger(VarIntBenchmark.class);
 	
-	private static final Random rand = new Random();
+	private static final int seed = 90353453;
+	
+	private static final Random rand = new Random(seed);
 	private static final int totalCalls = 100_000_000;
 	private static final int[] values;
 	
@@ -23,7 +25,21 @@ public class VarIntBenchmark {
 		values = new int[totalCalls];
 		for(int i=0; i<totalCalls; ++i) {
 			//values[i] = Math.abs(rand.nextInt());
-			values[i] = Math.abs(rand.nextInt() / 10);
+			
+			
+			//values[i] = -1 * Math.abs(rand.nextInt());
+			
+			values[i] = (int) (-1 * Math.abs(rand.nextInt() / 4d));
+			
+			
+			
+			//values[i] = rand.nextInt();
+			
+			//values[i] = (int) (rand.nextInt() / 1.25f);
+			//values[i] = (int) (rand.nextInt() / 3);
+			
+			
+			
 			//values[i] = rand.nextInt() / 10;
 		}
 	}
@@ -48,6 +64,7 @@ public class VarIntBenchmark {
 		long time;
 		
 		unsignedVarIntProto(totalCalls, buf);
+		buf.clear();
 		
 		
 		
@@ -64,46 +81,58 @@ public class VarIntBenchmark {
 		
 		t.start();
 		unSignedVarIntProtoLoop(totalCalls, buf);
-		time = t.mark();
-		logger().info("{}ms\n", time);
+		time = t.nextMark();
+		logger().info("{}ms\t\tUnsignedVarIntProtoLoop\n", time);
+		buf.clear();
+		t.nextMark();
 		
-		t = new Utils.Timer();
-		t.start();
 		unsignedVarIntProto(totalCalls, buf);
-		time = t.mark();
-		logger().info("{}ms\n", time);
+		time = t.nextMark();
+		logger().info("{}ms\t\tUnsignedVarIntProto\n", time);
+		buf.clear();
+		t.mark();
 		
-		t = new Utils.Timer();
-		t.start();
 		posVarInt(totalCalls, buf);
-		time = t.mark();
-		logger().info("{}ms\n", time);
+		time = t.nextMark();
+		logger().info("{}ms\t\tPosVarInt\n", time);
+		buf.clear();
+		t.mark();
 		
-		t = new Utils.Timer();
-		t.start();
+		
 		posVarIntUnwrapped(totalCalls, buf);
-		time = t.mark();
-		logger().info("{}ms\n", time);
+		time = t.nextMark();
+		logger().info("{}ms\t\tPosVarIntUnwrapped\n", time);
+		buf.clear();
+		t.mark();
 		
 		
 		
-		t = new Utils.Timer();
-		t.start();
 		signedVarIntLoop(totalCalls, buf);
-		time = t.mark();
-		logger().info("{}ms\n", time);
+		time = t.nextMark();
+		logger().info("{}ms\t\tSignedVarIntLoop\n", time);
+		buf.clear();
+		t.mark();
 		
-		t = new Utils.Timer();
-		t.start();
+		
 		signedVarIntProto(totalCalls, buf);
-		time = t.mark();
-		logger().info("{}ms\n", time);
+		time = t.nextMark();
+		logger().info("{}ms\t\tSignedVarIntProto\n", time);
+		buf.clear();
+		t.mark();
 		
-		t = new Utils.Timer();
-		t.start();
+		
 		signedVarIntProtoLoop(totalCalls, buf);
-		time = t.mark();
-		logger().info("{}ms\n", time);
+		time = t.nextMark();
+		logger().info("{}ms\t\tSignedVarIntProtoLoop\n", time);
+		buf.clear();
+		t.mark();
+		
+		
+		
+		signedVarIntUnwrapped(totalCalls, buf);
+		time = t.nextMark();
+		logger().info("{}ms\t\tSignedVarIntUnwrapped\n", time);
+		buf.release();
 		
 		
 	}

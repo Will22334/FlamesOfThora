@@ -1,6 +1,6 @@
 package com.thora.core;
 
-import com.thora.core.chat.CommandSender;
+import com.thora.core.chat.CommandCaller;
 import com.thora.core.world.Locatable;
 
 /**
@@ -8,9 +8,9 @@ import com.thora.core.world.Locatable;
  * @author Dave
  *
  */
-public interface Player extends CommandSender, Locatable {
+public interface Player extends CommandCaller, Locatable {
 	
-	String getUsername();
+	public String getUsername();
 	
 	@Override
 	public default String getName() {

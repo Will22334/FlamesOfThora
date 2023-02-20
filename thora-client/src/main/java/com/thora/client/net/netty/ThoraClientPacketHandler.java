@@ -1,13 +1,9 @@
 package com.thora.client.net.netty;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.message.ParameterizedMessage;
 
 import com.thora.client.FlamesOfThoraClient;
-import com.thora.core.Utils;
 import com.thora.core.net.LoginTransaction;
-import com.thora.core.net.NetworkSession;
 import com.thora.core.net.message.BasicTileMessage;
 import com.thora.core.net.message.CameraEntityMessage;
 import com.thora.core.net.message.CameraPointMessage;
@@ -111,7 +107,7 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 				final Location bottomLeft = message.bottomLeft;
 				final TileData[][] tiles = message.tiles;
 				final int height = tiles.length, width = tiles[0].length;
-				logger().trace("Set Tiles[{}-{}] = {}", message.bottomLeft, message.bottomLeft.clone().shift(width, height), tiles);
+				//logger().trace("Set Tiles[{}-{}] = {}", message.bottomLeft, message.bottomLeft.clone().shift(width, height), tiles);
 				for(int y=0; y<height; ++y) {
 					for(int x=0; x<width; ++x) {
 						world.setTile(bottomLeft.clone().shift(x, y), tiles[y][x]);

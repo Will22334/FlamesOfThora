@@ -2,8 +2,6 @@ package com.thora.client.state;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedList;
-import java.util.Queue;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,19 +36,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.StringBuilder;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.thora.client.ColoredMessagable;
 import com.thora.client.FlamesOfThoraClient;
 import com.thora.client.graphics.MultiTextureComponent;
 import com.thora.client.graphics.TextureComponent;
 import com.thora.client.graphics.TransformComponent;
-import com.thora.client.input.InputHandler;
 import com.thora.client.input.InputHandler.KeyBinding;
 import com.thora.client.input.InputHandler.KeyRecord;
-import com.thora.client.input.InputListener;
 import com.thora.client.input.Key;
+import com.thora.client.screen.ChatFormatter;
 import com.thora.client.system.MoveSystem;
 import com.thora.client.system.MoveValidationSystem;
 import com.thora.client.world.WorldRenderer;
@@ -106,6 +102,8 @@ public class PlayingState extends GameState implements HasLogger {
 	
 	private Entity player;
 	private long lastWalkTime;
+	
+	private ChatFormatter chatFormatter = ChatFormatter.DEFAULT;
 	
 	/**
 	 * A cached window size should be handled in Client instances.
@@ -176,7 +174,7 @@ public class PlayingState extends GameState implements HasLogger {
 		
 		boolean onBottom = chatLineScroll.getScrollY() == chatLineScroll.getMaxY();
 		
-		ChatEntry entry = new ChatEntry(message, skin);
+		ChatEntry entry = new ChatEntry(this, message, skin);
 		chatLines.row();
 		chatLines.add(entry);
 		entry.setWidth(entry.getParent().getWidth());
@@ -191,7 +189,7 @@ public class PlayingState extends GameState implements HasLogger {
 		return "[#" + color.toString() + "]";
 	}
 	
-	public static final StringBuilder getMarkupColor(final StringBuilder b, final Color color) {
+	public static final StringBuilder markupColor(final StringBuilder b, final Color color) {
 		return b.append("[#").append(color.toString()).append("]");
 	}
 	
@@ -200,32 +198,22 @@ public class PlayingState extends GameState implements HasLogger {
 	
 	private static class ChatEntry extends Label {
 		
-		final ChatMessage message;
+		final PlayingState state;
+		private final ChatMessage message;
+		
+		public ChatEntry(final PlayingState state, final ChatMessage message, final Skin skin) {
+			super(message.content, skin);
+			this.state = state;
+			this.message = message;
+			this.setText(ChatMessage.formatEscapes(toLineString()));
+		}
 		
 		public final ChatMessage getMessage() {
 			return message;
 		}
 		
-		public ChatEntry(final ChatMessage message, final Skin skin) {
-			super(message.content, skin);
-			this.message = message;
-			this.setText(ChatMessage.formatEscapes(toLineString()));
-		}
-		
 		public String toLineString() {
-			StringBuilder b = new StringBuilder();
-			
-			b.append(markupColor(Color.GREEN)).append("[").append(instantFormatter.format(message.time)).append("]");
-			b.append("  ");
-			if(message.sender instanceof ColoredMessagable) {
-				ColoredMessagable sender = (ColoredMessagable) message.sender;
-				b.append(markupColor(sender.getColor())).append(sender.getName()).append("[]");
-			}
-			
-			b.append("[] :  ").append(message.content);
-			
-			return b.toString();
-			
+			return state.chatFormatter.format(getMessage());
 		}
 		
 	}

@@ -23,12 +23,12 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
 public class StreamIntQuadTree<E> implements IntSpatialIndex<E> {
-
+	
 	/**
 	 * Default maximum number of entries per node.
 	 */
 	public static final int DEFAULT_CAPACITY = 10;
-	private static final long serialVersionUID = 0L;
+	
 	private final Map<Child, StreamIntQuadTree<E>> children;
 	private final Deque<QuadTreeEntry<E>> elements;
 	private final int maxElements;
@@ -463,12 +463,12 @@ public class StreamIntQuadTree<E> implements IntSpatialIndex<E> {
 
 	}
 
-	private class QuadIterator<E> implements Iterator<E> {
+	private class QuadIterator<T extends E> implements Iterator<T> {
 
-		ItNode<E> currentNode;
+		ItNode<T> currentNode;
 
-		QuadIterator(StreamIntQuadTree<E> root) {
-			ItNode<E> node = new ItNode<>(null, root);
+		QuadIterator(StreamIntQuadTree<T> root) {
+			ItNode<T> node = new ItNode<>(null, root);
 			currentNode = node;
 		}
 
@@ -493,7 +493,7 @@ public class StreamIntQuadTree<E> implements IntSpatialIndex<E> {
 		}
 
 		@Override
-		public E next() {
+		public T next() {
 			if(current == null) {
 				if(!hasNext()) throw new NoSuchElementException();
 			}
@@ -501,7 +501,7 @@ public class StreamIntQuadTree<E> implements IntSpatialIndex<E> {
 				return currentNode.selfIt.next().element;
 			} else if(currentNode.childrenIt.hasNext()) {
 				currentNode = new ItNode<>(currentNode, currentNode.childrenIt.next());
-				E e = currentNode.next();
+				T e = currentNode.next();
 				if(e != null) {
 					return e;
 				}

@@ -1,9 +1,9 @@
 package com.thora.server.command;
 
-import com.thora.core.chat.CommandSender;
+import com.thora.core.chat.CommandCaller;
 
 public interface CommandExecutor {
 	
-	public void executeCommand(CommandSender sender, String commandText);
+	public void executeCommand(final CommandCaller sender, final String commandText);
 	
 }

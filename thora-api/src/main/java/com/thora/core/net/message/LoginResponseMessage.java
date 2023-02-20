@@ -1,5 +1,7 @@
 package com.thora.core.net.message;
 
+import com.google.common.base.Objects;
+
 public class LoginResponseMessage extends AbstractThoraMessage {
 	
 	protected boolean accepted;
@@ -27,6 +29,30 @@ public class LoginResponseMessage extends AbstractThoraMessage {
 	public final LoginResponseMessage setReason(String reason) {
 		this.reason = reason;
 		return this;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(accepted, reason);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null)
+			return false;
+		if(this == obj)
+			return true;
+		if(obj instanceof LoginResponseMessage) {
+			LoginResponseMessage m = (LoginResponseMessage) obj;
+			return Objects.equal(isAccepted(), m.isAccepted())
+					&& Objects.equal(getReason(), m.getReason());
+		}
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("[(%s) %s: %s]", getClass().getSimpleName(), isAccepted(), getReason());
 	}
 	
 }

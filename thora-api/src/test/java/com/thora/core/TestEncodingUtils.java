@@ -1,10 +1,9 @@
 package com.thora.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -29,10 +28,9 @@ import com.thora.core.net.netty.EncodingUtils;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
 
 @TestInstance(Lifecycle.PER_CLASS)
-class TestEncodingUtils {
+class TestEncodingUtils extends TestNetty {
 	
 	private static final Logger logger = LogManager.getLogger(TestEncodingUtils.class);
 	
@@ -61,21 +59,22 @@ class TestEncodingUtils {
 	
 	static {
 		signedInts = Collections.unmodifiableList(IntStream.of(signedIntsArr).mapToObj(Integer::valueOf).collect(Collectors.toList()));
-		c = new LinkedList<>();
-		final int size = 200;
+		final int size = 25;
+		final NObj[] arr = new NObj[size];
 		for(int i=0; i<size; ++i) {
 			NObj o = new NObj();
 			o.name = "O-" + (i + 1);
 			o.vector = new BasicDoubleVector(i * 1.25d, i * -3.75d);
-			c.add(o);
+			arr[i] = o;
 		}
+		c = Arrays.asList(arr);
 	}
 	
 	private ByteBuf buf;
 	
 	@BeforeAll
 	void setUpBeforeClass() throws Exception {
-		buf = Unpooled.buffer();
+		buf = TestNetty.getBuf();
 	}
 	
 	@BeforeEach
@@ -85,9 +84,9 @@ class TestEncodingUtils {
 	
 	@AfterEach
 	void checkBuffer() throws Exception {
-		if(buf.readableBytes() > 0) {
-			
-		}
+		Assertions.assertEquals(0, buf.readableBytes(), () -> {
+			return String.format("buf has %s unread bytes!", buf);
+		});
 	}
 	
 	public static final IntStream sourceSingedVarInts() {
@@ -198,7 +197,7 @@ class TestEncodingUtils {
 	}
 	
 	private static NObj decodeNObj(final ByteBuf buf) {
-		NObj o = new NObj();
+		final NObj o = new NObj();
 		o.name = EncodingUtils.readString(buf);
 		o.vector = decodeVector(buf);
 		return o;

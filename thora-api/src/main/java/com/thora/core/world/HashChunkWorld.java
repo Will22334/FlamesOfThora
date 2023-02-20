@@ -22,10 +22,10 @@ public abstract class HashChunkWorld extends GeneralWorld {
 	public static class HashChunk extends Chunk {
 		
 		public class CTile extends BasicTile {
-			protected CTile(final TileData data, final Location point) {
+			public CTile(final TileData data, final Location point) {
 				super(data, point);
 			}
-			protected CTile(final Material material, final Location point) {
+			public CTile(final Material material, final Location point) {
 				super(material, point);
 			}
 			@Override
