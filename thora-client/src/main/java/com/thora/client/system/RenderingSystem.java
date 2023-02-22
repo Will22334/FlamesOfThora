@@ -14,15 +14,18 @@ import com.badlogic.ashley.signals.Signal;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.thora.client.FlamesOfThoraClient;
+import com.thora.client.NameComponent;
 import com.thora.client.graphics.MultiTextureComponent;
 import com.thora.client.graphics.TextureComponent;
 import com.thora.client.graphics.TransformComponent;
 import com.thora.client.graphics.ZComparator;
+import com.thora.client.state.PlayingState;
 import com.thora.core.world.Locatable;
 import com.thora.core.world.LocationComponent;
 import com.thora.core.world.World;
@@ -57,7 +60,8 @@ public class RenderingSystem extends SortedIteratingSystem {
 	
 	// convenience method to convert pixels to meters
 	public static float PixelsToMeters(float pixelValue){
-		return pixelValue * PIXELS_TO_METRES;
+		//return pixelValue * PIXELS_TO_METRES;
+		return pixelValue / PPM;
 	}
 	
 	
@@ -208,6 +212,9 @@ public class RenderingSystem extends SortedIteratingSystem {
 		//getCam().update();
 		batch.begin();
 		
+		final PlayingState plState = (PlayingState) client().States.getActiveState();
+		final BitmapFont font = plState.font;
+		
 		// loop through each entity in our render queue
 		for (Entity entity : this.getEntities()) {
 			
@@ -228,9 +235,31 @@ public class RenderingSystem extends SortedIteratingSystem {
 			float height = texRegion.getRegionHeight();
 			final TextureRegion texture = tex2.getActiveComponent().getRegion();
 			
+			//Draw texture
 			batch.draw(texture,
 					loc.getX() + (PPM - width)/PPM/2, loc.getY(),
 					PixelsToMeters(width), PixelsToMeters(height));
+			
+			//Draw name
+			String name = "NO-NAME";
+			final NameComponent nameComp = NameComponent.MAPPER.get(entity);
+			if(nameComp != null) {
+				name = nameComp.getName();
+			}
+			
+			
+			font.draw(batch, name,
+					loc.getX(),
+					loc.getY());
+			
+			
+			
+//			font.draw(batch, name,
+//					loc.getX() + (PPM - width)/PPM/2,
+//					loc.getY(),
+//					(PPM - width)/PPM,
+//					175,
+//					false);
 			
 		}
 		batch.end();

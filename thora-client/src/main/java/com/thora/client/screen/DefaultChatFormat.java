@@ -24,14 +24,13 @@ public class DefaultChatFormat implements ChatFormatter {
 	public final String format(final ChatMessage message) {
 		final StringBuilder b = new StringBuilder();
 		
-		markupColor(b, Color.GREEN).append("[").append(DATE_TIME_ISO_8601.format(message.time)).append("]");
+		markupColor(b, Color.GREEN).append("[").append(DATE_TIME_ISO_8601.format(message.time)).append("] ");
 		
 		if(message.sender instanceof ColoredMessagable) {
 			ColoredMessagable sender = (ColoredMessagable) message.sender;
-			b.append(markupColor(sender.getColor())).append(sender.getName()).append("[]");
-			b.append("[] :  ");
+			b.append(markupColor(sender.getColor())).append(sender.getName()).append("[][] : ");
 		} else {
-			b.append("[]  ");
+			b.append("[] ");
 		}
 		
 		b.append(message.content);

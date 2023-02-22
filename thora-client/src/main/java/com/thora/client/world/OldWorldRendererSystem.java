@@ -7,23 +7,32 @@ import java.util.Map;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Dimension;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.signals.Signal;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.thora.client.FlamesOfThoraClient;
+import com.thora.client.NameComponent;
+import com.thora.client.graphics.MultiTextureComponent;
+import com.thora.client.graphics.TextureComponent;
+import com.thora.client.graphics.TransformComponent;
 import com.thora.client.sprite.SpriteSheet;
+import com.thora.client.state.PlayingState;
 import com.thora.client.system.RenderingSystem;
 import com.thora.core.world.Locatable;
+import com.thora.core.world.LocationComponent;
 import com.thora.core.world.Material;
 import com.thora.core.world.Tile;
 import com.thora.core.world.World;
 
-public class WorldRenderer extends RenderingSystem {
+public class OldWorldRendererSystem extends RenderingSystem {
 	
 	public World world;
 	protected ShapeRenderer shapeRend;
@@ -54,7 +63,7 @@ public class WorldRenderer extends RenderingSystem {
 	}
 	
 	
-	public WorldRenderer(FlamesOfThoraClient client, SpriteBatch batch, World world, Camera camera, Locatable focus, Signal<Dimension> resizeSignal,
+	public OldWorldRendererSystem(FlamesOfThoraClient client, SpriteBatch batch, World world, Camera camera, Locatable focus, Signal<Dimension> resizeSignal,
 			int priority) {
 		super(client, batch, camera, focus, resizeSignal, priority);
 		this.world = world;
@@ -143,6 +152,49 @@ public class WorldRenderer extends RenderingSystem {
 				tile.getX(), tile.getY(),
 				1f, 1f);
 		
+	}
+	
+	@Override
+	protected void drawEntities(World world) {
+		getCam().position.set(focus.getX() + .5f, focus.getY() +.5f, 0f);
+		getCam().update();
+		batch.setProjectionMatrix(getCam().combined);
+		
+		batch.enableBlending();
+		//getCam().update();
+		batch.begin();
+		
+		final PlayingState plState = (PlayingState) client().States.getActiveState();
+		final BitmapFont font = plState.font;
+		
+		// loop through each entity in our render queue
+		for (Entity entity : this.getEntities()) {
+			
+			TransformComponent t = transformM.get(entity);
+			if(t.isHidden) continue;
+			
+			LocationComponent loc = locationM.get(entity);
+			TextureComponent tex = textureM.get(entity);
+			MultiTextureComponent tex2 = multitextureM.get(entity);
+			
+			if (loc == null || tex == null) {
+				continue;
+			}
+			TextureRegion texRegion = tex.getRegion();
+			
+			
+			float width = texRegion.getRegionWidth();
+			float height = texRegion.getRegionHeight();
+			final TextureRegion texture = tex2.getActiveComponent().getRegion();
+			
+			//Draw texture
+			batch.draw(texture,
+					loc.getX() + (PPM - width)/PPM/2, loc.getY(),
+					PixelsToMeters(width), PixelsToMeters(height));
+			
+		}
+		batch.end();
+		getRenderQueue().clear();
 	}
 	
 }

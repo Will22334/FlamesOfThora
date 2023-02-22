@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.PublicKey;
+import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,15 +25,15 @@ public abstract class ThoraServer implements HasLogger {
 		STARTING(),
 		ON(true),
 		STOPPING();
-		private boolean up;
+		private final boolean up;
+		private Status() {
+			this(false);
+		}
 		public boolean isUp() {
 			return up;
 		}
 		private Status(boolean up) {
 			this.up = up;
-		}
-		private Status() {
-			this(false);
 		}
 	}
 	
@@ -41,17 +42,17 @@ public abstract class ThoraServer implements HasLogger {
 		return keyIdentity;
 	}
 	
-	private static final Logger logger = LogManager.getLogger(ThoraServer.class);
+	private static final Logger globalLogger = LogManager.getLogger(ThoraServer.class);
 	
 	public static Logger globalLogger() {
-		return logger;
+		return globalLogger;
 	}
 	
 	private final KeyPair identity;
 	protected Status status = Status.OFF;
 	
-	public ThoraServer(KeyPair identity) {
-		this.identity = identity;
+	public ThoraServer(final KeyPair identity) {
+		this.identity = Objects.requireNonNull(identity, "Cannot instantiate ThoraServer with null identity");
 	}
 	
 	@Override
@@ -63,11 +64,11 @@ public abstract class ThoraServer implements HasLogger {
 		return status;
 	}
 	
-	protected KeyPair identity() {
+	protected final KeyPair identity() {
 		return identity;
 	}
 	
-	public PublicKey publicKey() {
+	public final PublicKey publicKey() {
 		return identity().getPublic();
 	}
 	

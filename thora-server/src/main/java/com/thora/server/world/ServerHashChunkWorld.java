@@ -131,6 +131,7 @@ public class ServerHashChunkWorld extends HashChunkWorld {
 			m.messageBuffer().retain();
 			p.writeAndFlush(m);
 		});
+		m.messageBuffer().release();
 	}
 	
 	public void broadcastFlush(final ByteChatMessage m) {

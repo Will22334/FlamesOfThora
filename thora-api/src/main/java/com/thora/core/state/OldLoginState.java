@@ -37,7 +37,8 @@ import com.thora.core.net.netty.NettyNetworkManager;
 
 import io.netty.util.concurrent.Future;
 
-public class LoginState extends GameState {
+@Deprecated
+public class OldLoginState extends GameState {
 
 	//Some Constants about the Login Window
 	private static final int MINIMUMLOGINWINDOWWIDTH = 300;
@@ -65,18 +66,18 @@ public class LoginState extends GameState {
 	protected String passwordEntry;
 	
 	//Constructor
-	public LoginState(FlamesOfThora client, String name, int id, String defaultAddress) {
+	public OldLoginState(FlamesOfThora client, String name, int id, String defaultAddress) {
 		super(client, name, id);
 		this.defaultAddress = defaultAddress;
 		this.addressField.setText(defaultAddress);
 	}
 	
-	public LoginState(FlamesOfThora client, String name, int id) {
+	public OldLoginState(FlamesOfThora client, String name, int id) {
 		this(client, name, id, FlamesOfThora.defaultAddress);
 	}
 	
 	//Debug Logger
-	private static final Logger logger =  LogManager.getLogger(MenuState.class);
+	private static final Logger logger =  LogManager.getLogger(OldMenuState.class);
 
 	@Override
 	public final Logger logger() {

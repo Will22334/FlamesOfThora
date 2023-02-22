@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -371,15 +372,14 @@ public final class Utils {
 		return sb.toString();
 	}
 	
-	public static final String getRenamedPackageClass(Class<?> c, String newClassName) {
+	public static final String getRenamedPackageClass(final Class<?> c, final String newClassName) {
+		Objects.requireNonNull(c, "Cannot convert packaged name for a null class!");
 		return c.getPackage().getName() + "." + newClassName;
 	}
 
-	public static final String simpleClassName(Object o) {
+	public static final String simpleClassName(final Object o) {
 		return o.getClass().getSimpleName();
 	}
-
-	private Utils() {}
 
 	public static IntStream reverseIntRange(final int from, final int to) {
 		return IntStream.iterate(to, i -> i - 1)
@@ -394,5 +394,7 @@ public final class Utils {
 	public static <T> Stream<T> reverseStream(final T[] arr) {
 		return reverseIntRange(arr, 0, arr.length);
 	}
-
+	
+	private Utils() {}
+	
 }

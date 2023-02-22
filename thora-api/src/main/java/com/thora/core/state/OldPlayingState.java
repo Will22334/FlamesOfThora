@@ -43,9 +43,10 @@ import com.thora.core.world.MoveRequestComponent;
 import com.thora.core.world.WeakVectorLocation;
 import com.thora.core.world.WorldRenderer;
 
-public class PlayingState extends GameState implements HasLogger {
+@Deprecated
+public class OldPlayingState extends GameState implements HasLogger {
 	
-	private static final Logger logger =  LogManager.getLogger(PlayingState.class);
+	private static final Logger logger =  LogManager.getLogger(OldPlayingState.class);
 	
 	public static final double WALK_SPEED_TPS = 10f;
 	public static final long WALK_TILE_DURATION = (long) (1000 / WALK_SPEED_TPS);
@@ -93,7 +94,7 @@ public class PlayingState extends GameState implements HasLogger {
 	private final InputHandler in = new InputHandler();
 	private final InputListener inputListener = new InputListener(in);
 	
-	public PlayingState(FlamesOfThora client, String name, int id) {
+	public OldPlayingState(FlamesOfThora client, String name, int id) {
 		super(client, name, id);
 	}
 	

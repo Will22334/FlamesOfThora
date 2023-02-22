@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.thora.core.chat.CommandCaller;
 import com.thora.core.world.Locatable;
+import com.thora.core.world.Location;
 import com.thora.server.command.Command;
 import com.thora.server.command.CommandManager;
 
@@ -21,8 +22,9 @@ public class CommandPosition extends Command {
 	protected boolean execute(final CommandManager manager, final CommandCaller caller, final String text, final String cmd,
 			final List<String> args) {
 		if(caller instanceof Locatable) {
-			final Locatable l = ((Locatable) caller).getLocation();
-			caller.sendMessage(String.format("Position: %s = %s", caller.getName(), l.getLocation()));
+			final Locatable l = ((Locatable) caller);
+			final Location pos = l.getLocation();
+			caller.sendMessage(String.format("Position: %s = %s", caller.getName(), pos));
 			return true;
 		} else {
 			caller.sendErrorMessage("You are located " + "NOWHERE!");

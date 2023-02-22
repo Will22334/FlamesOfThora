@@ -1647,7 +1647,7 @@ public class EncodingUtils {
 		return writeVarIntString(s, DEFAULT_CHARSET, buf);
 	}
 	
-	public static final ByteBuf writenNullableVarString(final String s, final ByteBuf buf) {
+	public static final ByteBuf writeNullableVarString(final String s, final ByteBuf buf) {
 		if(s == null) {
 			return writePosVarInt(0, buf);
 		}

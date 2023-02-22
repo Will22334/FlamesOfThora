@@ -68,10 +68,18 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 		addHandler(new StateChangeMessageConsumer());
 	}
 	
+	protected abstract class SessionMessageConsumer<P extends ThoraMessage> extends MessageConsumer<P> {
+		protected abstract void doConsume(final ChannelHandlerContext ctx, final PlayerSession session, final P message);
+		@Override
+		public final void consume(final ChannelHandlerContext ctx, final P message) {
+			doConsume(ctx, PlayerSession.get(ctx), message);
+		}
+	}
+	
 	public class LoginResponseConsumer extends MessageConsumer<LoginResponseMessage> {
 		
 		@Override
-		public void consume(ChannelHandlerContext ctx, LoginResponseMessage message) {
+		public void consume(final ChannelHandlerContext ctx, final LoginResponseMessage message) {
 			LoginTransaction t = getManager().loginTransaction;
 			t.response = message;
 			getManager().loginPromise.setSuccess(t);
@@ -128,7 +136,7 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 	public class CameraPointMessageConsumer extends MessageConsumer<CameraPointMessage> {
 		@Override
 		public void consume(ChannelHandlerContext ctx, CameraPointMessage message) {
-			logger().debug("Camera focused on {}", message.getFocus());
+			logger().debug("Camera focused on position = {}", message.getFocus());
 			client().setFocus(message.getFocus());
 		}
 	}
@@ -136,7 +144,7 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 	public class CameraEntityMessageConsumer extends MessageConsumer<CameraEntityMessage> {
 		@Override
 		public void consume(ChannelHandlerContext ctx, CameraEntityMessage message) {
-			logger().debug("Camera focused on {}", message.getFocus());
+			logger().debug("Camera focused on entity = {}", message.getFocus());
 			client().setFocus(message.getFocus());
 		}
 	}

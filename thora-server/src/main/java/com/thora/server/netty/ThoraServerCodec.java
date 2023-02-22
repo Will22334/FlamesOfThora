@@ -112,7 +112,7 @@ public class ThoraServerCodec extends ThoraCodec {
 		@Override
 		public void encodePlain(ChannelHandlerContext ctx, ChatMessage packet, ByteBuf buf) {
 			ThoraCodec.writeInstantUTC(packet.getTime(), buf);
-			EncodingUtils.writenNullableVarString(packet.getSenderName(), buf);
+			EncodingUtils.writeNullableVarString(packet.getSenderName(), buf);
 			EncodingUtils.writeString(packet.getContent(), buf);
 		}
 	}
@@ -237,7 +237,7 @@ public class ThoraServerCodec extends ThoraCodec {
 		private final void encodeEntityCreate(final int id, final WorldEntity e, final ByteBuf buf) {
 			encodeEntityLocHeader(e, buf);
 			buf.writeByte(e.getEntityType().ordinal());
-			EncodingUtils.writenNullableVarString(e.getName(), buf);
+			EncodingUtils.writeNullableVarString(e.getName(), buf);
 		}
 		
 		private final void encodeEntityUpdate(final int id, final WorldEntity e, final ByteBuf buf) {

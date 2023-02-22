@@ -22,8 +22,8 @@ repositories {
 def version_log4j = '2.19.0'
 
 dependencies {
-    // Use JUnit Jupiter for testing.
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+	
+	api project(':thora-api')
     
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: version_log4j
 
@@ -36,8 +36,10 @@ dependencies {
     api "com.badlogicgames.ashley:ashley:1.7.4"
     
     api group: 'io.netty', name: 'netty-all', version: '4.1.79.Final'
-	
-	api project(':thora-api')
+    
+    
+    // Use JUnit Jupiter for testing.
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
     
 }
 

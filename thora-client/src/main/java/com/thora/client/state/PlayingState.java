@@ -49,7 +49,7 @@ import com.thora.client.input.Key;
 import com.thora.client.screen.ChatFormatter;
 import com.thora.client.system.MoveSystem;
 import com.thora.client.system.MoveValidationSystem;
-import com.thora.client.world.WorldRenderer;
+import com.thora.client.world.OldWorldRendererSystem;
 import com.thora.core.HasLogger;
 import com.thora.core.entity.EntityType;
 import com.thora.core.entity.PlayerComponent;
@@ -80,7 +80,7 @@ public class PlayingState extends GameState implements HasLogger {
 	private static final Key KEY_RIGHT = new Key(Keys.RIGHT);
 	private static final Key KEY_G = new Key(Keys.G);
 	
-	private WorldRenderer worldRenderer;
+	private OldWorldRendererSystem worldRenderer;
 	
 	private float delta;
 	private float lastGridToggleTime;
@@ -93,7 +93,7 @@ public class PlayingState extends GameState implements HasLogger {
 	private SpriteBatch entityBatch;
 	private ShapeRenderer shapeRend;
 	
-	private BitmapFont font;
+	public BitmapFont font;
 	Texture playerImg;
 	Texture playerImgBack;
 	
@@ -110,7 +110,7 @@ public class PlayingState extends GameState implements HasLogger {
 	 */
 	private Dimension appSize;
 	
-	private Skin skin = new Skin(Gdx.files.internal("assets/skin/uiskin.json"));
+	public Skin skin = new Skin(Gdx.files.internal("assets/skin/uiskin.json"));
 	
 	protected InputMultiplexer inputMultiplex;
 	protected Stage uiStage;
@@ -277,7 +277,7 @@ public class PlayingState extends GameState implements HasLogger {
 			@Override
 			public boolean handle(Event event) {
 				if(event instanceof InputEvent) {
-					InputEvent e = (InputEvent) event;
+					final InputEvent e = (InputEvent) event;
 					if(e.getType() == Type.keyTyped) {
 						char c = e.getCharacter();
 						if(c == '\r') {
@@ -454,7 +454,7 @@ public class PlayingState extends GameState implements HasLogger {
 		worldCamera.position.set(spawn.getX(), spawn.getY(), 0);
 		
 		
-		worldRenderer = new WorldRenderer(client(), worldBatch, client().world(), worldCamera, player.getComponent(LocationComponent.class),
+		worldRenderer = new OldWorldRendererSystem(client(), worldBatch, client().world(), worldCamera, player.getComponent(LocationComponent.class),
 				resizeSignal, 100);
 		
 		engine().addSystem(worldRenderer);

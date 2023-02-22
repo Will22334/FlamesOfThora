@@ -34,7 +34,7 @@
 			<AppenderRef ref="FILE" level="trace" />
 		</Logger>
 		<Root level="info">
-			<AppenderRef ref="STDOUT" level="info" />
+			<AppenderRef ref="STDOUT" level="info" additivity="false"/>
 			<AppenderRef ref="FILE" level="info" />
 		</Root>
 	</Loggers>

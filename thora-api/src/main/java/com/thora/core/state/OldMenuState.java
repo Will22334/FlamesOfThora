@@ -11,9 +11,10 @@ import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
 import com.thora.core.input.Key;
 
-public class MenuState extends GameState {
+@Deprecated
+public class OldMenuState extends GameState {
 	
-	private static final Logger logger =  LogManager.getLogger(MenuState.class);
+	private static final Logger logger =  LogManager.getLogger(OldMenuState.class);
 	
 	@Override
 	public final Logger logger() {
@@ -23,7 +24,7 @@ public class MenuState extends GameState {
 	InputHandler handler = new InputHandler();
 	InputListener inputListener = new InputListener(handler);
 	
-	public MenuState(FlamesOfThora client, String name, int id) {
+	public OldMenuState(FlamesOfThora client, String name, int id) {
 		super(client, name, id);
 		
 	}

@@ -70,14 +70,14 @@ public class NettyNetworkManager {
 	protected Promise<LoginTransaction> loginPromise;
 	protected LoginTransaction loginTransaction;
 	
-	public NettyNetworkManager(int workerIOThreads, PublicKey serverIdentity, Cipher publicEncCipher) {
+	public NettyNetworkManager(final int workerIOThreads, final PublicKey serverIdentity, final Cipher publicEncCipher) {
 		super();
 		this.serverIdentity = serverIdentity;
 		this.publicEncCipher = publicEncCipher;
 		this.workerIOThreads = workerIOThreads;
 	}
 	
-	public NettyNetworkManager(int workerIOThreads, PublicKey serverIdentity) {
+	public NettyNetworkManager(final int workerIOThreads, final PublicKey serverIdentity) {
 		this(workerIOThreads, serverIdentity, EncodingUtils.generateCipher(serverIdentity));
 	}
 	

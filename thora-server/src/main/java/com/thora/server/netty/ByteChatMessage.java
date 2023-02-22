@@ -76,7 +76,7 @@ public class ByteChatMessage extends ChatMessage implements PreEncodedMessage {
 		
 		try {
 			ThoraCodec.writeInstantUTC(getTime(), buffer);
-			EncodingUtils.writenNullableVarString(getSenderName(), buffer);
+			EncodingUtils.writeNullableVarString(getSenderName(), buffer);
 			final String s = getContent();
 			EncodingUtils.writeString(s, buffer);
 		} catch (Throwable t) {

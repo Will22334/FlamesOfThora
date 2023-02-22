@@ -29,7 +29,7 @@ import com.thora.client.state.LoginState;
 import com.thora.client.state.MenuState;
 import com.thora.client.state.PlayingState;
 import com.thora.client.state.StateManager;
-import com.thora.client.world.WorldRenderer;
+import com.thora.client.world.OldWorldRendererSystem;
 import com.thora.core.HasLogger;
 import com.thora.core.Utils;
 import com.thora.core.net.message.ChatMessage;
@@ -114,7 +114,7 @@ public class FlamesOfThoraClient implements ApplicationListener, HasLogger {
 			this.world.dispose();
 		}
 		this.world = world;
-		final WorldRenderer r = engine().getSystem(WorldRenderer.class);
+		final OldWorldRendererSystem r = engine().getSystem(OldWorldRendererSystem.class);
 		if(r != null) {
 			r.world = world;
 		}

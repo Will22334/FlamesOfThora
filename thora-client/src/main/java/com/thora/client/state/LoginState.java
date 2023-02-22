@@ -34,7 +34,6 @@ import com.thora.core.input.InputHandler;
 import com.thora.core.input.InputListener;
 import com.thora.core.net.LoginTransaction;
 import com.thora.core.net.netty.EncodingUtils;
-import com.thora.core.net.netty.NettyNetworkManager;
 
 import io.netty.util.concurrent.Future;
 
@@ -266,16 +265,15 @@ public class LoginState extends GameState {
 			loginbutton.addListener(new ChangeListener() {
 				@Override
 				public void changed (ChangeEvent event, Actor actor) {
-					System.out.println("Logging in! : " + loginbutton.isChecked());
 					
 					usernameEntry = usernameField.getText();
 					passwordEntry = passwordField.getText();
-
-					logger.debug(usernameEntry + ", " + passwordEntry + " has been entered");
 					
-					NettyNetworkManager net = new NettyNetworkManager(1, client().getServerIdentity());
+					logger().debug("Attempting to log in as {}", usernameEntry);
 					
-					InetSocketAddress address = getAddress();
+					//NettyNetworkManager net = new NettyNetworkManager(1, client().getServerIdentity());
+					
+					final InetSocketAddress address = getAddress();
 					
 					setResponseText("Connecting to " + address);
 					

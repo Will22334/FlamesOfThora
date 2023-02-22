@@ -1,10 +1,11 @@
 package com.thora.core.net.message;
 
 import com.thora.core.world.Locatable;
+import com.thora.core.world.Location;
 
 public class CameraPointMessage extends CameraMessage {
 	
-	private final Locatable focus;
+	private final Location focus;
 	
 	public CameraPointMessage(final Locatable focus, final double scale) {
 		super(scale);
@@ -12,7 +13,7 @@ public class CameraPointMessage extends CameraMessage {
 	}
 	
 	@Override
-	public Locatable getFocus() {
+	public Location getFocus() {
 		return focus;
 	}
 	

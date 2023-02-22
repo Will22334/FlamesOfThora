@@ -43,12 +43,16 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 		return server;
 	}
 	
+	
+	
 	@Override
 	protected void populate() {
 		this.addHandler(new LoginRequestHandler());
 		this.addHandler(new ChatMessageHandler());
 		this.addHandler(new EntityMoveRequestMessageHandler());
 	}
+	
+	
 	
 	private final class LoginRequestHandler extends MessageConsumer<LoginRequestMessage> {
 		@Override
@@ -120,7 +124,7 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 				
 				//CHAT
 				
-				logger().info("{}: {}", player.getName(), packet.getContent());
+				//logger().info("{}: {}", player.getName(), packet.getContent());
 				
 				//chatLogger().info("{}:  {}", packet.getSenderName(), packet.getContent());
 				final ServerHashChunkWorld w = (ServerHashChunkWorld) player.world();
@@ -130,18 +134,15 @@ public class ThoraPacketHandler extends PodHandler<ThoraMessage> {
 		}
 	}
 	
-	private final class EntityMoveRequestMessageHandler extends MessageConsumer<EntityMoveRequestMessage> {
-		
+	private final class EntityMoveRequestMessageHandler extends SessionMessageConsumer<EntityMoveRequestMessage,ClientSession> {
 		@Override
-		public void consume(ChannelHandlerContext ctx, EntityMoveRequestMessage message) {
-			final ClientSession session = ClientSession.get(ctx);
+		public void consume(final ChannelHandlerContext ctx, final ClientSession session, final EntityMoveRequestMessage packet) {
 			final ServerPlayer player = session.getPlayer();
 			final PlayerEntity entity = player.getEntity();
 			
-			logger().trace("Handling MoveRequest from {} to {} for {}", message.getFrom(), message.getTo(), message.getEntity());
-			entity.world().moveEntity(entity, message.getTo());
+			//logger().trace("Handling MoveRequest from {} to {} for {} | {}", packet.getFrom(), packet.getTo(), packet.getEntity(), player);
+			entity.world().moveEntity(entity, packet.getTo());
 		}
-		
 	}
 	
 }

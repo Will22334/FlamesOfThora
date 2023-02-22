@@ -18,10 +18,6 @@ import com.badlogic.gdx.Gdx;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.NettyNetworkManager;
 import com.thora.core.state.GameState;
-import com.thora.core.state.LoadingState;
-import com.thora.core.state.LoginState;
-import com.thora.core.state.MenuState;
-import com.thora.core.state.PlayingState;
 import com.thora.core.state.StateManager;
 import com.thora.core.world.AbstractWorld;
 import com.thora.core.world.ClientHashChunkWorld;
@@ -72,6 +68,10 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 		return engine;
 	}
 	
+	/**
+	 * Use Client project network(), not old core
+	 */
+	@Deprecated
 	public NettyNetworkManager network() {
 		return network;
 	}
@@ -82,10 +82,10 @@ public class FlamesOfThora implements ApplicationListener, HasLogger {
 	
 	//Initiate the States
 	public void initializeStates() {
-		States.addStateToList(new MenuState(this, "Menu State", MENUSTATEID));
-		States.addStateToList(new LoginState(this, "Login State", LOGINSTATEID));
-		States.addStateToList(new PlayingState(this, "Playing State", PLAYINGSTATEID));
-		States.addStateToList(new LoadingState(this, "Loading State", LOADINGSTATEID));
+		//States.addStateToList(new OldMenuState(this, "Menu State", MENUSTATEID));
+		//States.addStateToList(new OldLoginState(this, "Login State", LOGINSTATEID));
+		//States.addStateToList(new OldPlayingState(this, "Playing State", PLAYINGSTATEID));
+		//States.addStateToList(new OldLoadingState(this, "Loading State", LOADINGSTATEID));
 		
 	}
 	

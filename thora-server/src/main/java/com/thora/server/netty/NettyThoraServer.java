@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.badlogic.ashley.core.PooledEngine;
+import com.thora.core.Utils;
 import com.thora.core.net.NetworkSession;
 import com.thora.core.net.netty.EncodingUtils;
 import com.thora.core.net.netty.ThoraCodec;
@@ -28,6 +29,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.DefaultEventLoop;
+import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
@@ -45,7 +47,7 @@ import io.netty.util.concurrent.PromiseCombiner;
 
 public class NettyThoraServer extends ThoraServer {
 	
-	private static final Logger networkLogger = LogManager.getLogger(NettyThoraServer.class.getPackage().getName() + ".Network");
+	private static final Logger networkLogger = LogManager.getLogger(Utils.getRenamedPackageClass(NettyThoraServer.class, "Network"));
 	
 	private final PooledEngine engine;
 	private final ServerHashChunkWorld world;
@@ -59,8 +61,8 @@ public class NettyThoraServer extends ThoraServer {
 	
 	private final Map<InetSocketAddress,ClientSession> sessions = new ConcurrentHashMap<>();
 	
-	public NettyThoraServer(KeyPair identity, int sideThreads, int bossIOThreads, int workerIOThreads,
-			ServerHashChunkWorld world) {
+	public NettyThoraServer(final KeyPair identity, final int sideThreads, final int bossIOThreads, final int workerIOThreads,
+			final ServerHashChunkWorld world) {
 		super(identity);
 		this.bossIOThreads = bossIOThreads;
 		this.workerIOThreads = workerIOThreads;
@@ -126,7 +128,7 @@ public class NettyThoraServer extends ThoraServer {
 		return getStatus() == Status.OFF;
 	}
 	
-	protected ChannelFuture bind(InetSocketAddress address) {
+	protected ChannelFuture bind(final InetSocketAddress address) {
 		this.status = Status.STARTING;
 		
 		try {
@@ -141,23 +143,25 @@ public class NettyThoraServer extends ThoraServer {
 			.childOption(ChannelOption.SO_KEEPALIVE, true)
 			.childHandler(channelInit);
 			
+			final ChannelFuture bindFuture = bootstrap.bind(address);
+			
 			// Bind and start to accept incoming connections.
-			return bootstrap.bind(address)
-					.addListener((ChannelFuture f) -> {
-						if(f.isSuccess()) {
-							listenChannel = (ServerSocketChannel) f.channel();
-							netLogger().info("Bound to {}", listenChannel.localAddress());
-							status = Status.ON;
-						} else {
-							status = Status.STOPPING;
-							netLogger().warn("Failed to bind to {}, shutting down!", address);
-							bossGroup.shutdownGracefully();
-							childGroup.shutdownGracefully();
-							this.status = Status.OFF;
-						}
-					});
+			return bindFuture.addListener((ChannelFuture f) -> {
+				if(f.isSuccess()) {
+					listenChannel = (ServerSocketChannel) f.channel();
+					netLogger().info("Bound to {}", listenChannel.localAddress());
+					status = Status.ON;
+				} else {
+					status = Status.STOPPING;
+					netLogger().warn("Failed to bind to {}, shutting down!", address);
+					bossGroup.shutdownGracefully();
+					childGroup.shutdownGracefully();
+					this.status = Status.OFF;
+				}
+			});
 			
 		} catch(Throwable t) {
+			status = Status.STOPPING;
 			netLogger().atWarn().withThrowable(t).log("Issue while creating and binding bootstrap");
 			shutdownAndWaitGroups();
 			status = Status.OFF;

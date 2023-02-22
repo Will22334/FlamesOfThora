@@ -21,9 +21,10 @@ import com.thora.core.net.LoginTransaction;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
 
-public class LoadingState extends GameState implements HasLogger {
+@Deprecated
+public class OldLoadingState extends GameState implements HasLogger {
 	
-	private static final Logger logger = LogManager.getLogger(LoadingState.class);
+	private static final Logger logger = LogManager.getLogger(OldLoadingState.class);
 	
 	InputHandler inputHandler = new InputHandler();
 	InputListener inputListener = new InputListener(inputHandler);
@@ -50,7 +51,7 @@ public class LoadingState extends GameState implements HasLogger {
 		return logger;
 	}
 	
-	public LoadingState(FlamesOfThora client, String name, int id) {
+	public OldLoadingState(FlamesOfThora client, String name, int id) {
 		super(client, name, id);
 		
 		//Set the Input Processor to the Listener
@@ -153,12 +154,13 @@ public class LoadingState extends GameState implements HasLogger {
 	
 	@Override
 	public void enter() {
+		logger().warn("Using deprecated Core/Client State: {}", getClass().getName());
 		bindFuture = client().network().connect(serverAddress);
 		loginFuture = client().network().attachLoginListener(bindFuture, "user", "pwd")
 				.addListener((Future<LoginTransaction> f) -> {
 					if(f.isSuccess()) {
 						final LoginTransaction loginTransaction = f.get();
-						logger().trace("Login Request for user {} === {}", loginTransaction.request.username, loginTransaction.response);
+						logger().debug("Login Request for user {} === {}", loginTransaction.request.username, loginTransaction.response);
 						//this.setFinished(true);
 					} else {
 						logger().atWarn().withThrowable(f.cause()).log("Could not login due to exception!");

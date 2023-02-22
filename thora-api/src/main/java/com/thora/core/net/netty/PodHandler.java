@@ -99,7 +99,7 @@ public abstract class PodHandler<M> extends SimpleChannelInboundHandler<M> {
 		public abstract void consume(final ChannelHandlerContext ctx, final P message);
 		
 		@SuppressWarnings("unchecked")
-		private Class<P> findmessageClass(final int index) {
+		private final Class<P> findmessageClass(final int index) {
 			return (Class<P>) ((ParameterizedType) getClass().getGenericSuperclass())
 					.getActualTypeArguments()[index];
 		}
@@ -118,7 +118,7 @@ public abstract class PodHandler<M> extends SimpleChannelInboundHandler<M> {
 		}
 		
 		@Override
-		public final void consume(ChannelHandlerContext ctx, P message) {
+		public final void consume(final ChannelHandlerContext ctx, final P message) {
 			consume(ctx, NetworkSession.findSession(ctx), message);
 		}
 		
