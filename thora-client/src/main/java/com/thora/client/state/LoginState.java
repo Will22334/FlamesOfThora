@@ -29,9 +29,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.thora.client.FlamesOfThoraClient;
+import com.thora.client.input.InputHandler;
+import com.thora.client.input.InputListener;
 import com.thora.core.FlamesOfThora;
-import com.thora.core.input.InputHandler;
-import com.thora.core.input.InputListener;
 import com.thora.core.net.LoginTransaction;
 import com.thora.core.net.netty.EncodingUtils;
 

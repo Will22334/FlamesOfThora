@@ -57,9 +57,9 @@ dependencies {
     
     api "com.badlogicgames.ashley:ashley:1.7.4"
     
-    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:1.9.3"
+    //implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:1.9.3"
     
-    implementation "com.badlogicgames.gdx:gdx-platform:1.9.3:natives-desktop"
+    //implementation "com.badlogicgames.gdx:gdx-platform:1.9.3:natives-desktop"
     
     api group: 'io.netty', name: 'netty-all', version: '4.1.79.Final'
     

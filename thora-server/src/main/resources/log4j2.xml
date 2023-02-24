@@ -6,8 +6,7 @@
 	</Properties>
 	<Appenders>
 		<!-- File Appender -->
-		<File name="FILE" fileName="${basePath}/server.log"
-			append="false">
+		<File name="FILE" fileName="${basePath}/server.log" append="false">
 			<PatternLayout>
 				<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5p][%-4c{1}] %m%n</Pattern>
 			</PatternLayout>
@@ -34,7 +33,7 @@
 			<AppenderRef ref="FILE" level="trace" />
 		</Logger>
 		<Root level="info">
-			<AppenderRef ref="STDOUT" level="info" additivity="false"/>
+			<AppenderRef ref="STDOUT" level="info"/>
 			<AppenderRef ref="FILE" level="info" />
 		</Root>
 	</Loggers>

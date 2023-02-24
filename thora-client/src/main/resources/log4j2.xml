@@ -6,9 +6,7 @@
     <Appenders>
         <!-- File Appender -->
 		<File name="LOG_FILE" fileName="${basePath}/client.log" append="false">
-			<PatternLayout>
-				<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5p][%-7c{1}] %m%n</Pattern>
-			</PatternLayout>
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5p][%-5c{1}] %m%n" />
 		</File>
         <!-- Console Appender -->
         <Console name="STDOUT" target="SYSTEM_OUT">

@@ -17,7 +17,7 @@ import io.netty.buffer.ByteBuf;
 
 public abstract class ThoraCodec extends PodCodec<ThoraMessage> {
 	
-	public static final int MAX_FRAME_SIZE = 5_000;
+	public static final int MAX_FRAME_SIZE = 10 * 1024;
 	
 	public static final int OPCODE_SERVER_LOGIN_REQUEST = 0;
 	

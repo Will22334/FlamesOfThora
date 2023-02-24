@@ -69,10 +69,10 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 	}
 	
 	protected abstract class SessionMessageConsumer<P extends ThoraMessage> extends MessageConsumer<P> {
-		protected abstract void doConsume(final ChannelHandlerContext ctx, final PlayerSession session, final P message);
+		protected abstract void consume(final ChannelHandlerContext ctx, final PlayerSession session, final P message);
 		@Override
 		public final void consume(final ChannelHandlerContext ctx, final P message) {
-			doConsume(ctx, PlayerSession.get(ctx), message);
+			consume(ctx, PlayerSession.get(ctx), message);
 		}
 	}
 	
@@ -87,11 +87,9 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 		
 	}
 	
-	public class ChatMessageConsumer extends MessageConsumer<ChatMessage> {
+	public class ChatMessageConsumer extends SessionMessageConsumer<ChatMessage> {
 		@Override
-		public void consume(final ChannelHandlerContext ctx, final ChatMessage message) {
-			PlayerSession session = PlayerSession.findSession(ctx);
-			
+		public void consume(final ChannelHandlerContext ctx, final PlayerSession session, final ChatMessage message) {
 			logger().info("Got Message \"{}\" from {}", message.content, session);
 			client().handleNewChatMessage(message);
 		}
@@ -106,10 +104,8 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 	}
 	
 	public class TileMessageConsumer extends MessageConsumer<BasicTileMessage> {
-		
 		@Override
-		public void consume(ChannelHandlerContext ctx, BasicTileMessage message) {
-			PlayerSession session = PlayerSession.findSession(ctx);
+		public void consume(final ChannelHandlerContext ctx, final BasicTileMessage message) {
 			if(message.isGroup()) {
 				final World world = client().world();
 				final Location bottomLeft = message.bottomLeft;
@@ -128,7 +124,6 @@ public class ThoraClientPacketHandler extends PodHandler<ThoraMessage> {
 			}
 			
 		}
-		
 	}
 	
 	

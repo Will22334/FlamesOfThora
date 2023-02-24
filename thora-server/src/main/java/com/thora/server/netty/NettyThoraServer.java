@@ -223,13 +223,13 @@ public class NettyThoraServer extends ThoraServer {
 		}
 	}
 	
-	protected final class DefaultFrameDecoder extends LengthFieldBasedFrameDecoder {
+	protected static final class DefaultFrameDecoder extends LengthFieldBasedFrameDecoder {
 		DefaultFrameDecoder() {
 			super(ThoraCodec.MAX_FRAME_SIZE, 0, 4, 0, 4);
 		}
 	}
 	
-	protected final class DefaultFrameEncoder extends LengthFieldPrepender {
+	protected static final class DefaultFrameEncoder extends LengthFieldPrepender {
 		DefaultFrameEncoder() {
 			super(4, false);
 		}
@@ -271,6 +271,8 @@ public class NettyThoraServer extends ThoraServer {
 	public static final String PIPELINE_CODEC = "CODEC";
 	public static final String PIPELINE_HANDLER = "HANDLER";
 	
+	private static final DefaultFrameEncoder FRAME_ENCODER = new DefaultFrameEncoder();
+	
 	private final ChannelInitializer<SocketChannel> channelInit = new DefaultChannelInitializer();
 	
 	private final class DefaultChannelInitializer extends ChannelInitializer<SocketChannel> {
@@ -297,8 +299,7 @@ public class NettyThoraServer extends ThoraServer {
 			
 			channel.pipeline()
 			.addLast(watcher)
-			.addLast(channel.eventLoop(), watcher)
-			.addLast(PIPELINE_FRAME_ENCODER, new DefaultFrameEncoder())
+			.addLast(PIPELINE_FRAME_ENCODER, FRAME_ENCODER)
 			.addLast(PIPELINE_FRAME_DECODER, new DefaultFrameDecoder())
 			.addLast(PIPELINE_CODEC, new ThoraServerCodec(NettyThoraServer.this, netLogger()))
 			.addLast(PIPELINE_HANDLER, new ThoraPacketHandler(NettyThoraServer.this, netLogger()))

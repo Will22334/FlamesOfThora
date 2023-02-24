@@ -22,8 +22,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.thora.client.FlamesOfThoraClient;
 import com.thora.client.entities.ClientPlayer;
-import com.thora.core.input.InputHandler;
-import com.thora.core.input.InputListener;
+import com.thora.client.input.InputHandler;
+import com.thora.client.input.InputListener;
 
 public class MenuState extends GameState {
 

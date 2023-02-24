@@ -10,13 +10,21 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.FlowMessage;
+import org.apache.logging.log4j.message.Message;
+import org.apache.logging.log4j.message.ReusableMessage;
+import org.apache.logging.log4j.message.ReusableParameterizedMessage;
+import org.apache.logging.log4j.util.MultiFormatStringBuilderFormattable;
+import org.apache.logging.log4j.util.StringBuilderFormattable;
 
 import com.thora.core.net.AsymmetricKeyCipher;
 import com.thora.core.net.NetworkSession;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 import io.netty.handler.codec.DecoderException;
@@ -106,6 +114,10 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 		}
 	}
 	
+	public static class NestedDecryptionDecoderException extends DecoderException {
+		
+	}
+	
 	public static void discard(final ByteBuf buf) {
 		buf.skipBytes(buf.readableBytes());
 	}
@@ -132,11 +144,11 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 		return (PodCodec<M>.MessageDecoder<P>) decoders.get(opcode);
 	}
 	
-	protected final <P extends M> boolean addDecoder(final MessageDecoder<P> decoder) {
+	protected <P extends M> boolean addDecoder(final MessageDecoder<P> decoder) {
 		return decoders.putIfAbsent(decoder.opcode(), decoder) == null;
 	}
 	
-	protected final MessageDecoder<? extends M> removeDecoder(final int opcode) {
+	protected MessageDecoder<? extends M> removeDecoder(final int opcode) {
 		return decoders.remove(opcode);
 	}
 	
@@ -263,7 +275,18 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 				plain.writeBytes(enc, length);
 				//EncodingUtils.decryptSame(plain, session.getCryptoCreds().decrypt());
 				EncodingUtils.decryptSameByteArrayBuf(plain, plain.readableBytes(), session.getCryptoCreds().decrypt());
-				return decodePlain(ctx, plain);
+				
+				final int startReadIndex = plain.readerIndex();
+				try {
+					return decodePlain(ctx, plain);
+				} catch(Throwable t) {
+					//Handle invalid binary encoding
+					int relativeIndex = plain.readerIndex() - startReadIndex;
+					logger().atLevel(Level.WARN).withThrowable(t).log(String.format("Encountered Exception while decoding %s\tfrom %s\tindex:%d=%s\tpayload:\n%s",
+							getMessageName(), ctx.channel(), relativeIndex, EncodingUtils.getPrettyHexTableIndex(relativeIndex),
+							ByteBufUtil.prettyHexDump(plain, startReadIndex, length)));
+					throw new DecoderException("Failed to decode plaintext payload!");
+				}
 				
 			} catch (IllegalBlockSizeException | BadPaddingException e) {
 				
@@ -294,7 +317,6 @@ public abstract class PodCodec<M> extends ByteToMessageCodec<M> {
 		public void encode(final ChannelHandlerContext ctx, final K packet, final ByteBuf buf) {
 			final NetworkSession session = getSession(ctx);
 			int initialRead = buf.readerIndex();
-			//EncodingUtils.writeUByte(opcode(), buf);
 			int payloadHeadIndex = buf.writerIndex();
 			buf.readerIndex(payloadHeadIndex);
 			encodePlain(ctx, packet, buf);

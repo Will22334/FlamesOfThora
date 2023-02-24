@@ -351,7 +351,7 @@ public class EncodingUtils {
 		return ByteBufUtil.hexDump(tempBuf);
 	}
 	
-	private static ByteBuf digestSame(ByteBuf buf, String algorithm) {
+	public static ByteBuf digestSame(ByteBuf buf, String algorithm) {
 		try {
 			MessageDigest md = MessageDigest.getInstance(algorithm);
 			int initialRead = buf.readerIndex();

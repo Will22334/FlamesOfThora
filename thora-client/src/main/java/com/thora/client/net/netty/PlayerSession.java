@@ -97,7 +97,6 @@ public class PlayerSession extends AbstractNettySession {
 		
 		ByteBuf buf = alloc().buffer();
 		try {
-			
 			buf.writeBytes(serverIdentity.getEncoded());
 			buf.writeLong(sessionID);
 			buf.writeLong(timeStamp);
@@ -106,7 +105,7 @@ public class PlayerSession extends AbstractNettySession {
 			byte[] keyData = new byte[buf.readableBytes()];
 			buf.readBytes(keyData);
 			
-			SecretKey secret = new SecretKeySpec(keyData, "AES");
+			SecretKey secret = new SecretKeySpec(keyData,"AES");
 			creds.symmetricKey = new AESKeyCipher(secret);
 		} catch(Exception e) {
 			logger().atWarn().withThrowable(e).log("Exception thrown while generating symmetric session cipher!");

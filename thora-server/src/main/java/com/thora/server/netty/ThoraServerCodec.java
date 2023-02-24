@@ -44,7 +44,7 @@ public class ThoraServerCodec extends ThoraCodec {
 	}
 	
 	@Override
-	protected ClientSession getSession(ChannelHandlerContext ctx) {
+	protected ClientSession getSession(final ChannelHandlerContext ctx) {
 		return ClientSession.get(ctx);
 	}
 	
@@ -133,11 +133,9 @@ public class ThoraServerCodec extends ThoraCodec {
 	}
 	
 	public class ChatMessageDecoder extends EncryptedPayloadMessageDecoder<ChatMessage> {
-
 		public ChatMessageDecoder() {
 			super(OPCODE_SERVER_CHAT_MESSAGE);
 		}
-
 		@Override
 		protected ChatMessage decodePlain(final ChannelHandlerContext ctx, final ByteBuf buf) {
 			final ClientSession session = ClientSession.get(ctx);
@@ -148,7 +146,6 @@ public class ThoraServerCodec extends ThoraCodec {
 			
 			return new ChatMessage(serverTime, session.getPlayer(), content);
 		}
-		
 	}
 	
 	public class WorldDefMessageEncoder extends MessageEncoder<WorldDefinitionMessage> {
